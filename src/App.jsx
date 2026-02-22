@@ -933,6 +933,7 @@ function PatientPortal({ setPage, dark, setDark, lang, setLang }) {
   const [showScanner,       setShowScanner]       = useState(false);
   const [showVaccines,      setShowVaccines]      = useState(false);
   const [showAppointments,  setShowAppointments]  = useState(false);
+  const [apiConnected,     setApiConnected]     = useState(null); // null=checking, true=ok, false=error
 
   const [meds, setMeds] = useState([
     { name:"Metformin",    dosage:"500mg", time:"8:00 AM",  status:"taken",    icon:"💊", frequency:"Twice daily",  purpose:"Diabetes management", refill:5 },
@@ -942,6 +943,13 @@ function PatientPortal({ setPage, dark, setDark, lang, setLang }) {
   ]);
   const [streak, setStreak] = useState(12);
   const knownAllergies = ["Penicillin","Sulfa","Codeine"];
+
+  // ── CHECK CONNECTION ──
+  useEffect(() => {
+    fetch("http://localhost:8000/")
+      .then(res => res.ok ? setApiConnected(true) : setApiConnected(false))
+      .catch(() => setApiConnected(false));
+  }, []);
 
   const takenCount    = meds.filter(m=>m.status==="taken").length;
   const adherencePct  = Math.round((takenCount/meds.length)*100);
@@ -1004,8 +1012,8 @@ function PatientPortal({ setPage, dark, setDark, lang, setLang }) {
           </select>
           {/* Dark mode */}
           <button onClick={()=>setDark(d=>!d)} style={{ padding:"7px 12px", borderRadius:9, background:C.surface, border:`1px solid ${C.border}`, cursor:"pointer", fontSize:16 }} title="Toggle dark mode">{dark?"☀️":"🌙"}</button>
-          <div style={{ width:8, height:8, borderRadius:"50%", background:"#22C55E", animation:"pulse 1.8s infinite" }}/>
-          <span style={{ fontSize:13, color:C.textMid }}>AI Active</span>
+          <div style={{ width:8, height:8, borderRadius:"50%", background: apiConnected ? "#22C55E" : apiConnected === false ? "#EF4444" : "#94A3B8", animation:"pulse 1.8s infinite" }}/>
+          <span style={{ fontSize:13, color:C.textMid }}>{apiConnected ? "API Connected" : apiConnected === false ? "API Offline" : "Checking API..."}</span>
           <div style={{ width:38, height:38, borderRadius:"50%", background:"linear-gradient(135deg,#4e65be,#8b64ce)", display:"flex", alignItems:"center", justifyContent:"center", color:"#fff", fontWeight:700, fontSize:16 }}>A</div>
         </div>
       </div>
