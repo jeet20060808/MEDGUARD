@@ -1,4 +1,13 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { initializeApp } from "firebase/app";
+import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, query, where, setDoc, getDoc } from "firebase/firestore";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "firebase/auth";
+import firebaseConfig from "./firebaseConfig";
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
 
 /* ═══════════════════════════════════════════════════════
    MedGuard AI — ClyHealth Blue Edition
@@ -505,55 +514,15 @@ function SymptomLoggerModal({ onClose, meds }) {
   const SYMPTOMS = ["Headache", "Dizziness", "Nausea", "Fatigue", "Vomiting", "Chest Pain", "Shortness of Breath", "Rash", "Dry Mouth", "Blurred Vision", "Muscle Pain", "Insomnia", "Anxiety", "Palpitations"];
   const [selected, setSelected] = useState([]), [severity, setSeverity] = useState(5), [result, setResult] = useState(null), [loading, setLoading] = useState(false);
   const toggle = s => setSelected(p => p.includes(s) ? p.filter(x => x !== s) : [...p, s]);
-  // const analyze = async () => {
-  //   if (!selected.length) return; setLoading(true);
-  //   try {
-  //     const res = await fetch("http://localhost:8001/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ system: "You are MedGuard AI. Analyze reported symptoms against patient medications. Be concise, use bullet points, end with whether to consult a doctor. Under 150 words.", messages: [{ role: "user", content: `Medications: ${meds.map(m => m.name).join(", ")}. Symptoms: ${selected.join(", ")}. Severity: ${severity}/10.` }] }) });
-  //     const data = await res.json();
-  //     if (!res.ok) throw new Error(data.detail || "Server error");
-  //     setResult(data.text || "Analysis complete.");
-  //   } catch (err) { setResult(`⚠️ ${err.message || "Could not connect to AI."}`); }
-  //   finally { setLoading(false); }
-  // };
   const analyze = async () => {
-    if (!selected.length) return;
-    setLoading(true);
-
+    if (!selected.length) return; setLoading(true);
     try {
-      // 1. Get the AI Analysis (Keep your existing system prompt)
-      const res = await fetch("http://localhost:8001/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          system: "You are MedGuard AI. Analyze reported symptoms against patient medications. Be concise, use bullet points, end with whether to consult a doctor. Under 150 words.",
-          messages: [{ role: "user", content: `Medications: ${meds.map(m => m.name).join(", ")}. Symptoms: ${selected.join(", ")}. Severity: ${severity}/10.` }]
-        })
-      });
+      const res = await fetch("http://localhost:8001/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ system: "You are MedGuard AI. Analyze reported symptoms against patient medications. Be concise, use bullet points, end with whether to consult a doctor. Under 150 words.", messages: [{ role: "user", content: `Medications: ${meds.map(m => m.name).join(", ")}. Symptoms: ${selected.join(", ")}. Severity: ${severity}/10.` }] }) });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || "Server error");
-
-      // 2. FAST DISPLAY: Show the result to the user immediately
       setResult(data.text || "Analysis complete.");
-
-      // 3. AUTOMATIC STORAGE: Store this in MongoDB Compass 'health_logs'
-      // This happens in the background so the user doesn't wait
-      fetch("http://localhost:8001/api/logs", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: user.email,
-          symptoms: selected,
-          severity: severity,
-          aiAnalysis: data.text,
-          timestamp: new Date().toISOString()
-        })
-      });
-
-    } catch (err) {
-      setResult(`⚠️ ${err.message || "Could not connect to AI."}`);
-    } finally {
-      setLoading(false);
-    }
+    } catch (err) { setResult(`⚠️ ${err.message || "Could not connect to AI."}`); }
+    finally { setLoading(false); }
   };
   return (
     <Modal onClose={onClose} wide>
@@ -695,71 +664,69 @@ function AuthPage({ onLogin, dark, setDark, onBack }) {
     if (Object.keys(e).length === 0) setStep(s => s + 1);
   };
 
-  // const handleSubmit = () => {
-  //   if (mode === "signup" && step < 3) { nextStep(); return; }
-  //   if (!validate()) return;
-  //   setLoading(true);
-  //   setTimeout(() => {
-  //     setLoading(false);
-  //     const fullName = `${form.firstName} ${form.lastName}`.trim() || form.email;
-  //     const initials = (`${form.firstName[0] || ""}${form.lastName[0] || ""}`).toUpperCase() || form.email[0].toUpperCase();
-  //     onLogin({ name: fullName, email: form.email, role: form.role || "patient", initials, bloodGroup: form.bloodGroup || "", phone: form.phone || "", dob: form.dob || "", conditions: form.conditions || "", allergies: form.allergies || "" });
-  //   }, 1400);
-  // };
-
   const handleSubmit = async () => {
     if (mode === "signup" && step < 3) { nextStep(); return; }
     if (!validate()) return;
     setLoading(true);
+    setErrors({});
 
     try {
       if (mode === "login") {
-        // 🔍 FETCH EXISTING USER
-        const res = await fetch(`http://localhost:8001/api/users/${form.email}`);
-        if (res.ok) {
-          const userData = await res.json();
-          onLogin(userData);
-        } else {
-          // If user not found, for this demo we'll show an error but allow a mock login
-          setErrors({ email: "Account not found in DB. Try Signing Up!" });
-          setLoading(false);
-          return;
-        }
-      } else {
-        // ✨ CREATE NEW USER
-        const fullName = `${form.firstName} ${form.lastName}`.trim() || form.email;
-        const initials = (`${form.firstName[0] || ""}${form.lastName[0] || ""}`).toUpperCase() || form.email[0].toUpperCase();
+        const userCredential = await signInWithEmailAndPassword(auth, form.email, form.password);
+        const fbUser = userCredential.user;
 
-        const userData = {
+        // Fetch additional user profile data from Firestore
+        const userSnap = await getDoc(doc(db, "users", fbUser.uid));
+        const profileData = userSnap.exists() ? userSnap.data() : {};
+
+        const initials = fbUser.displayName ? fbUser.displayName.split(" ").map(n => n[0]).join("").toUpperCase() : fbUser.email[0].toUpperCase();
+
+        onLogin({
+          name: fbUser.displayName || fbUser.email,
+          email: fbUser.email,
+          role: profileData.role || "patient",
+          initials: initials,
+          uid: fbUser.uid,
+          ...profileData
+        });
+      } else {
+        // Signup
+        const userCredential = await createUserWithEmailAndPassword(auth, form.email, form.password);
+        const fbUser = userCredential.user;
+
+        const fullName = `${form.firstName} ${form.lastName}`.trim();
+        await updateProfile(fbUser, { displayName: fullName });
+
+        const initials = (`${form.firstName[0] || ""}${form.lastName[0] || ""}`).toUpperCase() || fbUser.email[0].toUpperCase();
+
+        // Store extra user metadata in Firestore
+        const userDoc = {
           name: fullName,
           email: form.email,
-          role: form.role || "patient",
-          initials,
-          bloodGroup: form.bloodGroup || "",
-          phone: form.phone || "",
-          dob: form.dob || "",
-          conditions: form.conditions || "",
-          allergies: form.allergies || ""
+          role: form.role,
+          phone: form.phone,
+          dob: form.dob,
+          bloodGroup: form.bloodGroup,
+          conditions: form.conditions,
+          allergies: form.allergies,
+          createdAt: new Date().toISOString()
         };
 
-        const res = await fetch("http://localhost:8001/api/users", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(userData)
-        });
+        await setDoc(doc(db, "users", fbUser.uid), userDoc);
 
-        if (res.ok) {
-          onLogin(userData);
-        } else {
-          throw new Error("Failed to create user");
-        }
+        onLogin({
+          ...userDoc,
+          initials,
+          uid: fbUser.uid
+        });
       }
     } catch (err) {
-      console.error("Backend error:", err);
-      // Fallback for demo purposes if backend is down
-      const fullName = `${form.firstName} ${form.lastName}`.trim() || form.email;
-      const initials = (`${form.firstName[0] || ""}${form.lastName[0] || ""}`).toUpperCase() || form.email[0].toUpperCase();
-      onLogin({ name: fullName || "Demo User", email: form.email, role: form.role || "patient", initials });
+      console.error("Auth Error:", err);
+      let msg = "Authentication failed. Please check your credentials.";
+      if (err.code === "auth/user-not-found") msg = "No user found with this email.";
+      if (err.code === "auth/wrong-password") msg = "Incorrect password.";
+      if (err.code === "auth/email-already-in-use") msg = "Email already in use.";
+      setErrors({ auth: msg });
     } finally {
       setLoading(false);
     }
@@ -846,6 +813,7 @@ function AuthPage({ onLogin, dark, setDark, onBack }) {
                 {errors.password && <div style={{ fontSize: 11, color: "#ef4444", marginTop: 3 }}>⚠ {errors.password}</div>}
               </div>
               <div style={{ textAlign: "right", marginBottom: 20 }}><span style={{ fontSize: 13, color: accent, fontWeight: 600, cursor: "pointer" }}>Forgot password?</span></div>
+              {errors.auth && <div style={{ background: "rgba(239,68,68,0.1)", color: "#ef4444", padding: "10px", borderRadius: 10, fontSize: 13, marginBottom: 16, border: "1px solid rgba(239,68,68,0.2)" }}>⚠ {errors.auth}</div>}
               <button onClick={handleSubmit} disabled={loading} style={{ width: "100%", padding: "14px", borderRadius: 12, background: loading ? C.border : `linear-gradient(135deg,${accent},${dark ? "#2196f3" : "#4fc3f7"})`, color: "#fff", fontWeight: 700, fontSize: 15, border: "none", transition: "all .2s", marginBottom: 18, cursor: "pointer", boxShadow: `0 6px 20px ${accent}40` }}>
                 {loading ? "⏳ Signing In…" : "Sign In →"}
               </button>
@@ -1357,103 +1325,64 @@ function PatientPortal({ setPage, dark, setDark, lang, setLang, user, onLogout }
   const [showInteraction, setShowInteraction] = useState(false);
   const [showSOS, setShowSOS] = useState(false);
   const [showSymptoms, setShowSymptoms] = useState(false);
-
-  // ── USER-DRIVEN STATE ──
   const [meds, setMeds] = useState([]);
-  const [streak, setStreak] = useState(user?.streak || 0);
+  const [streak, setStreak] = useState(0);
 
+  // ── FIREBASE DATA FETCHING ──
   useEffect(() => {
-    const fetchMeds = async () => {
-      if (user && user.email) {
+    if (user && user.email) {
+      const fetchMeds = async () => {
         try {
-          const res = await fetch(`http://localhost:8001/api/medications/${user.email}`);
-          if (res.ok) {
-            const data = await res.json();
-            setMeds(data);
-          } else {
-            // Fallback to localStorage if backend fails
-            const savedMeds = localStorage.getItem(`meds_${user.email}`);
-            if (savedMeds) setMeds(JSON.parse(savedMeds));
-          }
+          const q = query(collection(db, "medications"), where("userEmail", "==", user.email));
+          const querySnapshot = await getDocs(q);
+          const medsList = querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+          setMeds(medsList);
         } catch (err) {
-          console.error("Failed to fetch meds:", err);
+          console.error("Error fetching meds from Firebase:", err);
+          // Fallback to local storage if Firebase fails
           const savedMeds = localStorage.getItem(`meds_${user.email}`);
           if (savedMeds) setMeds(JSON.parse(savedMeds));
         }
-
-        const savedStreak = user?.streak || localStorage.getItem(`streak_${user.email}`);
-        if (savedStreak) setStreak(parseInt(savedStreak));
-      }
-    };
-    fetchMeds();
-  }, [user]);
-
-  useEffect(() => {
-    if (user && user.email) {
-      localStorage.setItem(`meds_${user.email}`, JSON.stringify(meds));
-      localStorage.setItem(`streak_${user.email}`, streak.toString());
+      };
+      fetchMeds();
     }
-  }, [meds, streak, user]);
+  }, [user]);
 
   const knownAllergies = (user?.allergies || "").split(",").map(a => a.trim()).filter(Boolean);
   const takenCount = meds.filter(m => m.status === "taken").length;
 
   // ── DYNAMIC CALCULATIONS ──
   const adherencePct = meds.length === 0 ? 0 : Math.round((takenCount / meds.length) * 100);
-  // Health Score now starts at 0 and grows based on user activity
   const healthScore = meds.length === 0 ? 0 : Math.min(100, Math.round(adherencePct * .5 + streak * 2 + 10));
   const refillAlerts = meds.filter(m => m.refill <= 7);
 
   const markTaken = async (idx) => {
     if (meds[idx].status === "taken") return;
-    const med = meds[idx];
-    const newMeds = [...meds];
-    newMeds[idx] = { ...med, status: "taken" };
-    setMeds(newMeds);
+    const medToUpdate = meds[idx];
+    const newStatus = "taken";
 
-    // Increment streak if all current meds are taken
-    if (newMeds.every(m => m.status === "taken")) {
-      const newStreak = streak + 1;
-      setStreak(newStreak);
-      // Sync streak to backend
-      try {
-        fetch(`http://localhost:8001/api/users/${user.email}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ streak: newStreak })
-        });
-      } catch (err) {
-        console.error("Failed to sync streak:", err);
+    try {
+      if (medToUpdate.id) {
+        const medRef = doc(db, "medications", medToUpdate.id);
+        await updateDoc(medRef, { status: newStatus });
       }
-    }
 
-    show("💊", "Medication Taken!", `${med.name} marked as taken ✅`, "success");
+      const newMeds = meds.map((m, i) => i === idx ? { ...m, status: newStatus } : m);
+      setMeds(newMeds);
 
-    // Sync with backend if med has an ID
-    if (med.id) {
-      try {
-        await fetch(`http://localhost:8001/api/medications/${med.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: "taken" })
-        });
-      } catch (err) {
-        console.error("Failed to sync status:", err);
+      if (newMeds.every(m => m.status === "taken")) {
+        setStreak(prev => prev + 1);
       }
+      show("💊", "Medication Taken!", `${meds[idx].name} marked as taken ✅`, "success");
+    } catch (err) {
+      console.error("Error updating status in Firebase:", err);
+      show("❌", "Error", "Failed to update medication status", "error");
     }
   };
-
-  // const handleAddMed = async (form) => {
-  //   const timeStr = form.time ? new Date(`2000-01-01T${form.time}`).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "TBD";
-  //   const newMed = { name: form.name, dosage: form.dosage, time: timeStr, status: "upcoming", icon: "💊", frequency: form.frequency, purpose: form.purpose || "General", refill: 30 };
-  //   setMeds(p => [...p, newMed]);
-  //   show("➕", "Medication Added!", `${form.name} added.`, "info");
-  // };
 
   const handleAddMed = async (form) => {
     const timeStr = form.time ? new Date(`2000-01-01T${form.time}`).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "TBD";
     const newMed = {
-      userId: user.email,
       name: form.name,
       dosage: form.dosage,
       time: timeStr,
@@ -1461,28 +1390,17 @@ function PatientPortal({ setPage, dark, setDark, lang, setLang, user, onLogout }
       icon: "💊",
       frequency: form.frequency,
       purpose: form.purpose || "General",
-      refill: 30
+      refill: 30,
+      userEmail: user.email // Connect to user
     };
 
-    // 1. BACKGROUND SAVE: Send it to your MongoDB via your API
     try {
-      const res = await fetch('http://localhost:8001/api/medications', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newMed)
-      });
-      if (res.ok) {
-        const data = await res.json();
-        const medWithId = { ...newMed, id: data.id };
-        setMeds(prev => [...prev, medWithId]);
-        show("➕", "Medication Added!", `${form.name} added.`, "info");
-      } else {
-        throw new Error("Failed to save medication");
-      }
+      const docRef = await addDoc(collection(db, "medications"), newMed);
+      setMeds(p => [...p, { ...newMed, id: docRef.id }]);
+      show("➕", "Medication Added!", `${form.name} added.`, "info");
     } catch (err) {
-      console.error("Database sync failed, adding locally:", err);
-      setMeds(prev => [...prev, newMed]);
-      show("➕", "Medication Added (Local)!", `${form.name} added locally.`, "warning");
+      console.error("Error adding med to Firebase:", err);
+      show("❌", "Error", "Failed to add medication to database", "error");
     }
   };
 
@@ -1762,11 +1680,8 @@ function GuardianPortal({ setPage, dark, user, onLogout }) {
           if (res.ok) {
             const data = await res.json();
             setPatients(data);
-            if (data.length > 0) {
-              setSelectedPatient(0); // Select the first patient by default
-            } else {
-              setSelectedPatient(-1); // No patients, so nothing selected
-            }
+            if (data.length > 0) setSelectedPatient(0);
+            else setSelectedPatient(-1);
           }
         } catch (err) {
           console.error("Failed to fetch patients:", err);
@@ -1949,8 +1864,8 @@ function GuardianPortal({ setPage, dark, user, onLogout }) {
             </div>
           </div>
         </div>
-      </div >
-    </div >
+      </div>
+    </div>
   );
 }
 
@@ -2266,6 +2181,29 @@ export default function App() {
     services: useRef(null), contact: useRef(null),
   };
 
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
+      if (fbUser) {
+        if (!user) {
+          const userSnap = await getDoc(doc(db, "users", fbUser.uid));
+          const profileData = userSnap.exists() ? userSnap.data() : {};
+          const initials = fbUser.displayName ? fbUser.displayName.split(" ").map(n => n[0]).join("").toUpperCase() : fbUser.email[0].toUpperCase();
+          setUser({
+            name: fbUser.displayName || fbUser.email,
+            email: fbUser.email,
+            initials: initials,
+            uid: fbUser.uid,
+            ...profileData
+          });
+        }
+      } else {
+        setUser(null);
+        if (page === "patient" || page === "guardian") setPage("auth");
+      }
+    });
+    return () => unsubscribe();
+  }, [page, user]);
+
   const scrollTo = (id) => {
     setTimeout(() => { sectionRefs[id]?.current?.scrollIntoView({ behavior: "smooth", block: "start" }); }, 50);
   };
@@ -2276,7 +2214,15 @@ export default function App() {
     else setPage("patient");
   };
 
-  const handleLogout = () => { setUser(null); setPage("home"); };
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      setUser(null);
+      setPage("home");
+    } catch (err) {
+      console.error("Sign out error:", err);
+    }
+  };
 
   useEffect(() => {
     if ((page === "patient" || page === "guardian") && !user) setPage("auth");
