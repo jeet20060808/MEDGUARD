@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, query, where } from "firebase/firestore";
+import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, query, where, setDoc, getDoc } from "firebase/firestore";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "firebase/auth";
 import firebaseConfig from "./firebaseConfig";
 
@@ -641,16 +641,72 @@ function AuthPage({ onLogin, dark, setDark, onBack }) {
     if (Object.keys(e).length === 0) setStep(s => s + 1);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (mode === "signup" && step < 3) { nextStep(); return; }
     if (!validate()) return;
     setLoading(true);
-    setTimeout(() => {
+    setErrors({});
+    
+    try {
+      if (mode === "login") {
+        const userCredential = await signInWithEmailAndPassword(auth, form.email, form.password);
+        const fbUser = userCredential.user;
+        
+        // Fetch additional user profile data from Firestore
+        const userSnap = await getDoc(doc(db, "users", fbUser.uid));
+        const profileData = userSnap.exists() ? userSnap.data() : {};
+        
+        const initials = fbUser.displayName ? fbUser.displayName.split(" ").map(n => n[0]).join("").toUpperCase() : fbUser.email[0].toUpperCase();
+        
+        onLogin({
+          name: fbUser.displayName || fbUser.email,
+          email: fbUser.email,
+          role: profileData.role || "patient",
+          initials: initials,
+          uid: fbUser.uid,
+          ...profileData
+        });
+      } else {
+        // Signup
+        const userCredential = await createUserWithEmailAndPassword(auth, form.email, form.password);
+        const fbUser = userCredential.user;
+        
+        const fullName = `${form.firstName} ${form.lastName}`.trim();
+        await updateProfile(fbUser, { displayName: fullName });
+        
+        const initials = (`${form.firstName[0] || ""}${form.lastName[0] || ""}`).toUpperCase() || fbUser.email[0].toUpperCase();
+        
+        // Store extra user metadata in Firestore
+        const userDoc = {
+          name: fullName,
+          email: form.email,
+          role: form.role,
+          phone: form.phone,
+          dob: form.dob,
+          bloodGroup: form.bloodGroup,
+          conditions: form.conditions,
+          allergies: form.allergies,
+          createdAt: new Date().toISOString()
+        };
+        
+        await setDoc(doc(db, "users", fbUser.uid), userDoc);
+        
+        onLogin({
+          ...userDoc,
+          initials,
+          uid: fbUser.uid
+        });
+      }
+    } catch (err) {
+      console.error("Auth Error:", err);
+      let msg = "Authentication failed. Please check your credentials.";
+      if (err.code === "auth/user-not-found") msg = "No user found with this email.";
+      if (err.code === "auth/wrong-password") msg = "Incorrect password.";
+      if (err.code === "auth/email-already-in-use") msg = "Email already in use.";
+      setErrors({ auth: msg });
+    } finally {
       setLoading(false);
-      const fullName = `${form.firstName} ${form.lastName}`.trim() || form.email;
-      const initials = (`${form.firstName[0] || ""}${form.lastName[0] || ""}`).toUpperCase() || form.email[0].toUpperCase();
-      onLogin({ name: fullName, email: form.email, role: form.role || "patient", initials, bloodGroup: form.bloodGroup || "", phone: form.phone || "", dob: form.dob || "", conditions: form.conditions || "", allergies: form.allergies || "" });
-    }, 1400);
+    }
   };
 
   const accent = dark ? "#4fc3f7" : "#1a6bbf";
@@ -734,6 +790,7 @@ function AuthPage({ onLogin, dark, setDark, onBack }) {
                 {errors.password && <div style={{ fontSize: 11, color: "#ef4444", marginTop: 3 }}>⚠ {errors.password}</div>}
               </div>
               <div style={{ textAlign: "right", marginBottom: 20 }}><span style={{ fontSize: 13, color: accent, fontWeight: 600, cursor: "pointer" }}>Forgot password?</span></div>
+              {errors.auth && <div style={{ background: "rgba(239,68,68,0.1)", color: "#ef4444", padding: "10px", borderRadius: 10, fontSize: 13, marginBottom: 16, border: "1px solid rgba(239,68,68,0.2)" }}>⚠ {errors.auth}</div>}
               <button onClick={handleSubmit} disabled={loading} style={{ width: "100%", padding: "14px", borderRadius: 12, background: loading ? C.border : `linear-gradient(135deg,${accent},${dark ? "#2196f3" : "#4fc3f7"})`, color: "#fff", fontWeight: 700, fontSize: 15, border: "none", transition: "all .2s", marginBottom: 18, cursor: "pointer", boxShadow: `0 6px 20px ${accent}40` }}>
                 {loading ? "⏳ Signing In…" : "Sign In →"}
               </button>
@@ -2000,6 +2057,29 @@ export default function App() {
     services: useRef(null), contact: useRef(null),
   };
 
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
+      if (fbUser) {
+        if (!user) {
+          const userSnap = await getDoc(doc(db, "users", fbUser.uid));
+          const profileData = userSnap.exists() ? userSnap.data() : {};
+          const initials = fbUser.displayName ? fbUser.displayName.split(" ").map(n => n[0]).join("").toUpperCase() : fbUser.email[0].toUpperCase();
+          setUser({
+            name: fbUser.displayName || fbUser.email,
+            email: fbUser.email,
+            initials: initials,
+            uid: fbUser.uid,
+            ...profileData
+          });
+        }
+      } else {
+        setUser(null);
+        if (page === "patient" || page === "guardian") setPage("auth");
+      }
+    });
+    return () => unsubscribe();
+  }, [page, user]);
+
   const scrollTo = (id) => {
     setTimeout(() => { sectionRefs[id]?.current?.scrollIntoView({ behavior: "smooth", block: "start" }); }, 50);
   };
@@ -2010,7 +2090,15 @@ export default function App() {
     else setPage("patient");
   };
 
-  const handleLogout = () => { setUser(null); setPage("home"); };
+  const handleLogout = async () => { 
+    try {
+      await signOut(auth);
+      setUser(null); 
+      setPage("home"); 
+    } catch (err) {
+      console.error("Sign out error:", err);
+    }
+  };
 
   useEffect(() => {
     if ((page === "patient" || page === "guardian") && !user) setPage("auth");
