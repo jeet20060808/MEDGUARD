@@ -442,6 +442,29 @@ function AddMedModal({ onClose, onAdd, knownAllergies = [] }) {
   );
 }
 
+function AddPatientModal({ onClose, onAdd }) {
+  const [form, setForm] = useState({ name: "", rel: "", age: "", conditions: "", allergies: "", medications: "", emergencyContact: "" });
+  const up = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  return (
+    <Modal onClose={onClose}>
+      <ModalHeader icon="👥" title="Add Loved One" sub="Details of the person you're caring for" onClose={onClose} />
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px 16px" }}>
+        <div style={{ gridColumn: "1/-1" }}><label style={lStyle}>Full Name *</label><input placeholder="e.g. Mary Smith" value={form.name} onChange={e => up("name", e.target.value)} style={iStyle} /></div>
+        <div><label style={lStyle}>Relationship *</label><input placeholder="e.g. Mother" value={form.rel} onChange={e => up("rel", e.target.value)} style={iStyle} /></div>
+        <div><label style={lStyle}>Age *</label><input type="number" placeholder="e.g. 72" value={form.age} onChange={e => up("age", e.target.value)} style={iStyle} /></div>
+        <div style={{ gridColumn: "1/-1" }}><label style={lStyle}>Medical Conditions</label><input placeholder="e.g. Diabetes, Hypertension" value={form.conditions} onChange={e => up("conditions", e.target.value)} style={iStyle} /></div>
+        <div style={{ gridColumn: "1/-1" }}><label style={lStyle}>Allergies</label><input placeholder="e.g. Penicillin, Peanuts" value={form.allergies} onChange={e => up("allergies", e.target.value)} style={iStyle} /></div>
+        <div style={{ gridColumn: "1/-1" }}><label style={lStyle}>Main Medications & Doses</label><textarea placeholder="e.g. Metformin 500mg (8 AM), Aspirin 100mg (2 PM)" value={form.medications} onChange={e => up("medications", e.target.value)} style={{ ...iStyle, height: 80, padding: "12px", resize: "none" }} /></div>
+        <div style={{ gridColumn: "1/-1" }}><label style={lStyle}>Emergency Contact</label><input placeholder="e.g. Dr. Wilson (555-0199)" value={form.emergencyContact} onChange={e => up("emergencyContact", e.target.value)} style={iStyle} /></div>
+      </div>
+      <div style={{ display: "flex", gap: 10, marginTop: 24 }}>
+        <button onClick={onClose} style={{ flex: 1, padding: "13px", borderRadius: 11, background: "rgba(255,255,255,0.06)", color: "#8ab4d4", fontWeight: 700, fontSize: 14, border: "1px solid rgba(79,195,247,0.15)", cursor: "pointer" }}>Cancel</button>
+        <button onClick={() => { if (!form.name || !form.rel || !form.age) return; onAdd(form); onClose(); }} style={{ flex: 2, padding: "13px", borderRadius: 11, background: "linear-gradient(135deg,#4fc3f7,#2196f3)", color: "#fff", fontWeight: 700, fontSize: 14, border: "none", cursor: "pointer" }}>✅ Add Patient Record</button>
+      </div>
+    </Modal>
+  );
+}
+
 function DrugInteractionModal({ onClose }) {
   const [drug1, setDrug1] = useState(""), [drug2, setDrug2] = useState(""), [result, setResult] = useState(null), [checked, setChecked] = useState(false);
   const check = () => { if (!drug1.trim() || !drug2.trim()) return; setResult(checkInteraction(drug1, drug2) || null); setChecked(true); };
@@ -482,15 +505,55 @@ function SymptomLoggerModal({ onClose, meds }) {
   const SYMPTOMS = ["Headache", "Dizziness", "Nausea", "Fatigue", "Vomiting", "Chest Pain", "Shortness of Breath", "Rash", "Dry Mouth", "Blurred Vision", "Muscle Pain", "Insomnia", "Anxiety", "Palpitations"];
   const [selected, setSelected] = useState([]), [severity, setSeverity] = useState(5), [result, setResult] = useState(null), [loading, setLoading] = useState(false);
   const toggle = s => setSelected(p => p.includes(s) ? p.filter(x => x !== s) : [...p, s]);
+  // const analyze = async () => {
+  //   if (!selected.length) return; setLoading(true);
+  //   try {
+  //     const res = await fetch("http://localhost:8001/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ system: "You are MedGuard AI. Analyze reported symptoms against patient medications. Be concise, use bullet points, end with whether to consult a doctor. Under 150 words.", messages: [{ role: "user", content: `Medications: ${meds.map(m => m.name).join(", ")}. Symptoms: ${selected.join(", ")}. Severity: ${severity}/10.` }] }) });
+  //     const data = await res.json();
+  //     if (!res.ok) throw new Error(data.detail || "Server error");
+  //     setResult(data.text || "Analysis complete.");
+  //   } catch (err) { setResult(`⚠️ ${err.message || "Could not connect to AI."}`); }
+  //   finally { setLoading(false); }
+  // };
   const analyze = async () => {
-    if (!selected.length) return; setLoading(true);
+    if (!selected.length) return;
+    setLoading(true);
+
     try {
-      const res = await fetch("http://localhost:8001/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ system: "You are MedGuard AI. Analyze reported symptoms against patient medications. Be concise, use bullet points, end with whether to consult a doctor. Under 150 words.", messages: [{ role: "user", content: `Medications: ${meds.map(m => m.name).join(", ")}. Symptoms: ${selected.join(", ")}. Severity: ${severity}/10.` }] }) });
+      // 1. Get the AI Analysis (Keep your existing system prompt)
+      const res = await fetch("http://localhost:8001/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          system: "You are MedGuard AI. Analyze reported symptoms against patient medications. Be concise, use bullet points, end with whether to consult a doctor. Under 150 words.",
+          messages: [{ role: "user", content: `Medications: ${meds.map(m => m.name).join(", ")}. Symptoms: ${selected.join(", ")}. Severity: ${severity}/10.` }]
+        })
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || "Server error");
+
+      // 2. FAST DISPLAY: Show the result to the user immediately
       setResult(data.text || "Analysis complete.");
-    } catch (err) { setResult(`⚠️ ${err.message || "Could not connect to AI."}`); }
-    finally { setLoading(false); }
+
+      // 3. AUTOMATIC STORAGE: Store this in MongoDB Compass 'health_logs'
+      // This happens in the background so the user doesn't wait
+      fetch("http://localhost:8001/api/logs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user.email,
+          symptoms: selected,
+          severity: severity,
+          aiAnalysis: data.text,
+          timestamp: new Date().toISOString()
+        })
+      });
+
+    } catch (err) {
+      setResult(`⚠️ ${err.message || "Could not connect to AI."}`);
+    } finally {
+      setLoading(false);
+    }
   };
   return (
     <Modal onClose={onClose} wide>
@@ -632,16 +695,74 @@ function AuthPage({ onLogin, dark, setDark, onBack }) {
     if (Object.keys(e).length === 0) setStep(s => s + 1);
   };
 
-  const handleSubmit = () => {
+  // const handleSubmit = () => {
+  //   if (mode === "signup" && step < 3) { nextStep(); return; }
+  //   if (!validate()) return;
+  //   setLoading(true);
+  //   setTimeout(() => {
+  //     setLoading(false);
+  //     const fullName = `${form.firstName} ${form.lastName}`.trim() || form.email;
+  //     const initials = (`${form.firstName[0] || ""}${form.lastName[0] || ""}`).toUpperCase() || form.email[0].toUpperCase();
+  //     onLogin({ name: fullName, email: form.email, role: form.role || "patient", initials, bloodGroup: form.bloodGroup || "", phone: form.phone || "", dob: form.dob || "", conditions: form.conditions || "", allergies: form.allergies || "" });
+  //   }, 1400);
+  // };
+
+  const handleSubmit = async () => {
     if (mode === "signup" && step < 3) { nextStep(); return; }
     if (!validate()) return;
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+
+    try {
+      if (mode === "login") {
+        // 🔍 FETCH EXISTING USER
+        const res = await fetch(`http://localhost:8001/api/users/${form.email}`);
+        if (res.ok) {
+          const userData = await res.json();
+          onLogin(userData);
+        } else {
+          // If user not found, for this demo we'll show an error but allow a mock login
+          setErrors({ email: "Account not found in DB. Try Signing Up!" });
+          setLoading(false);
+          return;
+        }
+      } else {
+        // ✨ CREATE NEW USER
+        const fullName = `${form.firstName} ${form.lastName}`.trim() || form.email;
+        const initials = (`${form.firstName[0] || ""}${form.lastName[0] || ""}`).toUpperCase() || form.email[0].toUpperCase();
+
+        const userData = {
+          name: fullName,
+          email: form.email,
+          role: form.role || "patient",
+          initials,
+          bloodGroup: form.bloodGroup || "",
+          phone: form.phone || "",
+          dob: form.dob || "",
+          conditions: form.conditions || "",
+          allergies: form.allergies || ""
+        };
+
+        const res = await fetch("http://localhost:8001/api/users", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(userData)
+        });
+
+        if (res.ok) {
+          onLogin(userData);
+        } else {
+          throw new Error("Failed to create user");
+        }
+      }
+    } catch (err) {
+      console.error("Backend error:", err);
+      // Fallback for demo purposes if backend is down
       const fullName = `${form.firstName} ${form.lastName}`.trim() || form.email;
       const initials = (`${form.firstName[0] || ""}${form.lastName[0] || ""}`).toUpperCase() || form.email[0].toUpperCase();
-      onLogin({ name: fullName, email: form.email, role: form.role || "patient", initials, bloodGroup: form.bloodGroup || "", phone: form.phone || "", dob: form.dob || "", conditions: form.conditions || "", allergies: form.allergies || "" });
-    }, 1400);
+      onLogin({ name: fullName || "Demo User", email: form.email, role: form.role || "patient", initials });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const accent = dark ? "#4fc3f7" : "#1a6bbf";
@@ -1239,19 +1360,32 @@ function PatientPortal({ setPage, dark, setDark, lang, setLang, user, onLogout }
 
   // ── USER-DRIVEN STATE ──
   const [meds, setMeds] = useState([]);
-  const [streak, setStreak] = useState(0);
+  const [streak, setStreak] = useState(user?.streak || 0);
 
   useEffect(() => {
-    if (user && user.email) {
-      const savedMeds = localStorage.getItem(`meds_${user.email}`);
-      const savedStreak = localStorage.getItem(`streak_${user.email}`);
-      if (savedMeds) {
-        try { setMeds(JSON.parse(savedMeds)); } catch (e) { setMeds([]); }
-      } else {
-        setMeds([]);
+    const fetchMeds = async () => {
+      if (user && user.email) {
+        try {
+          const res = await fetch(`http://localhost:8001/api/medications/${user.email}`);
+          if (res.ok) {
+            const data = await res.json();
+            setMeds(data);
+          } else {
+            // Fallback to localStorage if backend fails
+            const savedMeds = localStorage.getItem(`meds_${user.email}`);
+            if (savedMeds) setMeds(JSON.parse(savedMeds));
+          }
+        } catch (err) {
+          console.error("Failed to fetch meds:", err);
+          const savedMeds = localStorage.getItem(`meds_${user.email}`);
+          if (savedMeds) setMeds(JSON.parse(savedMeds));
+        }
+
+        const savedStreak = user?.streak || localStorage.getItem(`streak_${user.email}`);
+        if (savedStreak) setStreak(parseInt(savedStreak));
       }
-      if (savedStreak) setStreak(parseInt(savedStreak));
-    }
+    };
+    fetchMeds();
   }, [user]);
 
   useEffect(() => {
@@ -1270,24 +1404,86 @@ function PatientPortal({ setPage, dark, setDark, lang, setLang, user, onLogout }
   const healthScore = meds.length === 0 ? 0 : Math.min(100, Math.round(adherencePct * .5 + streak * 2 + 10));
   const refillAlerts = meds.filter(m => m.refill <= 7);
 
-  const markTaken = (idx) => {
+  const markTaken = async (idx) => {
     if (meds[idx].status === "taken") return;
-    const newMeds = meds.map((m, i) => i === idx ? { ...m, status: "taken" } : m);
+    const med = meds[idx];
+    const newMeds = [...meds];
+    newMeds[idx] = { ...med, status: "taken" };
     setMeds(newMeds);
 
     // Increment streak if all current meds are taken
     if (newMeds.every(m => m.status === "taken")) {
-      setStreak(prev => prev + 1);
+      const newStreak = streak + 1;
+      setStreak(newStreak);
+      // Sync streak to backend
+      try {
+        fetch(`http://localhost:8001/api/users/${user.email}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ streak: newStreak })
+        });
+      } catch (err) {
+        console.error("Failed to sync streak:", err);
+      }
     }
 
-    show("💊", "Medication Taken!", `${meds[idx].name} marked as taken ✅`, "success");
+    show("💊", "Medication Taken!", `${med.name} marked as taken ✅`, "success");
+
+    // Sync with backend if med has an ID
+    if (med.id) {
+      try {
+        await fetch(`http://localhost:8001/api/medications/${med.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: "taken" })
+        });
+      } catch (err) {
+        console.error("Failed to sync status:", err);
+      }
+    }
   };
+
+  // const handleAddMed = async (form) => {
+  //   const timeStr = form.time ? new Date(`2000-01-01T${form.time}`).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "TBD";
+  //   const newMed = { name: form.name, dosage: form.dosage, time: timeStr, status: "upcoming", icon: "💊", frequency: form.frequency, purpose: form.purpose || "General", refill: 30 };
+  //   setMeds(p => [...p, newMed]);
+  //   show("➕", "Medication Added!", `${form.name} added.`, "info");
+  // };
 
   const handleAddMed = async (form) => {
     const timeStr = form.time ? new Date(`2000-01-01T${form.time}`).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "TBD";
-    const newMed = { name: form.name, dosage: form.dosage, time: timeStr, status: "upcoming", icon: "💊", frequency: form.frequency, purpose: form.purpose || "General", refill: 30 };
-    setMeds(p => [...p, newMed]);
-    show("➕", "Medication Added!", `${form.name} added.`, "info");
+    const newMed = {
+      userId: user.email,
+      name: form.name,
+      dosage: form.dosage,
+      time: timeStr,
+      status: "upcoming",
+      icon: "💊",
+      frequency: form.frequency,
+      purpose: form.purpose || "General",
+      refill: 30
+    };
+
+    // 1. BACKGROUND SAVE: Send it to your MongoDB via your API
+    try {
+      const res = await fetch('http://localhost:8001/api/medications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newMed)
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const medWithId = { ...newMed, id: data.id };
+        setMeds(prev => [...prev, medWithId]);
+        show("➕", "Medication Added!", `${form.name} added.`, "info");
+      } else {
+        throw new Error("Failed to save medication");
+      }
+    } catch (err) {
+      console.error("Database sync failed, adding locally:", err);
+      setMeds(prev => [...prev, newMed]);
+      show("➕", "Medication Added (Local)!", `${form.name} added locally.`, "warning");
+    }
   };
 
   const TABS = ["dashboard", "medications", "ai-advisor", "analytics", "symptoms", "settings"];
@@ -1555,14 +1751,87 @@ function GuardianPortal({ setPage, dark, user, onLogout }) {
   const C = COLORS[dark ? "dark" : "light"];
   const accent = dark ? "#4fc3f7" : "#1a6bbf";
   const [selectedPatient, setSelectedPatient] = useState(0);
-  const patients = [
-    { initials: "MS", name: "Mary Smith", rel: "Mother", age: 72, adherence: 94 },
-    { initials: "JS", name: "John Smith", rel: "Father", age: 75, adherence: 88 },
-    { initials: "RJ", name: "Rose Johnson", rel: "Grandmother", age: 89, adherence: 72 },
-  ];
+  const [patients, setPatients] = useState([]);
+  const [showAddPatient, setShowAddPatient] = useState(false);
+
+  useEffect(() => {
+    const fetchPatients = async () => {
+      if (user && user.email) {
+        try {
+          const res = await fetch(`http://localhost:8001/api/patients/${user.email}`);
+          if (res.ok) {
+            const data = await res.json();
+            setPatients(data);
+            if (data.length > 0) {
+              setSelectedPatient(0); // Select the first patient by default
+            } else {
+              setSelectedPatient(-1); // No patients, so nothing selected
+            }
+          }
+        } catch (err) {
+          console.error("Failed to fetch patients:", err);
+        }
+      }
+    };
+    fetchPatients();
+  }, [user]);
+
+  const handleAddPatient = async (form) => {
+    const { name, rel, age: ageValue, conditions, allergies, medications, emergencyContact } = form;
+    const age = parseInt(ageValue);
+    const initials = name.split(" ").map(n => n[0]).join("").toUpperCase();
+
+    const newPatient = {
+      guardianId: user.email,
+      initials,
+      name,
+      rel,
+      age,
+      adherence: 0,
+      conditions: conditions || "",
+      allergies: allergies || "",
+      medications: medications || "",
+      emergencyContact: emergencyContact || ""
+    };
+
+    try {
+      const res = await fetch('http://localhost:8001/api/patients', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newPatient)
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const savedPatient = { ...newPatient, id: data.id };
+        setPatients(prev => [...prev, savedPatient]);
+        setSelectedPatient(patients.length);
+      }
+    } catch (err) {
+      console.error("Failed to save patient:", err);
+      setPatients(prev => [...prev, newPatient]);
+      setSelectedPatient(patients.length);
+    }
+  };
+
+  const handleDeletePatient = async (id, e) => {
+    e.stopPropagation();
+    if (!window.confirm("Are you sure you want to remove this patient record?")) return;
+    try {
+      const res = await fetch(`http://localhost:8001/api/patients/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        const newPatients = patients.filter(p => p.id !== id);
+        setPatients(newPatients);
+        if (selectedPatient >= newPatients.length) setSelectedPatient(newPatients.length - 1);
+      }
+    } catch (err) {
+      console.error("Failed to delete patient:", err);
+    }
+  };
+
   const p = patients[selectedPatient];
   return (
     <div style={{ minHeight: "100vh" }}>
+      {showAddPatient && <AddPatientModal onClose={() => setShowAddPatient(false)} onAdd={handleAddPatient} />}
       <div style={{ background: C.navBg, backdropFilter: "blur(20px)", borderBottom: `1px solid ${C.border}`, padding: "0 36px", height: 62, display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <button onClick={() => setPage("home")} style={{ display: "flex", alignItems: "center", gap: 7, padding: "7px 14px", borderRadius: 9, background: C.accentLight, border: `1px solid ${C.accentBorder}`, color: accent, fontWeight: 700, fontSize: 12, cursor: "pointer" }}>← Home</button>
@@ -1590,23 +1859,24 @@ function GuardianPortal({ setPage, dark, user, onLogout }) {
           <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 12 }}>Select Patient</div>
           <div style={{ display: "flex", gap: 10 }}>
             {patients.map((pt, i) => (
-              <div key={i} onClick={() => setSelectedPatient(i)} className="glass-card" style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", borderRadius: 13, cursor: "pointer", border: `2px solid ${selectedPatient === i ? accent : C.border}`, background: selectedPatient === i ? C.accentLight : C.card, transition: "all .2s", minWidth: 170 }}>
+              <div key={i} onClick={() => setSelectedPatient(i)} className="glass-card" style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", borderRadius: 13, cursor: "pointer", border: `2px solid ${selectedPatient === i ? accent : C.border}`, background: selectedPatient === i ? C.accentLight : C.card, transition: "all .2s", minWidth: 170, position: "relative" }}>
+                <button onClick={(e) => handleDeletePatient(pt.id, e)} style={{ position: "absolute", top: 5, right: 5, background: "none", border: "none", color: "#ef4444", cursor: "pointer", fontSize: 14, fontWeight: "bold", padding: "2px 6px" }}>×</button>
                 <div style={{ width: 40, height: 40, borderRadius: "50%", background: `${accent}22`, color: accent, fontWeight: 800, fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center", border: `2px solid ${accent}44` }}>{pt.initials}</div>
                 <div>
                   <div style={{ fontWeight: 700, color: C.text, fontSize: 13 }}>{pt.name}</div>
                   <div style={{ fontSize: 11, color: C.textSoft }}>{pt.rel} · {pt.age} yrs</div>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: pt.adherence >= 85 ? "#34d399" : pt.adherence >= 70 ? "#fbbf24" : "#ef4444", marginTop: 2 }}>{pt.adherence}% adherence</div>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: pt.adherence >= 85 ? "#34d399" : pt.adherence >= 70 ? "#fbbf24" : "#ef4444", marginTop: 2 }}>{pt.adherence || 0}% adherence</div>
                 </div>
               </div>
             ))}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "12px 16px", borderRadius: 13, border: `2px dashed ${C.border}`, cursor: "pointer", minWidth: 120, color: C.textSoft, fontWeight: 600, fontSize: 13, gap: 6 }}>＋ Add</div>
+            <div onClick={() => setShowAddPatient(true)} style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "12px 16px", borderRadius: 13, border: `2px dashed ${C.border}`, cursor: "pointer", minWidth: 120, color: C.textSoft, fontWeight: 600, fontSize: 13, gap: 6 }}>＋ Add</div>
           </div>
         </div>
 
         <div className="glass-card" style={{ background: C.card, borderRadius: 16, padding: "20px 24px", marginBottom: 14, border: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div>
-            <div style={{ fontSize: 17, fontWeight: 800, color: C.text, marginBottom: 2, fontFamily: "'Outfit', sans-serif" }}>{p.name}'s Overview</div>
-            <div style={{ fontSize: 13, color: C.textSoft }}>{p.rel} · Age {p.age} · Last active 5 min ago</div>
+            <div style={{ fontSize: 17, fontWeight: 800, color: C.text, marginBottom: 2, fontFamily: "'Outfit', sans-serif" }}>{p ? p.name + "'s Overview" : "No Patient Added"}</div>
+            <div style={{ fontSize: 13, color: C.textSoft }}>{p ? `${p.rel} · Age ${p.age} · Last active 5 min ago` : "Add a loved one to start tracking their health stats here."}</div>
           </div>
           <div style={{ display: "flex", gap: 10 }}>
             <button style={{ padding: "8px 13px", borderRadius: 8, background: "rgba(52,211,153,0.12)", color: "#34d399", fontWeight: 700, fontSize: 11, border: "1px solid rgba(52,211,153,0.3)", cursor: "pointer" }}>✅ All Meds Taken</button>
@@ -1615,7 +1885,7 @@ function GuardianPortal({ setPage, dark, user, onLogout }) {
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginBottom: 14 }}>
-          {[["💊", "Today's Meds", "3/3", "All taken", "#34d399"], ["🔥", "Streak", `${7 + selectedPatient * 3}d`, "consecutive", "#fbbf24"], ["⚠️", "Missed", "2", "last 30 days", "#ef4444"], ["📊", "Adherence", `${p.adherence}%`, "this month", accent]].map(([ic, l, v, s, c]) => (
+          {[["💊", "Today's Meds", p ? (p.medications ? "Tracking" : "None") : "0/0", p && p.medications ? "Active" : "—", "#34d399"], ["🔥", "Streak", p ? "0d" : "0d", "consecutive", "#fbbf24"], ["⚠️", "Missed", p ? "0" : "0", "last 30 days", "#ef4444"], ["📊", "Adherence", p ? `${p.adherence || 0}%` : "0%", "this month", accent]].map(([ic, l, v, s, c]) => (
             <div key={l} className="glass-card" style={{ background: C.card, borderRadius: 12, padding: "15px 16px", border: `1px solid ${C.border}`, boxShadow: C.cardShadow }}>
               <div style={{ fontSize: 20, marginBottom: 6 }}>{ic}</div>
               <div style={{ fontSize: 20, fontWeight: 900, color: c, fontFamily: "'JetBrains Mono', monospace" }}>{v}</div>
@@ -1625,16 +1895,42 @@ function GuardianPortal({ setPage, dark, user, onLogout }) {
           ))}
         </div>
 
+        {p && (
+          <div className="glass-card" style={{ background: C.card, borderRadius: 16, padding: "20px 24px", marginBottom: 14, border: `1px solid ${C.border}` }}>
+            <h3 style={{ fontWeight: 800, color: C.text, marginBottom: 16, fontSize: 16, borderBottom: `1px solid ${C.border}`, paddingBottom: 10 }}>📋 Health Profile: {p.name}</h3>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 20 }}>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: accent, textTransform: "uppercase", marginBottom: 4 }}>Conditions</div>
+                <div style={{ fontSize: 13, color: C.text, lineHeight: 1.5 }}>{p.conditions || "None listed"}</div>
+              </div>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#ef4444", textTransform: "uppercase", marginBottom: 4 }}>Allergies</div>
+                <div style={{ fontSize: 13, color: C.text, lineHeight: 1.5 }}>{p.allergies || "None declared"}</div>
+              </div>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#fbbf24", textTransform: "uppercase", marginBottom: 4 }}>Emergency Contact</div>
+                <div style={{ fontSize: 13, color: C.text, lineHeight: 1.5 }}>{p.emergencyContact || "Not set"}</div>
+              </div>
+            </div>
+            {p.medications && (
+              <div style={{ marginTop: 18, paddingTop: 14, borderTop: `1px solid ${C.border}` }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "#34d399", textTransform: "uppercase", marginBottom: 6 }}>Medications Overview</div>
+                <div style={{ fontSize: 13, color: C.text, lineHeight: 1.6, background: C.accentLight, padding: "12px", borderRadius: 10, border: `1px solid ${C.accentBorder}` }}>{p.medications}</div>
+              </div>
+            )}
+          </div>
+        )}
+
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
           <div className="glass-card" style={{ background: C.card, borderRadius: 14, padding: "18px 20px", border: `1px solid ${C.border}` }}>
             <h3 style={{ fontWeight: 700, color: C.text, marginBottom: 12, fontSize: 14 }}>Medication Schedule</h3>
-            {[["💊", "Metformin 500mg", "8:00 AM", "taken"], ["💊", "Aspirin 100mg", "2:00 PM", "taken"], ["💊", "Lisinopril 10mg", "9:00 PM", "upcoming"]].map(([ic, n, t, s], idx) => (
-              <div key={idx} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 0", borderBottom: `1px solid ${C.border}` }}>
-                <span style={{ fontSize: 16 }}>{ic}</span>
-                <div style={{ flex: 1 }}><div style={{ fontWeight: 600, color: C.text, fontSize: 12 }}>{n}</div><div style={{ fontSize: 10, color: C.textSoft }}>{t}</div></div>
-                <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 9px", borderRadius: 100, background: s === "taken" ? "rgba(52,211,153,0.12)" : "rgba(251,191,36,0.12)", color: s === "taken" ? "#34d399" : "#fbbf24", border: `1px solid ${s === "taken" ? "rgba(52,211,153,0.3)" : "rgba(251,191,36,0.3)"}` }}>{s === "taken" ? "✓ Taken" : "⏳ Due"}</span>
+            {p && p.medications ? (
+              <div style={{ background: C.accentLight, padding: "12px", borderRadius: 10, color: C.textMid, fontSize: 12, border: `1px solid ${C.accentBorder}` }}>
+                {p.medications}
               </div>
-            ))}
+            ) : (
+              <div style={{ fontSize: 12, color: C.textSoft, padding: "20px 0", textAlign: "center" }}>No medication input given yet.</div>
+            )}
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             <div className="glass-card" style={{ background: C.accentLight, borderRadius: 13, padding: "16px 18px", border: `1px solid ${C.accentBorder}` }}>
@@ -1653,8 +1949,8 @@ function GuardianPortal({ setPage, dark, user, onLogout }) {
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </div >
+    </div >
   );
 }
 
@@ -1682,8 +1978,12 @@ function Navbar({ setPage, scrollTo, dark, setDark, lang, setLang, user, onLogou
         </select>
         {user ? (
           <>
-            <button onClick={() => setPage("patient")} style={{ padding: "9px 18px", borderRadius: 8, background: `linear-gradient(135deg,${accent},${dark ? "#2196f3" : "#4fc3f7"})`, color: "#fff", fontWeight: 600, fontSize: 12, border: "none", cursor: "pointer", boxShadow: `0 4px 14px ${accent}40` }}>Patient Portal</button>
-            <button onClick={() => setPage("guardian")} style={{ padding: "9px 18px", borderRadius: 8, background: C.accentLight, color: accent, fontWeight: 600, fontSize: 12, border: `1px solid ${C.accentBorder}`, cursor: "pointer" }}>Guardian Portal</button>
+            {user.role === "patient" && (
+              <button onClick={() => setPage("patient")} style={{ padding: "9px 18px", borderRadius: 8, background: `linear-gradient(135deg,${accent},${dark ? "#2196f3" : "#4fc3f7"})`, color: "#fff", fontWeight: 600, fontSize: 12, border: "none", cursor: "pointer", boxShadow: `0 4px 14px ${accent}40` }}>Patient Portal</button>
+            )}
+            {user.role === "guardian" && (
+              <button onClick={() => setPage("guardian")} style={{ padding: "9px 18px", borderRadius: 8, background: C.accentLight, color: accent, fontWeight: 600, fontSize: 12, border: `1px solid ${C.accentBorder}`, cursor: "pointer" }}>Guardian Portal</button>
+            )}
             <div style={{ display: "flex", alignItems: "center", gap: 7, padding: "5px 11px", background: C.accentLight, borderRadius: 100, border: `1px solid ${C.accentBorder}` }}>
               <div style={{ width: 24, height: 24, borderRadius: "50%", background: `linear-gradient(135deg,${accent},${dark ? "#2196f3" : "#4fc3f7"})`, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 700, fontSize: 11 }}>{user.initials}</div>
               <span style={{ fontSize: 12, fontWeight: 600, color: C.text }}>{user.name?.split(" ")[0]}</span>
