@@ -1,14 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { initializeApp } from "firebase/app";
-import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, query, where, setDoc, getDoc } from "firebase/firestore";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "firebase/auth";
-import firebaseConfig from "./firebaseConfig";
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
-
+const API_BASE_URL = "https://medguard-jjly.onrender.com";
 /* ═══════════════════════════════════════════════════════
    MedGuard AI — ClyHealth Blue Edition
    Theme: Deep Navy · Cyan Accent · Glassmorphism
@@ -517,7 +508,7 @@ function SymptomLoggerModal({ onClose, meds }) {
   const analyze = async () => {
     if (!selected.length) return; setLoading(true);
     try {
-      const res = await fetch("https://medguard-jjly.onrender.com/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ system: "You are MedGuard AI. Analyze reported symptoms against patient medications. Be concise, use bullet points, end with whether to consult a doctor. Under 150 words.", messages: [{ role: "user", content: `Medications: ${meds.map(m => m.name).join(", ")}. Symptoms: ${selected.join(", ")}. Severity: ${severity}/10.` }] }) });
+      const res = await fetch(`${API_BASE_URL}/api/chat`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ system: "You are MedGuard AI. Analyze reported symptoms against patient medications. Be concise, use bullet points, end with whether to consult a doctor. Under 150 words.", messages: [{ role: "user", content: `Medications: ${meds.map(m => m.name).join(", ")}. Symptoms: ${selected.join(", ")}. Severity: ${severity}/10.` }] }) });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || "Server error");
       setResult(data.text || "Analysis complete.");
@@ -672,37 +663,34 @@ function AuthPage({ onLogin, dark, setDark, onBack }) {
 
     try {
       if (mode === "login") {
-        const userCredential = await signInWithEmailAndPassword(auth, form.email, form.password);
-        const fbUser = userCredential.user;
+        // Fetch user profile from backend
+        const res = await fetch(`${API_BASE_URL}/api/users/${form.email}`);
+        if (!res.ok) throw new Error("User not found or incorrect credentials");
+        const profileData = await res.json();
 
-        // Fetch additional user profile data from Firestore
-        const userSnap = await getDoc(doc(db, "users", fbUser.uid));
-        const profileData = userSnap.exists() ? userSnap.data() : {};
+        // Simple password check (Note: In production, verify hash on backend)
+        if (profileData.password && profileData.password !== form.password) {
+          throw new Error("Invalid password");
+        }
 
-        const initials = fbUser.displayName ? fbUser.displayName.split(" ").map(n => n[0]).join("").toUpperCase() : fbUser.email[0].toUpperCase();
+        const initials = profileData.name ? profileData.name.split(" ").map(n => n[0]).join("").toUpperCase() : profileData.email[0].toUpperCase();
 
-        onLogin({
-          name: fbUser.displayName || fbUser.email,
-          email: fbUser.email,
-          role: profileData.role || "patient",
-          initials: initials,
-          uid: fbUser.uid,
-          ...profileData
-        });
+        const userData = {
+          ...profileData,
+          initials: initials
+        };
+
+        localStorage.setItem("medguard_user", JSON.stringify(userData));
+        onLogin(userData);
       } else {
         // Signup
-        const userCredential = await createUserWithEmailAndPassword(auth, form.email, form.password);
-        const fbUser = userCredential.user;
-
         const fullName = `${form.firstName} ${form.lastName}`.trim();
-        await updateProfile(fbUser, { displayName: fullName });
+        const initials = (`${form.firstName[0] || ""}${form.lastName[0] || ""}`).toUpperCase() || form.email[0].toUpperCase();
 
-        const initials = (`${form.firstName[0] || ""}${form.lastName[0] || ""}`).toUpperCase() || fbUser.email[0].toUpperCase();
-
-        // Store extra user metadata in Firestore
         const userDoc = {
           name: fullName,
           email: form.email,
+          password: form.password, // Storing for simple auth demo
           role: form.role,
           phone: form.phone,
           dob: form.dob,
@@ -712,21 +700,24 @@ function AuthPage({ onLogin, dark, setDark, onBack }) {
           createdAt: new Date().toISOString()
         };
 
-        await setDoc(doc(db, "users", fbUser.uid), userDoc);
-
-        onLogin({
-          ...userDoc,
-          initials,
-          uid: fbUser.uid
+        const res = await fetch(`${API_BASE_URL}/api/users`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(userDoc)
         });
+
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(errData.detail || "Failed to create account");
+        }
+
+        const userData = { ...userDoc, initials };
+        localStorage.setItem("medguard_user", JSON.stringify(userData));
+        onLogin(userData);
       }
     } catch (err) {
       console.error("Auth Error:", err);
-      let msg = "Authentication failed. Please check your credentials.";
-      if (err.code === "auth/user-not-found") msg = "No user found with this email.";
-      if (err.code === "auth/wrong-password") msg = "Incorrect password.";
-      if (err.code === "auth/email-already-in-use") msg = "Email already in use.";
-      setErrors({ auth: msg });
+      setErrors({ auth: err.message || "Authentication failed." });
     } finally {
       setLoading(false);
     }
@@ -969,7 +960,7 @@ function AIChatTab({ dark, user }) {
     try {
       const messages = history.map(x => ({ role: x.from === "user" ? "user" : "assistant", content: x.text }));
       messages.push({ role: "user", content: m });
-      const res = await fetch("https://medguard-jjly.onrender.com/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ messages, system: `You are MedGuard AI, a friendly health assistant for ${user?.name || "the patient"}. Be warm, concise (under 120 words), use occasional emojis. End medical responses with: "Please consult your doctor for personalized advice."` }) });
+      const res = await fetch(`${API_BASE_URL}/api/chat`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ messages, system: `You are MedGuard AI, a friendly health assistant for ${user?.name || "the patient"}. Be warm, concise (under 120 words), use occasional emojis. End medical responses with: "Please consult your doctor for personalized advice."` }) });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || "Server error");
       setHistory(h => [...h, { from: "ai", text: data.text || "I'm having trouble connecting." }]);
@@ -1328,18 +1319,20 @@ function PatientPortal({ setPage, dark, setDark, lang, setLang, user, onLogout }
   const [meds, setMeds] = useState([]);
   const [streak, setStreak] = useState(0);
 
-  // ── FIREBASE DATA FETCHING ──
+  // ── BACKEND DATA FETCHING ──
   useEffect(() => {
     if (user && user.email) {
       const fetchMeds = async () => {
         try {
-          const q = query(collection(db, "medications"), where("userEmail", "==", user.email));
-          const querySnapshot = await getDocs(q);
-          const medsList = querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
-          setMeds(medsList);
+          const res = await fetch(`${API_BASE_URL}/api/medications/${user.email}`);
+          if (res.ok) {
+            const data = await res.json();
+            setMeds(data);
+          } else {
+            throw new Error("Failed to fetch meds");
+          }
         } catch (err) {
-          console.error("Error fetching meds from Firebase:", err);
-          // Fallback to local storage if Firebase fails
+          console.error("Error fetching meds:", err);
           const savedMeds = localStorage.getItem(`meds_${user.email}`);
           if (savedMeds) setMeds(JSON.parse(savedMeds));
         }
@@ -1363,8 +1356,11 @@ function PatientPortal({ setPage, dark, setDark, lang, setLang, user, onLogout }
 
     try {
       if (medToUpdate.id) {
-        const medRef = doc(db, "medications", medToUpdate.id);
-        await updateDoc(medRef, { status: newStatus });
+        await fetch(`${API_BASE_URL}/api/medications/${medToUpdate.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: newStatus })
+        });
       }
 
       const newMeds = meds.map((m, i) => i === idx ? { ...m, status: newStatus } : m);
@@ -1372,10 +1368,16 @@ function PatientPortal({ setPage, dark, setDark, lang, setLang, user, onLogout }
 
       if (newMeds.every(m => m.status === "taken")) {
         setStreak(prev => prev + 1);
+        // Also update streak on backend
+        await fetch(`${API_BASE_URL}/api/users/${user.email}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ streak: streak + 1 })
+        });
       }
       show("💊", "Medication Taken!", `${meds[idx].name} marked as taken ✅`, "success");
     } catch (err) {
-      console.error("Error updating status in Firebase:", err);
+      console.error("Error updating status:", err);
       show("❌", "Error", "Failed to update medication status", "error");
     }
   };
@@ -1395,11 +1397,20 @@ function PatientPortal({ setPage, dark, setDark, lang, setLang, user, onLogout }
     };
 
     try {
-      const docRef = await addDoc(collection(db, "medications"), newMed);
-      setMeds(p => [...p, { ...newMed, id: docRef.id }]);
-      show("➕", "Medication Added!", `${form.name} added.`, "info");
+      const res = await fetch(`${API_BASE_URL}/api/medications`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...newMed, userId: user.email }) // Use email as userId for now
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setMeds(p => [...p, { ...newMed, id: data.id }]);
+        show("➕", "Medication Added!", `${form.name} added.`, "info");
+      } else {
+        throw new Error(data.detail || "Failed to add med");
+      }
     } catch (err) {
-      console.error("Error adding med to Firebase:", err);
+      console.error("Error adding med:", err);
       show("❌", "Error", "Failed to add medication to database", "error");
     }
   };
@@ -1676,7 +1687,7 @@ function GuardianPortal({ setPage, dark, user, onLogout }) {
     const fetchPatients = async () => {
       if (user && user.email) {
         try {
-          const res = await fetch(`https://medguard-jjly.onrender.com/api/patients/${user.email}`);
+          const res = await fetch(`${API_BASE_URL}/api/patients/${user.email}`);
           if (res.ok) {
             const data = await res.json();
             setPatients(data);
@@ -1710,7 +1721,7 @@ function GuardianPortal({ setPage, dark, user, onLogout }) {
     };
 
     try {
-      const res = await fetch('http://localhost:8001/api/patients', {
+      const res = await fetch(`${API_BASE_URL}/api/patients`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newPatient)
@@ -1732,7 +1743,7 @@ function GuardianPortal({ setPage, dark, user, onLogout }) {
     e.stopPropagation();
     if (!window.confirm("Are you sure you want to remove this patient record?")) return;
     try {
-      const res = await fetch(`http://localhost:8001/api/patients/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${API_BASE_URL}/api/patients/${id}`, { method: 'DELETE' });
       if (res.ok) {
         const newPatients = patients.filter(p => p.id !== id);
         setPatients(newPatients);
@@ -2182,27 +2193,16 @@ export default function App() {
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
-      if (fbUser) {
-        if (!user) {
-          const userSnap = await getDoc(doc(db, "users", fbUser.uid));
-          const profileData = userSnap.exists() ? userSnap.data() : {};
-          const initials = fbUser.displayName ? fbUser.displayName.split(" ").map(n => n[0]).join("").toUpperCase() : fbUser.email[0].toUpperCase();
-          setUser({
-            name: fbUser.displayName || fbUser.email,
-            email: fbUser.email,
-            initials: initials,
-            uid: fbUser.uid,
-            ...profileData
-          });
-        }
-      } else {
-        setUser(null);
-        if (page === "patient" || page === "guardian") setPage("auth");
+    const savedUser = localStorage.getItem("medguard_user");
+    if (savedUser) {
+      try {
+        const parsedUser = JSON.parse(savedUser);
+        setUser(parsedUser);
+      } catch (e) {
+        localStorage.removeItem("medguard_user");
       }
-    });
-    return () => unsubscribe();
-  }, [page, user]);
+    }
+  }, []);
 
   const scrollTo = (id) => {
     setTimeout(() => { sectionRefs[id]?.current?.scrollIntoView({ behavior: "smooth", block: "start" }); }, 50);
@@ -2215,13 +2215,9 @@ export default function App() {
   };
 
   const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      setUser(null);
-      setPage("home");
-    } catch (err) {
-      console.error("Sign out error:", err);
-    }
+    localStorage.removeItem("medguard_user");
+    setUser(null);
+    setPage("home");
   };
 
   useEffect(() => {
