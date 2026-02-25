@@ -46,3 +46,6 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+.firebase/
+firebase.json
+src/firebaseConfig.js
