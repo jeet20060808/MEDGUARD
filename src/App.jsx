@@ -517,7 +517,7 @@ function SymptomLoggerModal({ onClose, meds }) {
   const analyze = async () => {
     if (!selected.length) return; setLoading(true);
     try {
-      const res = await fetch("http://localhost:8001/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ system: "You are MedGuard AI. Analyze reported symptoms against patient medications. Be concise, use bullet points, end with whether to consult a doctor. Under 150 words.", messages: [{ role: "user", content: `Medications: ${meds.map(m => m.name).join(", ")}. Symptoms: ${selected.join(", ")}. Severity: ${severity}/10.` }] }) });
+      const res = await fetch("https://medguard-jjly.onrender.com/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ system: "You are MedGuard AI. Analyze reported symptoms against patient medications. Be concise, use bullet points, end with whether to consult a doctor. Under 150 words.", messages: [{ role: "user", content: `Medications: ${meds.map(m => m.name).join(", ")}. Symptoms: ${selected.join(", ")}. Severity: ${severity}/10.` }] }) });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || "Server error");
       setResult(data.text || "Analysis complete.");
@@ -969,7 +969,7 @@ function AIChatTab({ dark, user }) {
     try {
       const messages = history.map(x => ({ role: x.from === "user" ? "user" : "assistant", content: x.text }));
       messages.push({ role: "user", content: m });
-      const res = await fetch("http://localhost:8001/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ messages, system: `You are MedGuard AI, a friendly health assistant for ${user?.name || "the patient"}. Be warm, concise (under 120 words), use occasional emojis. End medical responses with: "Please consult your doctor for personalized advice."` }) });
+      const res = await fetch("https://medguard-jjly.onrender.com/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ messages, system: `You are MedGuard AI, a friendly health assistant for ${user?.name || "the patient"}. Be warm, concise (under 120 words), use occasional emojis. End medical responses with: "Please consult your doctor for personalized advice."` }) });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || "Server error");
       setHistory(h => [...h, { from: "ai", text: data.text || "I'm having trouble connecting." }]);
@@ -1676,7 +1676,7 @@ function GuardianPortal({ setPage, dark, user, onLogout }) {
     const fetchPatients = async () => {
       if (user && user.email) {
         try {
-          const res = await fetch(`http://localhost:8001/api/patients/${user.email}`);
+          const res = await fetch(`https://medguard-jjly.onrender.com/api/patients/${user.email}`);
           if (res.ok) {
             const data = await res.json();
             setPatients(data);
