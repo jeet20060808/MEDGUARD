@@ -664,7 +664,7 @@ function AuthPage({ onLogin, dark, setDark, onBack }) {
     try {
       if (mode === "login") {
         // Fetch user profile from backend
-        const res = await fetch(`${API_BASE_URL}/api/users/${form.email}`);
+        const res = await fetch(`https://medguard-jjly.onrender.com/api/users/${form.email}`);
         if (!res.ok) throw new Error("User not found or incorrect credentials");
         const profileData = await res.json();
 
