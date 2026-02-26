@@ -693,6 +693,7 @@ function AuthPage({ onLogin, dark, setDark, onBack }) {
           password: form.password, // Storing for simple auth demo
           role: form.role,
           phone: form.phone,
+          initials: initials,
           dob: form.dob,
           bloodGroup: form.bloodGroup,
           conditions: form.conditions,
