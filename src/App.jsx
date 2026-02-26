@@ -685,7 +685,7 @@ function AuthPage({ onLogin, dark, setDark, onBack }) {
       } else {
         // Signup
         const fullName = `${form.firstName} ${form.lastName}`.trim();
-        const initials = (form.firstName[0] || "" + form.lastName[0] || "").toUpperCase();
+        const initials = ((form.firstName[0] || "") + (form.lastName[0] || "")).toUpperCase();
         const userDoc = {
           name: fullName,
           email: form.email,
