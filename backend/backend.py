@@ -130,7 +130,7 @@ app.add_middleware(
 
 # ── Database Setup ──────────────────────────────────────
 # Connecting to your local MongoDB 'medguard' database seen in Compass
-client = AsyncIOMotorClient("mongodb://localhost:27017")
+client = AsyncIOMotorClient("mongodb+srv://nirja:nirja@1822@cluster0.ubixwcn.mongodb.net/medguard")
 db = client.medguard
 
 # ── Models ──────────────────────────────────────────────
@@ -138,7 +138,7 @@ class UserProfile(BaseModel):
     name: str
     email: str
     role: str
-    initials: str
+    initials: Optional[str] = None
     bloodGroup: Optional[str] = ""
     phone: Optional[str] = ""
     dob: Optional[str] = ""
