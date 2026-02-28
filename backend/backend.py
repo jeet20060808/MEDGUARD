@@ -148,7 +148,7 @@ class UserProfile(BaseModel):
 
 class Patient(BaseModel):
     guardianId: str
-    initials: str
+    initials: Optional[str] = None
     name: str
     rel: str
     age: int
