@@ -130,7 +130,8 @@ app.add_middleware(
 
 # ── Database Setup ──────────────────────────────────────
 # Connecting to your local MongoDB 'medguard' database seen in Compass
-client = AsyncIOMotorClient("mongodb+srv://nirja:nirja@1822@cluster0.ubixwcn.mongodb.net/medguard")
+uri = os.getenv("MONGODB_URI")
+client = AsyncIOMotorClient(uri)
 db = client.medguard
 
 # ── Models ──────────────────────────────────────────────
