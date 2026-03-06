@@ -277,8 +277,8 @@ async def chat(req: ChatRequest):
         raise HTTPException(status_code=500, detail="GEMINI_API_KEY missing")
     try:
         genai.configure(api_key=key)
-        # Using 1.5-flash as 2.5 does not exist yet
-        model = genai.GenerativeModel("gemini-1.5-flash")
+        # Using gemini-2.0-flash (1.5-flash is retired)
+        model = genai.GenerativeModel("gemini-2.0-flash")
         prompt = req.system + "\n\n" + "\n".join([f"{m.role}: {m.content}" for m in req.messages])
         response = model.generate_content(prompt)
         return {"text": response.text}
