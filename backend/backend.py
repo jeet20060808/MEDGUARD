@@ -111,7 +111,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
 from dotenv import load_dotenv
-import google.generativeai as genai
+from openai import OpenAI
 from motor.motor_asyncio import AsyncIOMotorClient
 from bson import ObjectId
 
@@ -272,16 +272,19 @@ def home():
 
 @app.post("/api/chat")
 async def chat(req: ChatRequest):
-    key = os.getenv("GEMINI_API_KEY")
+    key = os.getenv("OPENAI_API_KEY")
     if not key:
-        raise HTTPException(status_code=500, detail="GEMINI_API_KEY missing")
+        raise HTTPException(status_code=500, detail="OPENAI_API_KEY missing")
     try:
-        genai.configure(api_key=key)
-        # Using gemini-2.0-flash (1.5-flash is retired)
-        model = genai.GenerativeModel("gemini-2.0-flash")
-        prompt = req.system + "\n\n" + "\n".join([f"{m.role}: {m.content}" for m in req.messages])
-        response = model.generate_content(prompt)
-        return {"text": response.text}
+        client = OpenAI(api_key=key)
+        messages = [{"role": "system", "content": req.system}]
+        for m in req.messages:
+            messages.append({"role": m.role, "content": m.content})
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=messages
+        )
+        return {"text": response.choices[0].message.content}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
