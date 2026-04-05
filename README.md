@@ -1,16 +1,77 @@
-# React + Vite
+# MedGuard AI
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+MedGuard AI is a React + Vite healthcare companion app that helps patients manage medications, vitals, appointments, vaccinations, symptoms, and AI-powered care guidance.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Patient portal with dashboard, medication management, vitals logging, appointments, vaccinations, and symptom tracking
+- AI Advisor chat for personalized medication and wellness guidance
+- Health insights and analytics overview
+- Local data persistence for users, medications, and health records
+- Responsive UI built with React and Vite
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React 19
+- Vite
+- Vanilla CSS / inline styles
+- Anthropic AI integration for the advisor chat
+- Optional Python backend available in `backend/`
 
-## Expanding the ESLint configuration
+## Getting Started
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Frontend
+
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+2. Create a `.env` file in the project root and add your API key:
+   ```bash
+   VITE_ANTHROPIC_API_KEY=your_anthropic_api_key_here
+   ```
+
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+4. Open the local URL shown in the terminal to view the app.
+
+### Build for production
+
+```bash
+npm run build
+```
+
+### Preview the production build
+
+```bash
+npm run preview
+```
+
+## Optional Backend
+
+The repository includes a `backend/` folder for optional backend services.
+
+To run the backend:
+
+1. Create a Python virtual environment.
+2. Install dependencies:
+   ```bash
+   pip install -r backend/requirements.txt
+   ```
+3. Start the server:
+   ```bash
+   uvicorn backend.main:app --reload
+   ```
+
+## Notes
+
+- The AI Advisor requires `VITE_ANTHROPIC_API_KEY` to be present in `.env`.
+- This project stores data locally in the browser for quick testing and demo use.
+
+## License
+
+This project is currently private and not licensed for public use.
