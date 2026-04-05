@@ -12,7 +12,7 @@ class ErrorBoundary extends Component {
   render() {
     if (this.state.hasError) return (
       <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#050810", color: "#fff", flexDirection: "column", gap: 16 }}>
-        <div style={{ fontSize: 48 }}>⚠️</div>
+        <div style={{ fontSize: 48 }}><Icons.SOS/></div>
         <h2 style={{ fontSize: 22, fontWeight: 800 }}>Something went wrong</h2>
         <p style={{ color: "#8ab4d4", fontSize: 14 }}>{this.state.error?.message}</p>
         <button onClick={() => this.setState({ hasError: false, error: null })} style={{ padding: "12px 28px", borderRadius: 12, background: "#4ba6c7", color: "#fff", border: "none", fontWeight: 700, cursor: "pointer" }}>Try Again</button>
@@ -58,6 +58,18 @@ const Icons = {
   EyeOff: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>,
   Lock: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
   Zap: () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
+  Star: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
+  Smile: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>,
+  Clock: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+  Refresh: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>,
+  Message: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>,
+  Building: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><rect x="9" y="6" width="6" height="4"/><line x1="9" y1="14" x2="15" y2="14"/><line x1="9" y1="18" x2="15" y2="18"/><line x1="12" y1="6" x2="12" y2="18"/></svg>,
+  Pin: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>,
+  DNA: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3c3.5 3.5 8.5 3.5 12 0"/><path d="M15 3c3.5 3.5 3.5 8.5 0 12"/><path d="M21 15c-3.5 3.5-8.5 3.5-12 0"/><path d="M9 21c-3.5-3.5-3.5-8.5 0-12"/><circle cx="9" cy="9" r="1"/><circle cx="15" cy="15" r="1"/></svg>,
+  Flag: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 21V2"/><path d="M4 7h16l-2 4 2 4H4"/></svg>,
+  Lightbulb: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M10 2v6a6 6 0 0 0 12 0v-6"/><circle cx="12" cy="14" r="4"/></svg>,
+  Hand: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.83L7 15"/></svg>,
+  Lungs: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v6"/><path d="M12 8c-2.5 0-4 1.5-4 4s1.5 4 4 4 4-1.5 4-4-1.5-4-4-4"/><path d="M4 10c0-2.5 1.5-4 4-4s4 1.5 4 4-1.5 4-4 4-4-1.5-4-4"/><path d="M20 10c0-2.5-1.5-4-4-4s-4 1.5-4 4 1.5 4 4 4 4-1.5 4-4"/><path d="M8 14v6"/><path d="M16 14v6"/></svg>,
 };
 
 // ── TRANSLATIONS ──────────────────────────────────────
@@ -307,7 +319,7 @@ function Toast({ toasts }) {
     <div style={{ position:"fixed", bottom:24, right:24, zIndex:9999, display:"flex", flexDirection:"column", gap:8, pointerEvents:"none" }}>
       {toasts.map(t => (
         <div key={t.id} style={{ background:"rgba(10,20,38,0.96)", backdropFilter:"blur(20px)", border:"1px solid rgba(56,189,248,0.2)", borderRadius:14, padding:"12px 16px", minWidth:260, display:"flex", alignItems:"center", gap:12, boxShadow:"0 8px 32px rgba(0,0,0,0.4)", animation:"toastIn 0.3s ease" }}>
-          <span style={{ fontSize:20 }}>{t.icon}</span>
+          <div style={{ fontSize:20 }}>{t.icon}</div>
           <div>
             <div style={{ fontWeight:700, fontSize:13.5, color:"#e2e8f0" }}>{t.title}</div>
             {t.msg && <div style={{ fontSize:12, color:"#64748b", marginTop:2 }}>{t.msg}</div>}
@@ -350,9 +362,13 @@ function ModalHead({ icon, title, sub, onClose }) {
 
 // ── AI CALL ───────────────────────────────────────────
 async function callAI(messages, system) {
+  const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY;
+  if (!apiKey || apiKey === 'your_anthropic_api_key_here') {
+    throw new Error("AI features require an Anthropic API key. Please add VITE_ANTHROPIC_API_KEY to your .env file.");
+  }
   const res = await fetch(API_BASE_URL, {
     method:"POST",
-    headers:{ "Content-Type":"application/json", "x-api-key":"", "anthropic-version":"2023-06-01", "anthropic-dangerous-direct-browser-access":"true" },
+    headers:{ "Content-Type":"application/json", "x-api-key":apiKey, "anthropic-version":"2023-06-01", "anthropic-dangerous-direct-browser-access":"true" },
     body:JSON.stringify({ model:ANTHROPIC_MODEL, max_tokens:500, system, messages })
   });
   const data = await res.json();
@@ -405,12 +421,12 @@ function AddMedModal({ onClose, onAdd, knownAllergies=[] }) {
     setForm(f=>({...f,[k]:v}));
     if (k==="name") {
       const m = knownAllergies.find(a=>v.toLowerCase().includes(a.toLowerCase().trim()));
-      setAllergyAlert(m ? `⚠️ Allergy alert: "${m}" detected!` : null);
+      setAllergyAlert(m ? <><Icons.SOS/> Allergy alert: "{m}" detected!</> : null);
     }
   };
   return (
     <Modal onClose={onClose}>
-      <ModalHead icon="💊" title="Add Medication" sub="Schedule a new medication" onClose={onClose}/>
+      <ModalHead icon={<Icons.Med/>} title="Add Medication" sub="Schedule a new medication" onClose={onClose}/>
       {allergyAlert && <div style={{ background:"rgba(239,68,68,0.1)", border:"1.5px solid rgba(239,68,68,0.4)", borderRadius:10, padding:"10px 14px", marginBottom:14, color:"#fca5a5", fontSize:13, fontWeight:700 }}>{allergyAlert}</div>}
       <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"12px 14px" }}>
         <div style={{ gridColumn:"1/-1" }}><label className="label">Medicine Name *</label><input className="input" placeholder="e.g. Metformin" value={form.name} onChange={e=>up("name",e.target.value)}/></div>
@@ -447,17 +463,17 @@ function DrugInteractionModal({ onClose, dark }) {
   const sevColor = { HIGH:["rgba(239,68,68,0.1)","#ef4444","#fca5a5"], MEDIUM:["rgba(251,191,36,0.1)","#fbbf24","#fde68a"], LOW:["rgba(52,211,153,0.1)","#34d399","#a7f3d0"] };
   return (
     <Modal onClose={onClose} maxWidth={560}>
-      <ModalHead icon="🛡️" title="Drug Interaction Checker" sub="Check safety of medication combinations" onClose={onClose}/>
+      <ModalHead icon={<Icons.Shield/>} title="Drug Interaction Checker" sub="Check safety of medication combinations" onClose={onClose}/>
       <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:14 }}>
         <div><label className="label">Drug / Food 1</label><input className="input" placeholder="e.g. Warfarin" value={drug1} onChange={e=>{setDrug1(e.target.value);setChecked(false);}} onKeyDown={e=>e.key==="Enter"&&check()}/></div>
         <div><label className="label">Drug / Food 2</label><input className="input" placeholder="e.g. Aspirin" value={drug2} onChange={e=>{setDrug2(e.target.value);setChecked(false);}} onKeyDown={e=>e.key==="Enter"&&check()}/></div>
       </div>
       <div style={{ display:"flex", gap:8, marginBottom:18 }}>
-        <button onClick={check} className="btn btn-primary" style={{ flex:1 }}>⚡ Quick Check</button>
-        <button onClick={checkWithAI} disabled={aiLoading} className="btn btn-ghost" style={{ flex:1 }}>{aiLoading?"Checking…":"🤖 AI Deep Check"}</button>
+        <button onClick={check} className="btn btn-primary" style={{ flex:1 }}><Icons.Zap/> Quick Check</button>
+        <button onClick={checkWithAI} disabled={aiLoading} className="btn btn-ghost" style={{ flex:1 }}>{aiLoading?"Checking…":<><Icons.AI/> AI Deep Check</>}</button>
       </div>
       {aiResult && <div style={{ background:col.accentLight, border:`1px solid ${col.accentBorder}`, borderRadius:12, padding:"14px 16px", marginBottom:14, fontSize:13, color:col.textMid, lineHeight:1.7 }}><strong style={{ color:col.accent, display:"block", marginBottom:6 }}>AI Analysis</strong>{aiResult}</div>}
-      {checked && (result ? (()=>{ const [bg,border,tc]=sevColor[result.severity]||sevColor.LOW; return <div style={{ background:bg, border:`2px solid ${border}`, borderRadius:12, padding:"16px 18px" }}><div style={{ fontWeight:800, fontSize:15, color:tc, marginBottom:4 }}>{result.severity} SEVERITY</div><p style={{ fontSize:13, color:tc, lineHeight:1.7 }}>{result.effect}</p></div>; })() : <div style={{ background:"rgba(52,211,153,0.1)", border:"2px solid #34d399", borderRadius:12, padding:"16px 18px" }}><div style={{ fontWeight:800, fontSize:15, color:"#34d399" }}>✅ No Known Interaction</div><div style={{ fontSize:13, color:"#6ee7b7", marginTop:4 }}>Always confirm with your pharmacist.</div></div>)}
+      {checked && (result ? (()=>{ const [bg,border,tc]=sevColor[result.severity]||sevColor.LOW; return <div style={{ background:bg, border:`2px solid ${border}`, borderRadius:12, padding:"16px 18px" }}><div style={{ fontWeight:800, fontSize:15, color:tc, marginBottom:4 }}>{result.severity} SEVERITY</div><p style={{ fontSize:13, color:tc, lineHeight:1.7 }}>{result.effect}</p></div>; })() : <div style={{ background:"rgba(52,211,153,0.1)", border:"2px solid #34d399", borderRadius:12, padding:"16px 18px" }}><div style={{ fontWeight:800, fontSize:15, color:"#34d399" }}><Icons.Check/> No Known Interaction</div><div style={{ fontSize:13, color:"#6ee7b7", marginTop:4 }}>Always confirm with your pharmacist.</div></div>)}
     </Modal>
   );
 }
@@ -468,26 +484,26 @@ function EmergencySOSModal({ onClose, user }) {
   const trigger = () => {
     setCalling(true);
     if ("Notification" in window && Notification.permission==="granted") {
-      new Notification("🚨 Emergency SOS Triggered", { body:`Emergency alert sent for ${user?.name}. Location shared.` });
+      new Notification("Emergency SOS Triggered", { body:`Emergency alert sent for ${user?.name}. Location shared.` });
     }
     setTimeout(()=>{ setCalling(false); setSent(true); }, 2500);
   };
   return (
     <div className="overlay">
       <div style={{ background:"#0c1625", border:"2px solid rgba(239,68,68,0.4)", borderRadius:20, padding:32, width:440, maxWidth:"95vw", textAlign:"center" }}>
-        <div style={{ width:88, height:88, borderRadius:"50%", background:"rgba(239,68,68,0.12)", border:"2px solid rgba(239,68,68,0.35)", margin:"0 auto 16px", display:"flex", alignItems:"center", justifyContent:"center", color:"#ef4444", fontSize:36, animation:"sosPulse 1.5s infinite" }}>🆘</div>
+        <div style={{ width:88, height:88, borderRadius:"50%", background:"rgba(239,68,68,0.12)", border:"2px solid rgba(239,68,68,0.35)", margin:"0 auto 16px", display:"flex", alignItems:"center", justifyContent:"center", color:"#ef4444", fontSize:36, animation:"sosPulse 1.5s infinite" }}><Icons.SOS/></div>
         <h2 style={{ fontSize:22, fontWeight:900, color:"#ef4444", marginBottom:6 }}>Emergency SOS</h2>
         <p style={{ fontSize:13, color:"#64748b", marginBottom:20 }}>Pressing the button below will alert your emergency contacts and attempt to dial 112.</p>
         {!sent ? (
           <button onClick={trigger} disabled={calling} style={{ width:"100%", padding:"15px", borderRadius:12, background:calling?"#dc2626":"#ef4444", color:"#fff", fontSize:16, fontWeight:900, border:"none", marginBottom:12, cursor:"pointer", boxShadow:"0 6px 20px rgba(239,68,68,0.4)" }}>
-            {calling ? "🔴 Connecting to 112…" : "📞 Call Emergency (112)"}
+            {calling ? "🔴 Connecting to 112…" : <><Icons.User/> Call Emergency (112)</>}
           </button>
         ) : (
-          <div style={{ background:"rgba(52,211,153,0.1)", border:"1px solid #34d399", borderRadius:12, padding:"14px", marginBottom:12, color:"#34d399", fontWeight:700 }}>✅ Emergency contacts notified!</div>
+          <div style={{ background:"rgba(52,211,153,0.1)", border:"1px solid #34d399", borderRadius:12, padding:"14px", marginBottom:12, color:"#34d399", fontWeight:700 }}><Icons.Check/> Emergency contacts notified!</div>
         )}
         <div style={{ background:"rgba(239,68,68,0.06)", borderRadius:10, padding:"10px 14px", fontSize:12, color:"#94a3b8", marginBottom:14, lineHeight:1.6 }}>
           📍 Location shared with: {user?.emergencyContact || "No contacts configured"}<br/>
-          🩸 Blood Type: {user?.bloodType || "Unknown"} · Allergies: {user?.allergies || "None"}
+          <Icons.Droplet/> Blood Type: {user?.bloodType || "Unknown"} · Allergies: {user?.allergies || "None"}
         </div>
         <button onClick={onClose} style={{ width:"100%", padding:"12px", borderRadius:10, background:"rgba(255,255,255,0.06)", color:"#64748b", fontWeight:700, fontSize:13, border:"1px solid rgba(255,255,255,0.08)", cursor:"pointer" }}>Close</button>
       </div>
@@ -505,12 +521,12 @@ function SymptomLoggerModal({ onClose, meds }) {
     try {
       const txt = await callAI([{role:"user",content:`Patient medications: ${meds.map(m=>m.name).join(", ")||"none"}. Symptoms: ${selected.join(", ")}. Severity: ${severity}/10. Analyze possible causes, medication side effects, and urgency.`}], "You are MedGuard AI. Analyze symptoms vs medications concisely. Use bullet points. End with urgency level (Low/Medium/High) and whether to see a doctor. Under 150 words.");
       setResult(txt);
-    } catch { setResult("⚠️ AI analysis unavailable. Please consult your doctor for symptom evaluation."); }
+    } catch { setResult(<><Icons.SOS/> AI analysis unavailable. Please consult your doctor for symptom evaluation.</>); }
     setLoading(false);
   };
   return (
     <Modal onClose={onClose} maxWidth={660}>
-      <ModalHead icon="🩺" title="AI Symptom Logger" sub="Analyze symptoms against your medications" onClose={onClose}/>
+      <ModalHead icon={<Icons.Activity/>} title="AI Symptom Logger" sub="Analyze symptoms against your medications" onClose={onClose}/>
       <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:20 }}>
         <div>
           <label className="label" style={{ marginBottom:10 }}>Select Symptoms</label>
@@ -519,10 +535,10 @@ function SymptomLoggerModal({ onClose, meds }) {
           </div>
           <label className="label">Severity: <strong style={{ color:"#ef4444" }}>{severity}/10</strong></label>
           <input type="range" min={1} max={10} value={severity} onChange={e=>setSeverity(+e.target.value)} style={{ width:"100%", accentColor:"#ef4444", marginBottom:14 }}/>
-          <button onClick={analyze} disabled={!selected.length||loading} className="btn btn-primary" style={{ width:"100%", opacity:selected.length&&!loading?1:0.5 }}>{loading?"🤖 Analyzing…":"🤖 Analyze with AI"}</button>
+          <button onClick={analyze} disabled={!selected.length||loading} className="btn btn-primary" style={{ width:"100%", opacity:selected.length&&!loading?1:0.5 }}>{loading?<><Icons.AI/> Analyzing…</>:<><Icons.AI/> Analyze with AI</>}</button>
         </div>
         <div style={{ background:"rgba(255,255,255,0.03)", border:"1.5px solid rgba(100,116,139,0.15)", borderRadius:12, padding:18, minHeight:200, display:"flex", flexDirection:"column" }}>
-          {result ? <><div style={{ fontWeight:700, marginBottom:10, fontSize:13 }}>🧠 AI Analysis</div><div style={{ fontSize:13, color:"#94a3b8", lineHeight:1.8, whiteSpace:"pre-wrap" }}>{result}</div></> : <div style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", flex:1, gap:8, color:"#475569" }}><span style={{ fontSize:32 }}>🔍</span><span style={{ fontSize:13 }}>Select symptoms to analyze</span></div>}
+          {result ? <><div style={{ fontWeight:700, marginBottom:10, fontSize:13 }}><Icons.AI/> AI Analysis</div><div style={{ fontSize:13, color:"#94a3b8", lineHeight:1.8, whiteSpace:"pre-wrap" }}>{result}</div></> : <div style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", flex:1, gap:8, color:"#475569" }}><Icons.Eye style={{ fontSize:32 }}/><span style={{ fontSize:13 }}>Select symptoms to analyze</span></div>}
         </div>
       </div>
     </Modal>
@@ -539,7 +555,7 @@ function VitalsModal({ onClose, onSave }) {
   };
   return (
     <Modal onClose={onClose}>
-      <ModalHead icon="❤️" title="Log Vitals" sub="Record your health measurements" onClose={onClose}/>
+      <ModalHead icon={<Icons.Heart/>} title="Log Vitals" sub="Record your health measurements" onClose={onClose}/>
       <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"12px 14px" }}>
         <div><label className="label">Systolic BP (mmHg)</label><input className="input" type="number" placeholder="120" value={form.bp_sys} onChange={e=>up("bp_sys",e.target.value)}/></div>
         <div><label className="label">Diastolic BP (mmHg)</label><input className="input" type="number" placeholder="80" value={form.bp_dia} onChange={e=>up("bp_dia",e.target.value)}/></div>
@@ -564,7 +580,7 @@ function AppointmentModal({ onClose, onSave }) {
   const up=(k,v)=>setForm(f=>({...f,[k]:v}));
   return (
     <Modal onClose={onClose}>
-      <ModalHead icon="📅" title="Schedule Appointment" sub="Add a doctor visit or consultation" onClose={onClose}/>
+      <ModalHead icon={<Icons.Calendar/>} title="Schedule Appointment" sub="Add a doctor visit or consultation" onClose={onClose}/>
       <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"12px 14px" }}>
         <div style={{ gridColumn:"1/-1" }}><label className="label">Doctor / Provider *</label><input className="input" placeholder="Dr. Sarah Johnson" value={form.doctor} onChange={e=>up("doctor",e.target.value)}/></div>
         <div><label className="label">Specialty</label><input className="input" placeholder="Cardiologist" value={form.specialty} onChange={e=>up("specialty",e.target.value)}/></div>
@@ -588,7 +604,7 @@ function VaccineModal({ onClose, onSave }) {
   const up=(k,v)=>setForm(f=>({...f,[k]:v}));
   return (
     <Modal onClose={onClose}>
-      <ModalHead icon="💉" title="Add Vaccination" sub="Record a vaccine received" onClose={onClose}/>
+      <ModalHead icon={<Icons.Syringe/>} title="Add Vaccination" sub="Record a vaccine received" onClose={onClose}/>
       <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"12px 14px" }}>
         <div style={{ gridColumn:"1/-1" }}><label className="label">Vaccine Name *</label><input className="input" placeholder="COVID-19 Booster" value={form.name} onChange={e=>up("name",e.target.value)}/></div>
         <div><label className="label">Date Given *</label><input type="date" className="input" value={form.date} onChange={e=>up("date",e.target.value)}/></div>
@@ -607,7 +623,7 @@ function VaccineModal({ onClose, onSave }) {
 // ── MOOD WIDGET ───────────────────────────────────────
 function MoodWidget({ dark, email }) {
   const col = C[dark?"dark":"light"];
-  const moods=[{e:"😞",l:"Terrible",c:"#ef4444"},{e:"😕",l:"Bad",c:"#f59e0b"},{e:"😐",l:"Okay",c:"#8ab4d4"},{e:"😊",l:"Good",c:"#34d399"},{e:"😄",l:"Great!",c:col.accent}];
+  const moods=[{e:<Icons.Trash/>,l:"Terrible",c:"#ef4444"},{e:<Icons.SOS/>,l:"Bad",c:"#f59e0b"},{e:<Icons.User/>,l:"Okay",c:"#8ab4d4"},{e:<Icons.Smile/>,l:"Good",c:"#34d399"},{e:<Icons.Star/>,l:"Great!",c:col.accent}];
   const todayKey = new Date().toDateString();
   const log = getMoodLog(email);
   const todayEntry = log.find(e=>e.date===todayKey);
@@ -624,11 +640,11 @@ function MoodWidget({ dark, email }) {
 
   return (
     <div className="card">
-      <div style={{ fontWeight:700, fontSize:14, marginBottom:14, color:col.text }}>😊 Daily Mood Check-In</div>
+      <div style={{ fontWeight:700, fontSize:14, marginBottom:14, color:col.text }}><Icons.Smile/> Daily Mood Check-In</div>
       <div style={{ display:"flex", gap:8 }}>
         {moods.map((m,i)=><button key={i} onClick={()=>save(i)} style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:4, padding:"10px 4px", borderRadius:10, border:`2px solid ${selected===i?m.c:col.border}`, background:selected===i?m.c+"18":"transparent", cursor:"pointer", transition:"all 0.2s" }}><span style={{ fontSize:24 }}>{m.e}</span><span style={{ fontSize:9, fontWeight:700, color:selected===i?m.c:col.textSoft }}>{m.l}</span></button>)}
       </div>
-      {saved && <div style={{ textAlign:"center", fontSize:12, color:"#34d399", fontWeight:700, marginTop:10 }}>✅ Mood logged for today</div>}
+      {saved && <div style={{ textAlign:"center", fontSize:12, color:"#34d399", fontWeight:700, marginTop:10 }}><Icons.Check/> Mood logged for today</div>}
     </div>
   );
 }
@@ -655,7 +671,7 @@ function _printReport(meds, streak, adherencePct, user, vitals) {
   </div>
   <h2>Medications</h2>
   <table><tr><th>Name</th><th>Dosage</th><th>Frequency</th><th>Time</th><th>Status</th></tr>
-  ${meds.map(m=>`<tr><td>${m.name}</td><td>${m.dosage}</td><td>${m.frequency}</td><td>${m.time}</td><td>${m.status==="taken"?"✅ Taken":"⏳ Pending"}</td></tr>`).join("")}
+  ${meds.map(m=>`<tr><td>${m.name}</td><td>${m.dosage}</td><td>${m.frequency}</td><td>${m.time}</td><td>${m.status==="taken"?"✓ Taken":"○ Pending"}</td></tr>`).join("")}
   </table>
   ${vitals.length?`<h2>Recent Vitals</h2><table><tr><th>Date</th><th>BP</th><th>Pulse</th><th>Temp</th><th>O2</th><th>Weight</th></tr>${vitals.slice(-5).reverse().map(v=>`<tr><td>${v.date}</td><td>${v.bp_sys||"—"}/${v.bp_dia||"—"}</td><td>${v.pulse||"—"}</td><td>${v.temp||"—"}°C</td><td>${v.o2||"—"}%</td><td>${v.weight||"—"}kg</td></tr>`).join("")}</table>`:""}
   <p style="color:#94a3b8;font-size:11px;margin-top:32px">Generated by MedGuard AI · For informational use only · Always consult your healthcare provider</p>
@@ -670,18 +686,18 @@ function NotificationPanel({ meds, appointments, dark, onClose }) {
   const refillDue = meds.filter(m => m.refillDate && (new Date(m.refillDate)-now)/(1000*60*60*24)<=7);
   const upcomingAppts = appointments.filter(a => { const d=new Date(a.date); return d>=now && (d-now)/(1000*60*60*24)<=3; });
   const notifs = [
-    ...refillDue.map(m=>({ type:"warning", title:`Refill needed: ${m.name}`, time:"Soon", icon:"💊" })),
-    ...upcomingAppts.map(a=>({ type:"info", title:`Appointment: ${a.doctor}`, time:new Date(a.date).toLocaleDateString(), icon:"📅" })),
-    { type:"success", title:"Daily streak maintained!", time:"Today", icon:"🔥" },
+    ...refillDue.map(m=>({ type:"warning", title:`Refill needed: ${m.name}`, time:"Soon", icon:<Icons.Med/> })),
+    ...upcomingAppts.map(a=>({ type:"info", title:`Appointment: ${a.doctor}`, time:new Date(a.date).toLocaleDateString(), icon:<Icons.Calendar/> })),
+    { type:"success", title:"Daily streak maintained!", time:"Today", icon:<Icons.Flame/> },
   ];
   return (
     <div style={{ position:"fixed", top:64, right:24, zIndex:500, width:300 }} className="card fade-up">
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
-        <div style={{ fontWeight:800, fontSize:14 }}>🔔 Notifications</div>
+        <div style={{ fontWeight:800, fontSize:14 }}><Icons.Bell/> Notifications</div>
         <button onClick={onClose} style={{ background:"none", border:"none", color:col.textSoft, cursor:"pointer", fontSize:18 }}>×</button>
       </div>
       <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-        {notifs.length===0 ? <div style={{ fontSize:13, color:col.textSoft, textAlign:"center", padding:"20px 0" }}>All clear! 🎉</div> :
+        {notifs.length===0 ? <div style={{ fontSize:13, color:col.textSoft, textAlign:"center", padding:"20px 0" }}>All clear! <Icons.Check/></div> :
           notifs.map((n,i)=><div key={i} style={{ display:"flex", gap:10, padding:"10px 12px", borderRadius:10, background:n.type==="warning"?"rgba(251,191,36,0.06)":n.type==="info"?col.accentLight:"rgba(52,211,153,0.06)", border:`1px solid ${n.type==="warning"?"rgba(251,191,36,0.2)":n.type==="info"?col.accentBorder:"rgba(52,211,153,0.2)"}` }}><span style={{ fontSize:18 }}>{n.icon}</span><div><div style={{ fontWeight:600, fontSize:12, color:col.text }}>{n.title}</div><div style={{ fontSize:11, color:col.textSoft }}>{n.time}</div></div></div>)
         }
       </div>
@@ -715,20 +731,25 @@ function AnalyticsTab({ dark, email, meds, streak, vitals }) {
   return (
     <div style={{ display:"flex", flexDirection:"column", gap:22 }}>
       <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:14 }} className="fade-up">
-        {[["Health Score","⭐",`${healthScore}/100`,healthScore>=80?"badge-green":healthScore>=60?"badge-yellow":"badge-red"],["Adherence","💊",`${adherencePct}%`,adherencePct>=80?"badge-green":adherencePct>=60?"badge-yellow":"badge-red"],["Day Streak","🔥",`${streak} days`,"badge-blue"],["Meds Active","💉",`${meds.length}`,""]]
+        {[
+          ["Health Score", <Icons.Star key="star" />, `${healthScore}/100`, healthScore>=80?"badge-green":healthScore>=60?"badge-yellow":"badge-red"],
+          ["Adherence", <Icons.Med key="med" />, `${adherencePct}%`, adherencePct>=80?"badge-green":adherencePct>=60?"badge-yellow":"badge-red"],
+          ["Day Streak", <Icons.Flame key="flame" />, `${streak} days`, "badge-blue"],
+          ["Meds Active", <Icons.Syringe key="syringe" />, `${meds.length}`, ""]
+        ]
           .map(([l,e,v,cls])=><div key={l} className="stat-card"><div style={{ fontSize:22, marginBottom:8 }}>{e}</div><div style={{ fontSize:22, fontWeight:900, color:col.text }}>{v}</div><div style={{ fontSize:11, color:col.textSoft, marginTop:3 }}>{l}</div>{cls&&<span className={`badge ${cls}`} style={{ marginTop:8 }}>{v}</span>}</div>)}
       </div>
 
       <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:20 }} className="fade-up-1">
         <div className="card">
-          <div style={{ fontWeight:700, fontSize:14, marginBottom:16 }}>📊 Weekly Adherence</div>
+          <div style={{ fontWeight:700, fontSize:14, marginBottom:16 }}><Icons.Chart/> Weekly Adherence</div>
           <BarChart data={weekData} dark={dark}/>
           <div style={{ display:"flex", justifyContent:"space-between", marginTop:10, fontSize:11, color:col.textSoft }}>
             <span>7-day view</span><span>Today highlighted</span>
           </div>
         </div>
         <div className="card">
-          <div style={{ fontWeight:700, fontSize:14, marginBottom:16 }}>😊 Weekly Mood</div>
+          <div style={{ fontWeight:700, fontSize:14, marginBottom:16 }}><Icons.Smile/> Weekly Mood</div>
           <div style={{ display:"flex", gap:6, justifyContent:"space-between" }}>
             {moodWeek.map((d,i)=><div key={i} style={{ flex:1, textAlign:"center" }}>
               <div style={{ fontSize:20, marginBottom:4 }}>{d.emoji}</div>
@@ -740,16 +761,16 @@ function AnalyticsTab({ dark, email, meds, streak, vitals }) {
 
       {latestVitals && (
         <div className="card fade-up-2">
-          <div style={{ fontWeight:700, fontSize:14, marginBottom:16 }}>❤️ Latest Vitals — {latestVitals.date}</div>
+          <div style={{ fontWeight:700, fontSize:14, marginBottom:16 }}><Icons.Heart/> Latest Vitals — {latestVitals.date}</div>
           <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(130px,1fr))", gap:12 }}>
-            {[["Blood Pressure",`${latestVitals.bp_sys||"—"}/${latestVitals.bp_dia||"—"} mmHg`,"🫀"],["Heart Rate",`${latestVitals.pulse||"—"} bpm`,"❤️"],["Temperature",`${latestVitals.temp||"—"}°C`,"🌡️"],["O2 Saturation",`${latestVitals.o2||"—"}%`,"🫁"],["Weight",`${latestVitals.weight||"—"} kg`,"⚖️"],["Glucose",`${latestVitals.glucose||"—"} mg/dL`,"🩸"]]
+            {[["Blood Pressure",`${latestVitals.bp_sys||"—"}/${latestVitals.bp_dia||"—"} mmHg`,<Icons.Heart key="bp"/>],["Heart Rate",`${latestVitals.pulse||"—"} bpm`,<Icons.Heart key="hr"/>],["Temperature",`${latestVitals.temp||"—"}°C`,<Icons.Thermometer key="temp"/>],["O2 Saturation",`${latestVitals.o2||"—"}%`,<Icons.Lungs key="o2"/>],["Weight",`${latestVitals.weight||"—"} kg`,<Icons.Weight key="weight"/>],["Glucose",`${latestVitals.glucose||"—"} mg/dL`,<Icons.Droplet key="glucose"/>]]
               .map(([l,v,e])=><div key={l} style={{ background:col.accentLight, borderRadius:10, padding:"12px 14px", border:`1px solid ${col.accentBorder}` }}><div style={{ fontSize:18, marginBottom:4 }}>{e}</div><div style={{ fontWeight:800, fontSize:16, color:col.text }}>{v}</div><div style={{ fontSize:10, color:col.textSoft, marginTop:2 }}>{l}</div></div>)}
           </div>
         </div>
       )}
 
       <div className="card fade-up-3">
-        <div style={{ fontWeight:700, fontSize:14, marginBottom:14 }}>📋 30-Day Adherence Calendar</div>
+        <div style={{ fontWeight:700, fontSize:14, marginBottom:14 }}><Icons.Log/> 30-Day Adherence Calendar</div>
         <div style={{ display:"flex", gap:3, flexWrap:"wrap" }}>
           {Array.from({length:30},(_,i)=>{
             const d=new Date(); d.setDate(d.getDate()-29+i);
@@ -785,31 +806,31 @@ function SettingsTab({ dark, setDark, lang, setLang, user, setUser, show }) {
     const updated = { ...user, ...form };
     setUser(updated);
     localStorage.setItem(SESSION_KEY, JSON.stringify(updated));
-    show("✅","Profile Updated","Your information has been saved.");
+    show(<Icons.Check/>,"Profile Updated","Your information has been saved.");
   };
 
   const changePassword = () => {
-    if (!pwForm.current || !pwForm.newPw) { show("⚠️","Missing Fields","Fill all password fields.","error"); return; }
-    if (pwForm.newPw !== pwForm.confirm) { show("⚠️","Mismatch","New passwords don't match.","error"); return; }
+    if (!pwForm.current || !pwForm.newPw) { show(<Icons.Warning/>,"Missing Fields","Fill all password fields.","error"); return; }
+    if (pwForm.newPw !== pwForm.confirm) { show(<Icons.Warning/>,"Mismatch","New passwords don't match.","error"); return; }
     const users = getUsers();
-    if (users[user.email]?.passwordHash !== hashPassword(pwForm.current)) { show("❌","Wrong Password","Current password is incorrect.","error"); return; }
+    if (users[user.email]?.passwordHash !== hashPassword(pwForm.current)) { show(<Icons.X/>,"Wrong Password","Current password is incorrect.","error"); return; }
     users[user.email].passwordHash = hashPassword(pwForm.newPw);
     saveUsers(users);
     setPwForm({current:"",newPw:"",confirm:""});
-    show("🔒","Password Changed","Your password has been updated.");
+    show(<Icons.Lock/>,"Password Changed","Your password has been updated.");
   };
 
   const requestNotif = async () => {
     const perm = await Notification.requestPermission();
     setNotifPerm(perm);
-    if (perm==="granted") show("🔔","Notifications On","You'll receive medication reminders.");
+    if (perm==="granted") show(<Icons.Bell/>,"Notifications On","You'll receive medication reminders.");
   };
 
   return (
     <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:20 }}>
       {/* Profile */}
       <div className="card fade-up">
-        <div style={{ fontWeight:800, fontSize:16, marginBottom:18 }}>👤 Profile Settings</div>
+        <div style={{ fontWeight:800, fontSize:16, marginBottom:18 }}><Icons.User/> Profile Settings</div>
         <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
           <div><label className="label">Full Name</label><input className="input" value={form.name} onChange={e=>up("name",e.target.value)}/></div>
           <div><label className="label">Date of Birth</label><input type="date" className="input" value={form.dob} onChange={e=>up("dob",e.target.value)}/></div>
@@ -823,7 +844,7 @@ function SettingsTab({ dark, setDark, lang, setLang, user, setUser, show }) {
       <div style={{ display:"flex", flexDirection:"column", gap:20 }}>
         {/* Password */}
         <div className="card fade-up-1">
-          <div style={{ fontWeight:800, fontSize:16, marginBottom:18 }}>🔒 Change Password</div>
+          <div style={{ fontWeight:800, fontSize:16, marginBottom:18 }}><Icons.Lock/> Change Password</div>
           <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
             {[["current","Current Password"],["newPw","New Password"],["confirm","Confirm New Password"]].map(([k,l])=>(
               <div key={k}>
@@ -840,9 +861,9 @@ function SettingsTab({ dark, setDark, lang, setLang, user, setUser, show }) {
 
         {/* Language */}
         <div className="card fade-up-2">
-          <div style={{ fontWeight:800, fontSize:16, marginBottom:14 }}>🌐 Language</div>
+          <div style={{ fontWeight:800, fontSize:16, marginBottom:14 }}><Icons.Globe/> Language</div>
           <div style={{ display:"flex", gap:8 }}>
-            {[["en","English","🇬🇧"],["hi","हिंदी","🇮🇳"],["gu","ગુજ.","🇮🇳"]].map(([code,name,flag])=>(
+            {[["en","English",<Icons.Flag key="en"/>],["hi","हिंदी",<Icons.Flag key="hi"/>],["gu","ગુજ.",<Icons.Flag key="gu"/>]].map(([code,name,flag])=>(
               <button key={code} onClick={()=>setLang(code)} style={{ flex:1, padding:"10px 6px", borderRadius:10, border:`2px solid ${lang===code?col.accent:col.border}`, background:lang===code?col.accentLight:"transparent", color:lang===code?col.accent:col.textMid, fontWeight:700, fontSize:12, cursor:"pointer" }}>{flag} {name}</button>
             ))}
           </div>
@@ -850,7 +871,7 @@ function SettingsTab({ dark, setDark, lang, setLang, user, setUser, show }) {
 
         {/* Appearance & Notifs */}
         <div className="card fade-up-3">
-          <div style={{ fontWeight:800, fontSize:16, marginBottom:14 }}>⚙️ Preferences</div>
+          <div style={{ fontWeight:800, fontSize:16, marginBottom:14 }}><Icons.Settings/> Preferences</div>
           <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"10px 14px", borderRadius:10, border:`1px solid ${col.border}` }}>
               <span style={{ fontSize:13, fontWeight:600 }}>Dark Mode</span>
@@ -860,7 +881,7 @@ function SettingsTab({ dark, setDark, lang, setLang, user, setUser, show }) {
             </div>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"10px 14px", borderRadius:10, border:`1px solid ${col.border}` }}>
               <div><div style={{ fontSize:13, fontWeight:600 }}>Push Notifications</div><div style={{ fontSize:11, color:col.textSoft }}>Status: {notifPerm}</div></div>
-              <button onClick={requestNotif} disabled={notifPerm==="granted"} className="btn btn-ghost" style={{ fontSize:11, padding:"6px 12px" }}>{notifPerm==="granted"?"✅ Active":"Enable"}</button>
+              <button onClick={requestNotif} disabled={notifPerm==="granted"} className="btn btn-ghost" style={{ fontSize:11, padding:"6px 12px" }}>{notifPerm==="granted"?<><Icons.Check/> Active</>:<>"Enable"</>}</button>
             </div>
           </div>
         </div>
@@ -888,7 +909,7 @@ function AIChatTab({ dark, user, meds }) {
       const context = `Patient: ${user?.name}. Current meds: ${meds.map(m=>m.name+" "+m.dosage).join(", ")||"none"}. Allergies: ${user?.allergies||"none"}.`;
       const txt = await callAI(msgs, `You are MedGuard AI, a professional medical assistant. ${context} Be warm, concise (under 120 words), accurate. End clinical advice with: "Please consult your doctor for personalized guidance."`);
       setHistory(h=>[...h,{from:"ai",text:txt}]);
-    } catch(e) { setHistory(h=>[...h,{from:"ai",text:`⚠️ ${e.message||"Connection error. Please try again."}`}]); }
+    } catch(e) { setHistory(h=>[...h,{from:"ai",text:`${e.message||"Connection error. Please try again."}`}]); }
     setLoading(false);
   };
 
@@ -898,32 +919,32 @@ function AIChatTab({ dark, user, meds }) {
     <div style={{ display:"grid", gridTemplateColumns:"1fr 280px", gap:20, height:580 }}>
       <div className="card" style={{ display:"flex", flexDirection:"column", padding:0, overflow:"hidden" }}>
         <div style={{ padding:"18px 20px", borderBottom:`1px solid ${col.border}`, display:"flex", alignItems:"center", gap:12 }}>
-          <div style={{ width:40, height:40, borderRadius:12, background:col.accentLight, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22 }}>🤖</div>
+          <div style={{ width:40, height:40, borderRadius:12, background:col.accentLight, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22 }}><Icons.AI/></div>
           <div><div style={{ fontWeight:700, fontSize:14 }}>MedGuard AI Assistant</div><div style={{ fontSize:11, color:"#34d399" }}>● Online · Claude AI</div></div>
         </div>
         <div style={{ flex:1, overflowY:"auto", padding:"16px", display:"flex", flexDirection:"column", gap:10 }}>
           {history.map((m,i)=>(
             <div key={i} style={{ display:"flex", justifyContent:m.from==="user"?"flex-end":"flex-start", gap:8, alignItems:"flex-end" }}>
-              {m.from==="ai"&&<div style={{ width:28,height:28,borderRadius:"50%",background:`linear-gradient(135deg,${col.gradStart},${col.gradEnd})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,flexShrink:0 }}>🤖</div>}
+              {m.from==="ai"&&<div style={{ width:28,height:28,borderRadius:"50%",background:`linear-gradient(135deg,${col.gradStart},${col.gradEnd})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,flexShrink:0 }}><Icons.AI/></div>}
               <div style={{ maxWidth:"80%", padding:"11px 14px", borderRadius:m.from==="user"?"16px 16px 4px 16px":"16px 16px 16px 4px", background:m.from==="user"?`linear-gradient(135deg,${col.gradStart},${col.gradEnd})`:col.surface, color:m.from==="user"?"#fff":col.text, fontSize:13.5, lineHeight:1.7, border:m.from==="ai"?`1px solid ${col.border}`:"none", whiteSpace:"pre-wrap" }}>{m.text}</div>
             </div>
           ))}
-          {loading&&<div style={{ display:"flex", gap:8, alignItems:"flex-end" }}><div style={{ width:28,height:28,borderRadius:"50%",background:`linear-gradient(135deg,${col.gradStart},${col.gradEnd})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14 }}>🤖</div><div style={{ padding:"12px 16px",borderRadius:"16px 16px 16px 4px",background:col.surface,border:`1px solid ${col.border}` }} className="dot-loading"><span/><span/><span/></div></div>}
+          {loading&&<div style={{ display:"flex", gap:8, alignItems:"flex-end" }}><div style={{ width:28,height:28,borderRadius:"50%",background:`linear-gradient(135deg,${col.gradStart},${col.gradEnd})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14 }}><Icons.AI/></div><div style={{ padding:"12px 16px",borderRadius:"16px 16px 16px 4px",background:col.surface,border:`1px solid ${col.border}` }} className="dot-loading"><span/><span/><span/></div></div>}
           <div ref={bottomRef}/>
         </div>
         <div style={{ padding:"12px 16px", borderTop:`1px solid ${col.border}`, display:"flex", gap:8 }}>
-          <button onClick={listening?stop:start} style={{ padding:"11px 12px", borderRadius:10, background:listening?"rgba(239,68,68,0.1)":col.surface, border:`1.5px solid ${listening?"rgba(239,68,68,0.4)":col.border}`, fontSize:16, cursor:"pointer" }}>{listening?"🔴":"🎤"}</button>
+          <button onClick={listening?stop:start} style={{ padding:"11px 12px", borderRadius:10, background:listening?"rgba(239,68,68,0.1)":col.surface, border:`1.5px solid ${listening?"rgba(239,68,68,0.4)":col.border}`, fontSize:16, cursor:"pointer" }}>{listening?<Icons.Mic style={{color:"#ef4444"}}/>:<Icons.Mic/>}</button>
           <input value={msg} onChange={e=>setMsg(e.target.value)} onKeyDown={e=>e.key==="Enter"&&!e.shiftKey&&send()} placeholder="Ask about medications, symptoms…" className="input" style={{ flex:1 }}/>
           <button onClick={send} disabled={loading||!msg.trim()} className="btn btn-primary" style={{ opacity:loading||!msg.trim()?0.5:1 }}><Icons.Send/></button>
         </div>
       </div>
       <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
         <div className="card">
-          <div style={{ fontWeight:700, fontSize:13, marginBottom:10 }}>💡 Quick Questions</div>
+          <div style={{ fontWeight:700, fontSize:13, marginBottom:10 }}><Icons.Lightbulb/> Quick Questions</div>
           {suggested.map(q=><button key={q} onClick={()=>setMsg(q)} style={{ width:"100%", textAlign:"left", padding:"8px 10px", borderRadius:8, background:col.accentLight, border:`1px solid ${col.accentBorder}`, fontSize:12, color:col.textMid, cursor:"pointer", marginBottom:6, lineHeight:1.5 }}>{q}</button>)}
         </div>
         <div style={{ background:"rgba(251,191,36,0.06)", border:"1px solid rgba(251,191,36,0.2)", borderRadius:12, padding:"14px" }}>
-          <div style={{ fontWeight:700, fontSize:12, color:"#fbbf24", marginBottom:6 }}>⚠️ Disclaimer</div>
+          <div style={{ fontWeight:700, fontSize:12, color:"#fbbf24", marginBottom:6 }}><Icons.Warning/> Disclaimer</div>
           <p style={{ fontSize:11, color:col.textSoft, lineHeight:1.65 }}>AI provides general information only. Always consult your licensed doctor for medical decisions.</p>
         </div>
       </div>
@@ -971,51 +992,51 @@ function PatientPortal({ dark, SetDark, lang, SetLang, user, SetUser, onLogout }
     if(newMeds.every(m=>m.status==="taken")) {
       const newStreak = streak+1; setStreak(newStreak);
       const users = getUsers(); if(users[user.email]) { users[user.email].streak=newStreak; saveUsers(users); }
-      show("🔥","Streak Extended!","All doses taken today! Keep it up!","success");
+      show(<Icons.Flame/>,"Streak Extended!","All doses taken today! Keep it up!","success");
     } else {
-      show("✅","Dose Logged",`${meds[idx].name} marked as taken.`,"success");
+      show(<Icons.Check/>,"Dose Logged",`${meds[idx].name} marked as taken.`,"success");
     }
   };
 
   const addMed = (form) => {
     const newMeds=[...meds,form]; setMeds(newMeds); saveMeds(user.email,newMeds);
-    show("💊","Medication Added",`${form.name} added to your schedule.`);
+    show(<Icons.Med/>,"Medication Added",`${form.name} added to your schedule.`);
   };
   const _deleteMed = (idx) => {
     const newMeds=meds.filter((_,i)=>i!==idx); setMeds(newMeds); saveMeds(user.email,newMeds);
-    show("🗑️","Medication Removed","Medication deleted from schedule.");
+    show(<Icons.Trash/>,"Medication Removed","Medication deleted from schedule.");
   };
   const _resetDoses = () => {
     const newMeds=meds.map(m=>({...m,status:"upcoming"})); setMeds(newMeds); saveMeds(user.email,newMeds);
-    show("🔄","Doses Reset","All doses reset for today.");
+    show(<Icons.Refresh/>,"Doses Reset","All doses reset for today.");
   };
 
   const addVitals = (entry) => {
     const newVitals=[...vitals,entry]; setVitals(newVitals); saveVitals(user.email,newVitals);
-    show("❤️","Vitals Logged","Health measurements saved.");
+    show(<Icons.Heart/>,"Vitals Logged","Health measurements saved.");
   };
   const addAppt = (appt) => {
     const newAppts=[...appointments,appt]; setAppointments(newAppts); saveAppointments(user.email,newAppts);
-    show("📅","Appointment Scheduled",`Visit with ${appt.doctor} on ${appt.date}.`);
+    show(<Icons.Calendar/>,"Appointment Scheduled",`Visit with ${appt.doctor} on ${appt.date}.`);
   };
   const _deleteAppt = (id) => {
     const newAppts=appointments.filter(a=>a.id!==id); setAppointments(newAppts); saveAppointments(user.email,newAppts);
   };
   const addVaccine = (v) => {
     const newV=[...vaccines,v]; setVaccines(newV); saveVaccines(user.email,newV);
-    show("💉","Vaccination Recorded",`${v.name} added to your records.`);
+    show(<Icons.Syringe/>,"Vaccination Recorded",`${v.name} added to your records.`);
   };
 
   const navItems = [
-    { id:"dashboard", label:L.dashboard, icon:"📊" },
-    { id:"medications", label:L.medications, icon:"💊" },
-    { id:"ai-advisor", label:L.aiAdvisor, icon:"🤖" },
-    { id:"analytics", label:L.analytics, icon:"📈" },
-    { id:"vitals", label:L.vitals||"Vitals", icon:"❤️" },
-    { id:"appointments", label:L.appointments||"Appointments", icon:"📅" },
-    { id:"vaccinations", label:L.vaccinations||"Vaccines", icon:"💉" },
-    { id:"symptoms", label:L.symptoms, icon:"🩺" },
-    { id:"settings", label:L.settings, icon:"⚙️" },
+    { id:"dashboard", label:L.dashboard, icon:<Icons.Dash/> },
+    { id:"medications", label:L.medications, icon:<Icons.Med/> },
+    { id:"ai-advisor", label:L.aiAdvisor, icon:<Icons.AI/> },
+    { id:"analytics", label:L.analytics, icon:<Icons.Chart/> },
+    { id:"vitals", label:L.vitals||"Vitals", icon:<Icons.Heart/> },
+    { id:"appointments", label:L.appointments||"Appointments", icon:<Icons.Calendar/> },
+    { id:"vaccinations", label:L.vaccinations||"Vaccines", icon:<Icons.Syringe/> },
+    { id:"symptoms", label:L.symptoms, icon:<Icons.Activity/> },
+    { id:"settings", label:L.settings, icon:<Icons.Settings/> },
   ];
 
   const refillDueCount = meds.filter(m=>m.refillDate&&(new Date(m.refillDate)-new Date())/(1000*60*60*24)<=7).length;
@@ -1029,7 +1050,7 @@ function PatientPortal({ dark, SetDark, lang, SetLang, user, SetUser, onLogout }
       {/* LEFT SIDEBAR - HEALTH ADVISOR */}
       <aside style={{ width:240, background:col.sidebar, borderRight:`1px solid rgba(255,255,255,0.06)`, padding:"24px 20px", position:"fixed", height:"100vh", display:"flex", flexDirection:"column", zIndex:100, overflowY:"auto" }}>
         <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:32, padding:"0 8px" }}>
-          <span style={{ fontSize:24 }}>🛡️</span>
+          <span style={{ fontSize:24 }}><Icons.Shield/></span>
           <span style={{ fontSize:17, fontWeight:900, color:"#f1f5f9", letterSpacing:"-0.5px" }}>MedGuard</span>
         </div>
 
@@ -1231,7 +1252,7 @@ function GuardianPortal({ dark, setDark, lang, setLang, user, setUser, onLogout 
     const pt = { ...form, id:Date.now().toString(), initials:(form.name||"?").split(" ").map(n=>n[0]).join("").toUpperCase(), adherence:0 };
     const newPts=[...patients,pt]; setPatients(newPts); savePatients(user.email,newPts);
     setSelected(newPts.length-1);
-    show("👥","Patient Added",`${form.name} added to your care network.`);
+    show(<Icons.User/>,"Patient Added",`${form.name} added to your care network.`);
   };
   const deletePt = (id) => {
     if(!window.confirm("Remove this patient record?")) return;
@@ -1240,7 +1261,7 @@ function GuardianPortal({ dark, setDark, lang, setLang, user, setUser, onLogout 
   };
 
   const p = patients[selected];
-  const navItems=[{id:"overview",label:"Overview",icon:"📊"},{id:"patients",label:"Patients",icon:"👥"},{id:"settings",label:"Settings",icon:"⚙️"}];
+  const navItems=[{id:"overview",label:"Overview",icon:<Icons.Dash/>},{id:"patients",label:"Patients",icon:<Icons.Users/>},{id:"settings",label:"Settings",icon:<Icons.Settings/>}];
 
   return (
     <div style={{ display:"flex", minHeight:"100vh", background:col.bg }}>
@@ -1249,7 +1270,7 @@ function GuardianPortal({ dark, setDark, lang, setLang, user, setUser, onLogout 
       {/* SIDEBAR */}
       <aside style={{ width:240, background:col.sidebar, borderRight:"1px solid rgba(255,255,255,0.06)", padding:"28px 16px", position:"fixed", height:"100vh", display:"flex", flexDirection:"column", zIndex:100 }}>
         <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:36, padding:"0 8px" }}>
-          <span style={{ fontSize:24 }}>🛡️</span>
+          <span style={{ fontSize:24 }}><Icons.Shield/></span>
           <div>
             <div style={{ fontSize:15, fontWeight:900, color:"#f1f5f9", fontFamily:"'Syne', sans-serif" }}>MedGuard</div>
             <div style={{ fontSize:10, color:"#475569", fontWeight:600, textTransform:"uppercase", letterSpacing:1 }}>Guardian</div>
@@ -1308,7 +1329,7 @@ function GuardianPortal({ dark, setDark, lang, setLang, user, setUser, onLogout 
               <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
                 {/* Patient stats */}
                 <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:14 }} className="fade-up">
-                  {[["💊","Adherence",`${p.adherence||0}%`,p.adherence>=80?"badge-green":p.adherence>=60?"badge-yellow":"badge-red"],["🔥","Streak","—","badge-blue"],["⚠️","Alerts","0","badge-yellow"],["📅","Next Appt","—",""]].map(([e,l,v,cls])=>(
+                  {[[<Icons.Med/>,"Adherence",`${p.adherence||0}%`,p.adherence>=80?"badge-green":p.adherence>=60?"badge-yellow":"badge-red"],[<Icons.Flame/>,"Streak","—","badge-blue"],[<Icons.Warning/>,"Alerts","0","badge-yellow"],[<Icons.Calendar/>,"Next Appt","—",""]].map(([e,l,v,cls])=>(
                     <div key={l} className="stat-card">
                       <span style={{ fontSize:22 }}>{e}</span>
                       <div style={{ fontSize:22, fontWeight:900, color:col.text, marginTop:4 }}>{v}</div>
@@ -1320,7 +1341,7 @@ function GuardianPortal({ dark, setDark, lang, setLang, user, setUser, onLogout 
 
                 {/* Patient health profile */}
                 <div className="card fade-up-1">
-                  <div style={{ fontWeight:800, fontSize:16, marginBottom:16 }}>🏥 Health Profile: {p.name}</div>
+                  <div style={{ fontWeight:800, fontSize:16, marginBottom:16 }}><Icons.Building/> Health Profile: {p.name}</div>
                   <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:16 }}>
                     {[["Conditions",p.conditions||"None listed",col.accent],["Allergies",p.allergies||"None declared","#ef4444"],["Emergency Contact",p.emergencyContact||"Not set","#fbbf24"]].map(([l,v,c])=>(
                       <div key={l}>
@@ -1463,7 +1484,7 @@ function AuthPage({ onLogin, dark, setDark, onBack }) {
 
       <div style={{ background:dark?"rgba(12,22,40,0.97)":"rgba(255,255,255,0.97)", border:`1px solid ${dark?"rgba(56,189,248,0.15)":"rgba(0,0,0,0.08)"}`, borderRadius:24, padding:"40px 36px", width:"100%", maxWidth:440, boxShadow:"0 32px 80px rgba(0,0,0,0.2)" }}>
         <div style={{ textAlign:"center", marginBottom:32 }}>
-          <div style={{ fontSize:36, marginBottom:8 }}>🛡️</div>
+          <div style={{ fontSize:36, marginBottom:8 }}><Icons.Shield/></div>
           <h1 style={{ fontSize:26, fontWeight:900, color:col.text, fontFamily:"'Syne', sans-serif" }}>MedGuard AI</h1>
           <p style={{ fontSize:13, color:col.textSoft, marginTop:4 }}>Your personal health guardian</p>
         </div>
@@ -1471,7 +1492,7 @@ function AuthPage({ onLogin, dark, setDark, onBack }) {
         {/* Role tabs */}
         <div style={{ display:"flex", gap:0, marginBottom:24, borderRadius:12, overflow:"hidden", border:`1px solid ${col.border}` }}>
           {["patient","guardian"].map(r=>(
-            <button key={r} onClick={()=>setRole(r)} style={{ flex:1, padding:"11px", background:role===r?col.accent:"transparent", color:role===r?"#fff":col.textMid, border:"none", fontSize:13, fontWeight:700, cursor:"pointer", textTransform:"capitalize", transition:"all 0.2s" }}>{r==="patient"?"👤 Patient":"👥 Guardian"}</button>
+            <button key={r} onClick={()=>setRole(r)} style={{ flex:1, padding:"11px", background:role===r?col.accent:"transparent", color:role===r?"#fff":col.textMid, border:"none", fontSize:13, fontWeight:700, cursor:"pointer", textTransform:"capitalize", transition:"all 0.2s" }}>{r==="patient"?<><Icons.User/> Patient</>:<><Icons.Users/> Guardian</>}</button>
           ))}
         </div>
 
@@ -1482,7 +1503,7 @@ function AuthPage({ onLogin, dark, setDark, onBack }) {
           ))}
         </div>
 
-        {error && <div style={{ background:"rgba(239,68,68,0.08)", border:"1px solid rgba(239,68,68,0.3)", borderRadius:10, padding:"10px 14px", marginBottom:16, fontSize:13, color:"#fca5a5", fontWeight:600 }}>⚠️ {error}</div>}
+        {error && <div style={{ background:"rgba(239,68,68,0.08)", border:"1px solid rgba(239,68,68,0.3)", borderRadius:10, padding:"10px 14px", marginBottom:16, fontSize:13, color:"#fca5a5", fontWeight:600 }}><Icons.Warning/> {error}</div>}
 
         <form onSubmit={handleSubmit} style={{ display:"flex", flexDirection:"column", gap:14 }}>
           {mode==="register" && <div><label style={lS}>Full Name *</label><input style={iS} placeholder="Your full name" value={name} onChange={e=>setName(e.target.value)} required/></div>}
@@ -1518,7 +1539,7 @@ function HomePage({ setPage, dark, setDark }) {
       {/* Navbar */}
       <nav style={{ position:"fixed", top:0, left:0, right:0, height:68, background:dark?"rgba(6,11,20,0.95)":"rgba(244,247,251,0.95)", backdropFilter:"blur(20px)", borderBottom:`1px solid ${col.border}`, display:"flex", alignItems:"center", justifyContent:"space-between", padding:"0 60px", zIndex:1000 }}>
         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-          <span style={{ fontSize:28 }}>🛡️</span>
+          <span style={{ fontSize:28 }}><Icons.Shield/></span>
           <span style={{ fontSize:20, fontWeight:900, color:col.text, fontFamily:"'Syne', sans-serif" }}>MedGuard AI</span>
         </div>
         <div style={{ display:"flex", gap:12, alignItems:"center" }}>
@@ -1532,7 +1553,7 @@ function HomePage({ setPage, dark, setDark }) {
       <section style={{ minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", textAlign:"center", padding:"100px 60px 60px", position:"relative" }}>
         <div style={{ position:"absolute", top:"20%", left:"10%", width:400, height:400, borderRadius:"50%", background:`radial-gradient(circle, ${col.accentLight} 0%, transparent 70%)`, pointerEvents:"none" }}/>
         <div style={{ position:"absolute", bottom:"10%", right:"8%", width:300, height:300, borderRadius:"50%", background:"radial-gradient(circle, rgba(129,140,248,0.08) 0%, transparent 70%)", pointerEvents:"none" }}/>
-        <span className="badge badge-blue fade-up" style={{ marginBottom:20, fontSize:12, padding:"6px 16px" }}>🧬 AI-Powered Health Platform</span>
+        <span className="badge badge-blue fade-up" style={{ marginBottom:20, fontSize:12, padding:"6px 16px" }}><Icons.DNA/> AI-Powered Health Platform</span>
         <h1 className="fade-up-1" style={{ fontSize:"clamp(40px,6vw,76px)", fontWeight:900, lineHeight:1.05, color:col.text, marginBottom:24, letterSpacing:"-2px", fontFamily:"'Syne', sans-serif", maxWidth:900 }}>
           Your Health, Intelligently<br/><span style={{ color:col.accent }}>Managed.</span>
         </h1>
@@ -1545,7 +1566,7 @@ function HomePage({ setPage, dark, setDark }) {
         </div>
         {/* Trust signals */}
         <div className="fade-up-4" style={{ display:"flex", gap:20, marginTop:60, flexWrap:"wrap", justifyContent:"center" }}>
-          {[["🏥","HIPAA Compliant"],["🔒","256-bit Encryption"],["🤖","Claude AI Powered"],["💊","50K+ Drug Database"]].map(([e,l])=>(
+          {[[<Icons.Building/>,"HIPAA Compliant"],[<Icons.Lock/>,"256-bit Encryption"],[<Icons.AI/>,"Claude AI Powered"],[<Icons.Med/>,"50K+ Drug Database"]].map(([e,l])=>(
             <div key={l} style={{ display:"flex", alignItems:"center", gap:8, padding:"10px 18px", borderRadius:12, background:col.surface, border:`1px solid ${col.border}`, fontSize:13, fontWeight:600, color:col.textMid }}>
               <span>{e}</span><span>{l}</span>
             </div>
@@ -1559,14 +1580,14 @@ function HomePage({ setPage, dark, setDark }) {
         <p style={{ textAlign:"center", color:col.textMid, marginBottom:48, fontSize:15 }}>Complete medication management, health tracking, and AI guidance in one app.</p>
         <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))", gap:20, maxWidth:1200, margin:"0 auto" }}>
           {[
-            {e:"💊",title:"Smart Medication Tracking",desc:"Schedule, track, and get reminded about every dose. Never miss a medication again."},
-            {e:"🤖",title:"24/7 AI Health Advisor",desc:"Ask health questions in plain English. Get evidence-based answers powered by Claude AI."},
-            {e:"🛡️",title:"Drug Interaction Checker",desc:"Instantly check 50,000+ known drug interactions before combining medications."},
-            {e:"❤️",title:"Vitals Monitoring",desc:"Log blood pressure, heart rate, glucose, and more. See trends over time."},
-            {e:"📅",title:"Appointment Manager",desc:"Schedule and manage all your doctor visits, lab tests, and telehealth calls."},
-            {e:"👥",title:"Guardian Portal",desc:"Caregivers get real-time visibility into medication adherence and health events."},
-            {e:"💉",title:"Vaccination Tracker",desc:"Keep complete vaccination records and get reminders for boosters and next doses."},
-            {e:"🆘",title:"Emergency SOS",desc:"One-tap emergency alerts with GPS location and medical info sent to contacts."},
+            {e:<Icons.Med/>,title:"Smart Medication Tracking",desc:"Schedule, track, and get reminded about every dose. Never miss a medication again."},
+            {e:<Icons.AI/>,title:"24/7 AI Health Advisor",desc:"Ask health questions in plain English. Get evidence-based answers powered by Claude AI."},
+            {e:<Icons.Shield/>,title:"Drug Interaction Checker",desc:"Instantly check 50,000+ known drug interactions before combining medications."},
+            {e:<Icons.Heart/>,title:"Vitals Monitoring",desc:"Log blood pressure, heart rate, glucose, and more. See trends over time."},
+            {e:<Icons.Calendar/>,title:"Appointment Manager",desc:"Schedule and manage all your doctor visits, lab tests, and telehealth calls."},
+            {e:<Icons.Users/>,title:"Guardian Portal",desc:"Caregivers get real-time visibility into medication adherence and health events."},
+            {e:<Icons.Syringe/>,title:"Vaccination Tracker",desc:"Keep complete vaccination records and get reminders for boosters and next doses."},
+            {e:<Icons.SOS/>,title:"Emergency SOS",desc:"One-tap emergency alerts with GPS location and medical info sent to contacts."},
           ].map(f=>(
             <div key={f.title} style={{ padding:"24px", borderRadius:16, background:col.card, border:`1px solid ${col.border}`, transition:"transform 0.2s, box-shadow 0.2s" }} onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-4px)";e.currentTarget.style.boxShadow="0 16px 40px rgba(0,0,0,0.1)";}} onMouseLeave={e=>{e.currentTarget.style.transform="";e.currentTarget.style.boxShadow="";}}>
               <div style={{ fontSize:32, marginBottom:12 }}>{f.e}</div>
@@ -1589,7 +1610,7 @@ function HomePage({ setPage, dark, setDark }) {
       {/* Footer */}
       <footer style={{ padding:"40px 60px", borderTop:`1px solid ${col.border}`, display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:12 }}>
         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-          <span style={{ fontSize:22 }}>🛡️</span>
+          <span style={{ fontSize:22 }}><Icons.Shield/></span>
           <span style={{ fontWeight:800, color:col.text, fontFamily:"'Syne', sans-serif" }}>MedGuard AI</span>
         </div>
         <div style={{ fontSize:12, color:col.textSoft }}>© 2026 MedGuard AI. For informational use only. Not a substitute for medical advice.</div>
