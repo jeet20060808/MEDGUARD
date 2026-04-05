@@ -1024,7 +1024,290 @@ function PatientPortal({ dark, SetDark, lang, SetLang, user, SetUser, onLogout }
   };
   const addVaccine = (v) => {
     const newV=[...vaccines,v]; setVaccines(newV); saveVaccines(user.email,newV);
-    show(<Icons.Syringe/>,"Vaccination Recorded",`${v.name} added to your records.`);
+    show(<Icons.Syringe/>,'Vaccination Recorded',`${v.name} added to your records.`);
+  };
+
+  const removeVaccine = (id) => {
+    const newV=vaccines.filter(v=>v.id!==id); setVaccines(newV); saveVaccines(user.email,newV);
+    show(<Icons.Trash/>,"Vaccine Removed","Vaccination record deleted.");
+  };
+
+  const tipOptions = [
+    { title:"Stay Hydrated", description:"Drink water with your medications to support absorption and prevent dizziness." },
+    { title:"Set Reminders", description:"Use alarms or app reminders so you never miss a dose." },
+    { title:"Track Side Effects", description:"Note any new symptoms and discuss them with your doctor." },
+    { title:"Review Your Meds", description:"Regularly check medication instructions and avoid dangerous combinations." },
+    { title:"Keep Records", description:"Log appointments, vitals, and vaccine dates for better healthcare tracking." },
+  ];
+
+  const renderTabContent = () => {
+    const latestVitals = vitals[vitals.length-1];
+    switch(tab) {
+      case "dashboard":
+        return (
+          <>
+            {/* Greeting */}
+            <div style={{ marginBottom:32 }}>
+              <h1 style={{ fontSize:32, fontWeight:900, color:col.text, marginBottom:8 }}>Morning, {user?.name?.split(" ")[0]||"there"}.</h1>
+              <p style={{ color:col.textSoft, fontSize:14 }}>You have {meds.filter(m=>m.status!="taken").length} medications remaining for today. Your vitals are looking stable and well-balanced.</p>
+            </div>
+
+            {/* Today's Schedule */}
+            <div style={{ marginBottom:32 }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
+                <h2 style={{ fontSize:18, fontWeight:800, color:col.text }}>Today's Schedule</h2>
+                <a href="#" style={{ fontSize:13, color:col.accent, textDecoration:"none", fontWeight:600 }}>View Full Calendar</a>
+              </div>
+              <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+                {meds.slice(0,3).map((med,i)=>(
+                  <div key={i} style={{ display:"flex", alignItems:"center", gap:16, padding:"16px", background:col.card, borderRadius:12, border:`1px solid ${col.border}` }}>
+                    <div style={{ width:12, height:12, borderRadius:"50%", background:med.status==="taken"?"#34d399":"#fbbf24" }}/>
+                    <div style={{ flex:1 }}>
+                      <div style={{ fontWeight:700, fontSize:14, color:col.text }}>{med.name}</div>
+                      <div style={{ fontSize:12, color:col.textSoft }}>{med.dosage} • {med.frequency}</div>
+                    </div>
+                    <div style={{ fontSize:14, fontWeight:600, color:med.status==="taken"?"#34d399":"#fbbf24" }}>{med.time}</div>
+                    <span style={{ fontSize:11, background:med.status==="taken"?"rgba(52,211,153,0.1)":"rgba(251,191,36,0.1)", color:med.status==="taken"?"#34d399":"#fbbf24", padding:"4px 8px", borderRadius:6, fontWeight:600, textTransform:"uppercase" }}>{med.status}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Advisor Insight Card */}
+            <div style={{ background:"linear-gradient(135deg,#ff9a56 0%,#ff7a3d 100%)", borderRadius:12, padding:24, marginBottom:32, display:"flex", gap:20 }}>
+              <div style={{ flex:1 }}>
+                <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:12 }}>
+                  <span style={{ fontSize:20 }}><Icons.Lightbulb/></span>
+                  <span style={{ fontWeight:800, fontSize:12, color:"#fff", textTransform:"uppercase", letterSpacing:0.5 }}>Advisor Insight</span>
+                </div>
+                <h3 style={{ fontSize:20, fontWeight:800, color:"#fff", marginBottom:12 }}>Hydration & Lisinopril</h3>
+                <p style={{ color:"rgba(255,255,255,0.9)", fontSize:14, lineHeight:"1.6", marginBottom:16 }}>Ensure you drink a glass of water when taking Lisinopril to support blood pressure control and minimize dizziness.</p>
+                <button style={{ background:"rgba(255,255,255,0.2)", border:"1px solid rgba(255,255,255,0.3)", color:"#fff", padding:"8px 14px", borderRadius:8, fontWeight:600, fontSize:12, cursor:"pointer" }}>Read Full Insight</button>
+              </div>
+              <div style={{ fontSize:60, opacity:0.3 }}><Icons.Droplet/></div>
+            </div>
+
+            {/* Stats */}
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:16 }}>
+              {[
+                { label:"Sleep Quality", value:"7h 42m", unit:"OPTIMAL", icon:<Icons.Moon/> },
+                { label:"Daily Steps", value:"8,432", unit:"ACTIVE", icon:<Icons.Activity/> },
+                { label:"Add New Metric", value:"+", unit:"", icon:<Icons.Plus/> },
+              ].map((stat,i)=>(
+                <div key={i} style={{ padding:16, background:col.card, borderRadius:12, border:`1px solid ${col.border}`, textAlign:"center" }}>
+                  <div style={{ fontSize:20 }}>{stat.icon}</div>
+                  <div style={{ fontSize:12, color:col.textSoft, textTransform:"uppercase", letterSpacing:0.5, marginTop:8, marginBottom:4 }}>{stat.unit}</div>
+                  <div style={{ fontSize:20, fontWeight:900, color:col.text }}>{stat.value}</div>
+                  <div style={{ fontSize:11, color:col.textSoft, marginTop:8 }}>{stat.label}</div>
+                </div>
+              ))}
+            </div>
+          </>
+        );
+
+      case "medication-info":
+      case "medications":
+        return (
+          <div style={{ display:"flex", flexDirection:"column", gap:22 }}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+              <div>
+                <div style={{ fontSize:26, fontWeight:900, color:col.text, marginBottom:4 }}>Medication Info</div>
+                <div style={{ fontSize:13, color:col.textSoft }}>Manage your medications, reminders, and dosing schedule.</div>
+              </div>
+              <button onClick={()=>setShowAddMed(true)} className="btn btn-primary"><Icons.Plus/> Add Medication</button>
+            </div>
+            {meds.length===0 ? (
+              <div className="card" style={{ textAlign:"center", padding:32, color:col.textSoft }}>No medications have been added yet. Use the button above to add your first medication.</div>
+            ) : (
+              <div style={{ display:"grid", gap:14 }}>
+                {meds.map((med,i)=>(
+                  <div key={med.id||i} className="card" style={{ display:"flex", justifyContent:"space-between", alignItems:"center", gap:16, padding:20 }}>
+                    <div style={{ flex:1 }}>
+                      <div style={{ display:"flex", gap:10, alignItems:"center", marginBottom:8 }}><span style={{ fontSize:18 }}><Icons.Med/></span><div style={{ fontWeight:800, fontSize:15, color:col.text }}>{med.name}</div></div>
+                      <div style={{ fontSize:12, color:col.textSoft }}>{med.dosage} • {med.frequency} • {med.time}</div>
+                      {med.refillDate && <div style={{ marginTop:8, fontSize:11, color:col.textSoft }}>Refill: {med.refillDate}</div>}
+                      {med.notes && <div style={{ marginTop:8, fontSize:11, color:col.textSoft }}>Notes: {med.notes}</div>}
+                    </div>
+                    <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+                      {med.status!=="taken" && <button onClick={()=>_markTaken(i)} className="btn btn-ghost">Mark Taken</button>}
+                      <button onClick={()=>_deleteMed(i)} className="btn btn-danger">Remove</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+
+      case "chat-history":
+      case "ai-advisor":
+        return <AIChatTab dark={dark} user={user} meds={meds}/>;
+
+      case "health-insights":
+      case "analytics":
+        return <AnalyticsTab dark={dark} email={user.email} meds={meds} streak={streak} vitals={vitals}/>;
+
+      case "saved-tips":
+        return (
+          <div style={{ display:"grid", gap:16 }}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+              <div>
+                <div style={{ fontSize:26, fontWeight:900, color:col.text }}>Saved Tips</div>
+                <div style={{ fontSize:13, color:col.textSoft }}>Helpful reminders and healthy habits for your care routine.</div>
+              </div>
+              <button onClick={()=>setTab("settings")} className="btn btn-ghost">Manage Settings</button>
+            </div>
+            <div style={{ display:"grid", gap:12 }}>
+              {tipOptions.map((tip,i)=>(
+                <div key={i} className="card" style={{ padding:18 }}>
+                  <div style={{ fontWeight:800, fontSize:15, color:col.text, marginBottom:8 }}>{tip.title}</div>
+                  <div style={{ fontSize:13, color:col.textSoft, lineHeight:1.7 }}>{tip.description}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+
+      case "vitals":
+        return (
+          <div style={{ display:"grid", gap:22 }}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+              <div>
+                <div style={{ fontSize:26, fontWeight:900, color:col.text }}>Vitals</div>
+                <div style={{ fontSize:13, color:col.textSoft }}>Log your latest health measurements and view trends.</div>
+              </div>
+              <button onClick={()=>setShowVitals(true)} className="btn btn-primary"><Icons.Heart/> Log Vitals</button>
+            </div>
+            {latestVitals ? (
+              <div className="card" style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(140px,1fr))", gap:12 }}>
+                {[["Blood Pressure",`${latestVitals.bp_sys||"—"}/${latestVitals.bp_dia||"—"} mmHg`,<Icons.Heart key="bp"/>],["Pulse",`${latestVitals.pulse||"—"} bpm`,<Icons.Heart key="pulse"/>],["Temperature",`${latestVitals.temp||"—"}°C`,<Icons.Thermometer key="temp"/>],["O2",`${latestVitals.o2||"—"}%`,<Icons.Droplet key="o2"/>],["Weight",`${latestVitals.weight||"—"} kg`,<Icons.Weight key="wt"/>],["Glucose",`${latestVitals.glucose||"—"} mg/dL`,<Icons.DNA key="glucose"/>]].map(([label,value,icon])=>(
+                  <div key={label} style={{ background:col.surface, borderRadius:14, padding:16, border:`1px solid ${col.border}` }}>
+                    <div style={{ fontSize:20, marginBottom:8 }}>{icon}</div>
+                    <div style={{ fontWeight:700, color:col.text, marginBottom:6 }}>{label}</div>
+                    <div style={{ fontSize:14, color:col.textSoft }}>{value}</div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="card" style={{ textAlign:"center", padding:32, color:col.textSoft }}>No vitals recorded yet. Log your first health entry to begin tracking.</div>
+            )}
+            {vitals.length > 0 && (
+              <div className="card" style={{ padding:18, display:"grid", gap:12 }}>
+                <div style={{ fontWeight:800, color:col.text }}>Recent Vitals History</div>
+                {vitals.slice(-5).reverse().map((entry,i)=>(
+                  <div key={i} style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, padding:12, background:col.card, borderRadius:10 }}>
+                    <div><div style={{ fontSize:12, color:col.textSoft }}>Date</div><div style={{ color:col.text }}>{entry.date}</div></div>
+                    <div><div style={{ fontSize:12, color:col.textSoft }}>Pulse</div><div style={{ color:col.text }}>{entry.pulse||"—"} bpm</div></div>
+                    <div><div style={{ fontSize:12, color:col.textSoft }}>BP</div><div style={{ color:col.text }}>{entry.bp_sys||"—"}/{entry.bp_dia||"—"}</div></div>
+                    <div><div style={{ fontSize:12, color:col.textSoft }}>Temp</div><div style={{ color:col.text }}>{entry.temp||"—"}°C</div></div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+
+      case "appointments":
+        return (
+          <div style={{ display:"grid", gap:22 }}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+              <div>
+                <div style={{ fontSize:26, fontWeight:900, color:col.text }}>Appointments</div>
+                <div style={{ fontSize:13, color:col.textSoft }}>Schedule doctor visits, lab work, and follow-ups.</div>
+              </div>
+              <button onClick={()=>setShowAppt(true)} className="btn btn-primary"><Icons.Calendar/> Add Appointment</button>
+            </div>
+            {appointments.length===0 ? (
+              <div className="card" style={{ textAlign:"center", padding:32, color:col.textSoft }}>No appointments scheduled yet. Add one to stay organized.</div>
+            ) : (
+              <div style={{ display:"grid", gap:12 }}>
+                {appointments.map((appt,i)=>(
+                  <div key={appt.id||i} className="card" style={{ padding:18, borderRadius:14, border:`1px solid ${col.border}` }}>
+                    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", gap:14 }}>
+                      <div>
+                        <div style={{ fontWeight:800, color:col.text }}>{appt.doctor}</div>
+                        <div style={{ fontSize:12, color:col.textSoft }}>{appt.specialty || "General"}</div>
+                      </div>
+                      <button onClick={()=>_deleteAppt(appt.id)} className="btn btn-danger" style={{ padding:"8px 12px" }}>Cancel</button>
+                    </div>
+                    <div style={{ display:"flex", gap:16, flexWrap:"wrap", marginTop:12, color:col.textSoft, fontSize:12 }}>
+                      <div><Icons.Calendar/> {appt.date} at {appt.time}</div>
+                      <div>{appt.type}</div>
+                      <div>{appt.location || "No location"}</div>
+                    </div>
+                    {appt.notes && <div style={{ marginTop:12, fontSize:12, color:col.textSoft }}>Notes: {appt.notes}</div>}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+
+      case "vaccinations":
+        return (
+          <div style={{ display:"grid", gap:22 }}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+              <div>
+                <div style={{ fontSize:26, fontWeight:900, color:col.text }}>Vaccinations</div>
+                <div style={{ fontSize:13, color:col.textSoft }}>Keep your vaccine record current and accessible.</div>
+              </div>
+              <button onClick={()=>setShowVaccine(true)} className="btn btn-primary"><Icons.Syringe/> Add Vaccine</button>
+            </div>
+            {vaccines.length===0 ? (
+              <div className="card" style={{ textAlign:"center", padding:32, color:col.textSoft }}>No vaccination records yet. Add your vaccine history to stay protected.</div>
+            ) : (
+              <div style={{ display:"grid", gap:12 }}>
+                {vaccines.map((v,i)=>(
+                  <div key={v.id||i} className="card" style={{ padding:18, display:"flex", justifyContent:"space-between", alignItems:"center", borderRadius:14, border:`1px solid ${col.border}` }}>
+                    <div>
+                      <div style={{ fontWeight:800, color:col.text }}>{v.name}</div>
+                      <div style={{ fontSize:12, color:col.textSoft }}>{v.date} • Next due: {v.nextDue||"N/A"}</div>
+                    </div>
+                    <button onClick={()=>removeVaccine(v.id)} className="btn btn-danger">Remove</button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+
+      case "symptoms":
+        return (
+          <div style={{ display:"grid", gap:18 }}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+              <div>
+                <div style={{ fontSize:26, fontWeight:900, color:col.text }}>Symptom Logger</div>
+                <div style={{ fontSize:13, color:col.textSoft }}>Log symptoms and let AI assess them against your medications.</div>
+              </div>
+              <button onClick={()=>setShowSymptoms(true)} className="btn btn-primary"><Icons.Activity/> Log Symptoms</button>
+            </div>
+            <div className="card" style={{ padding:20, background:col.surface, borderRadius:14, border:`1px solid ${col.border}` }}>
+              <div style={{ fontWeight:700, color:col.text, marginBottom:10 }}>Current Medications</div>
+              {meds.length===0 ? <div style={{ color:col.textSoft }}>No medications are recorded yet.</div> : (
+                <div style={{ display:"grid", gap:10 }}>
+                  {meds.map((med,i)=>(<div key={i} style={{ padding:12, borderRadius:10, background:col.card, display:"flex", justifyContent:"space-between", alignItems:"center" }}><div><div style={{ fontWeight:700, color:col.text }}>{med.name}</div><div style={{ fontSize:11, color:col.textSoft }}>{med.dosage}</div></div><span style={{ fontSize:11, color:col.textSoft }}>{med.status}</span></div>))}
+                </div>
+              )}
+            </div>
+            <div className="card" style={{ padding:20, borderRadius:14, border:`1px solid ${col.border}` }}>
+              <div style={{ fontWeight:700, marginBottom:10, color:col.text }}>AI Symptom Support</div>
+              <p style={{ color:col.textSoft, fontSize:13, lineHeight:1.7 }}>Use the symptom logger to get AI-backed guidance based on your medications and the symptoms you select. This is not medical advice.</p>
+            </div>
+          </div>
+        );
+
+      case "settings":
+        return <SettingsTab dark={dark} setDark={SetDark} lang={lang} setLang={SetLang} user={user} setUser={SetUser} show={show}/>;
+
+      default:
+        return (
+          <div style={{ textAlign:"center", padding:"64px 32px" }}>
+            <div style={{ fontSize:20, fontWeight:800, color:col.text, marginBottom:8 }}>{navItems.find(i=>i.id===tab)?.label||"Feature"}</div>
+            <p style={{ color:col.textSoft, marginBottom:16 }}>This section is being updated so it works seamlessly for your care plan.</p>
+            <button onClick={()=>setTab("dashboard")} className="btn btn-primary">Return to Dashboard</button>
+          </div>
+        );
+    }
   };
 
   const navItems = [
@@ -1057,24 +1340,24 @@ function PatientPortal({ dark, SetDark, lang, SetLang, user, SetUser, onLogout }
         {/* Health Advisor Card */}
         <div style={{ background:col.accentLight, borderRadius:12, padding:16, marginBottom:24, border:`1px solid ${col.accentBorder}` }}>
           <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:12 }}>
-            <div style={{ fontSize:24 }}>🤖</div>
+            <div style={{ fontSize:24 }}><Icons.AI/></div>
             <div>
               <div style={{ fontSize:13, fontWeight:800, color:col.text }}>Health Advisor</div>
               <div style={{ fontSize:11, color:col.textSoft }}>Always Here to Help</div>
             </div>
           </div>
-          <button onClick={()=>setTab("ai-advisor")} style={{ width:"100%", padding:"10px 12px", borderRadius:8, background:col.accent, border:"none", color:"#fff", fontWeight:700, fontSize:12, cursor:"pointer", transition:"all 0.2s" }}>+ Start New Chat</button>
+          <button onClick={()=>setTab("ai-advisor")} style={{ width:"100%", padding:"10px 12px", borderRadius:8, background:col.accent, border:"none", color:"#fff", fontWeight:700, fontSize:12, cursor:"pointer", transition:"all 0.2s" }}><Icons.Plus style={{ marginRight:8 }}/> Start New Chat</button>
         </div>
 
         {/* Menu Items */}
         <nav style={{ flex:1 }}>
           {[
-            { id:"chat-history", label:"Chat History", icon:"💬" },
-            { id:"health-insights", label:"Health Insights", icon:"🏥" },
-            { id:"saved-tips", label:"Saved Tips", icon:"📌" },
-            { id:"medication-info", label:"Medication Info", icon:"💊" },
+            { id:"chat-history", label:"Chat History", icon:<Icons.Message/> },
+            { id:"health-insights", label:"Health Insights", icon:<Icons.Shield/> },
+            { id:"saved-tips", label:"Saved Tips", icon:<Icons.Star/> },
+            { id:"medication-info", label:"Medication Info", icon:<Icons.Med/> },
           ].map(item=>(
-            <div key={item.id} onClick={()=>setTab(item.id)} className="sidebar-item" style={{ padding:"12px 16px", borderRadius:10, color:col.textMid, cursor:"pointer", transition:"all 0.2s", marginBottom:8 }}>
+            <div key={item.id} onClick={()=>setTab(item.id)} className="sidebar-item" style={{ display:"flex", alignItems:"center", gap:12, padding:"12px 16px", borderRadius:10, color:col.textMid, cursor:"pointer", transition:"all 0.2s", marginBottom:8 }}>
               <span style={{ fontSize:16 }}>{item.icon}</span><span style={{ fontSize:13, fontWeight:600 }}>{item.label}</span>
             </div>
           ))}
@@ -1094,76 +1377,8 @@ function PatientPortal({ dark, SetDark, lang, SetLang, user, SetUser, onLogout }
 
       {/* MAIN CONTENT */}
       <main style={{ flex:1, marginLeft:240, display:"flex", minHeight:"100vh" }}>
-        {/* CENTER - Dashboard */}
         <div style={{ flex:"2.5", padding:"32px 36px", borderRight:`1px solid ${col.border}`, overflowY:"auto" }}>
-          {tab==="dashboard" && (
-            <>
-              {/* Greeting */}
-              <div style={{ marginBottom:32 }}>
-                <h1 style={{ fontSize:32, fontWeight:900, color:col.text, marginBottom:8 }}>Morning, Sarah.</h1>
-                <p style={{ color:col.textSoft, fontSize:14 }}>You have {meds.filter(m=>m.status!=="taken").length} medications remaining for today. Your vitals are looking stable and well-balanced.</p>
-              </div>
-
-              {/* Today's Schedule */}
-              <div style={{ marginBottom:32 }}>
-                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
-                  <h2 style={{ fontSize:18, fontWeight:800, color:col.text }}>Today's Schedule</h2>
-                  <a href="#" style={{ fontSize:13, color:col.accent, textDecoration:"none", fontWeight:600 }}>View Full Calendar</a>
-                </div>
-                <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
-                  {meds.slice(0,3).map((med,i)=>(
-                    <div key={i} style={{ display:"flex", alignItems:"center", gap:16, padding:"16px", background:col.card, borderRadius:12, border:`1px solid ${col.border}` }}>
-                      <div style={{ width:12, height:12, borderRadius:"50%", background:med.status==="taken"?"#34d399":"#fbbf24" }}/>
-                      <div style={{ flex:1 }}>
-                        <div style={{ fontWeight:700, fontSize:14, color:col.text }}>{med.name}</div>
-                        <div style={{ fontSize:12, color:col.textSoft }}>{med.dosage} • {med.frequency}</div>
-                      </div>
-                      <div style={{ fontSize:14, fontWeight:600, color:med.status==="taken"?"#34d399":"#fbbf24" }}>{med.time}</div>
-                      <span style={{ fontSize:11, background:med.status==="taken"?"rgba(52,211,153,0.1)":"rgba(251,191,36,0.1)", color:med.status==="taken"?"#34d399":"#fbbf24", padding:"4px 8px", borderRadius:6, fontWeight:600, textTransform:"uppercase" }}>{med.status}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Advisor Insight Card */}
-              <div style={{ background:"linear-gradient(135deg,#ff9a56 0%,#ff7a3d 100%)", borderRadius:12, padding:24, marginBottom:32, display:"flex", gap:20 }}>
-                <div style={{ flex:1 }}>
-                  <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:12 }}>
-                    <span style={{ fontSize:20 }}>⚡</span>
-                    <span style={{ fontWeight:800, fontSize:12, color:"#fff", textTransform:"uppercase", letterSpacing:0.5 }}>Advisor Insight</span>
-                  </div>
-                  <h3 style={{ fontSize:20, fontWeight:800, color:"#fff", marginBottom:12 }}>Hydration & Lisinopril</h3>
-                  <p style={{ color:"rgba(255,255,255,0.9)", fontSize:14, lineHeight:"1.6", marginBottom:16 }}>Ensure you drink at least 6oz of water when taking your Lisinopril to help your body process the medication more effectively and reduce fatigue.</p>
-                  <button style={{ background:"rgba(255,255,255,0.2)", border:"1px solid rgba(255,255,255,0.3)", color:"#fff", padding:"8px 14px", borderRadius:8, fontWeight:600, fontSize:12, cursor:"pointer" }}>Read Full Insight</button>
-                </div>
-                <div style={{ fontSize:60, opacity:0.3 }}>💧</div>
-              </div>
-
-              {/* Stats */}
-              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:16 }}>
-                {[
-                  { label:"Sleep Quality", value:"7h 42m", unit:"OPTIMAL", icon:"🌙" },
-                  { label:"Daily Steps", value:"8,432", unit:"ACTIVE", icon:"🚶" },
-                  { label:"Add New Metric", value:"+", unit:"", icon:"" },
-                ].map((stat,i)=>(
-                  <div key={i} style={{ padding:16, background:col.card, borderRadius:12, border:`1px solid ${col.border}`, textAlign:"center" }}>
-                    <div style={{ fontSize:20 }}>{stat.icon}</div>
-                    <div style={{ fontSize:12, color:col.textSoft, textTransform:"uppercase", letterSpacing:0.5, marginTop:8, marginBottom:4 }}>{stat.unit}</div>
-                    <div style={{ fontSize:20, fontWeight:800, color:col.text }}>{stat.value}</div>
-                    <div style={{ fontSize:11, color:col.textSoft, marginTop:8 }}>{stat.label}</div>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-
-          {/* Default: Show other tabs */}
-          {tab!=="dashboard" && (
-            <div style={{ textAlign:"center", padding:"64px 32px" }}>
-              <div style={{ fontSize:20, fontWeight:800, color:col.text, marginBottom:8 }}>📋 {navItems.find(i=>i.id===tab)?.label}</div>
-              <p style={{ color:col.textSoft }}>Coming soon...</p>
-            </div>
-          )}
+          {renderTabContent()}
         </div>
 
         {/* RIGHT SIDEBAR - Wellness Summary */}
