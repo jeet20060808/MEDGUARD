@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 const API_BASE_URL = "http://127.0.0.1:8001";
 
 // ── PREMIUM SVG ICONS (Lucide Style) ───────────────────────────
@@ -364,17 +364,6 @@ function useSpeech(onResult) {
   return { listening, start, stop };
 }
 
-function useScrollReveal() {
-  useEffect(() => {
-    const els = document.querySelectorAll(".reveal-up,.reveal-l,.reveal-r");
-    const obs = new IntersectionObserver((entries) => {
-      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("visible"); obs.unobserve(e.target); } });
-    }, { threshold: 0.12 });
-    els.forEach(el => obs.observe(el));
-    return () => obs.disconnect();
-  });
-}
-
 function Toast({ toasts }) {
   return (
     <div style={{ position: "fixed", bottom: 24, right: 24, zIndex: 999, display: "flex", flexDirection: "column", gap: 10, pointerEvents: "none" }}>
@@ -633,7 +622,9 @@ function MoodWidget({ dark }) {
 
 function MedTimeline({ dark }) {
   const C = COLORS[dark ? "dark" : "light"];
-  const days = Array.from({ length: 30 }, (_, i) => { const d = new Date(); d.setDate(d.getDate() - 29 + i); return { label: d.getDate(), missed: Math.random() < .1, taken: Math.random() > .05 }; });
+  const days = useState(() =>
+    Array.from({ length: 30 }, (_, i) => { const d = new Date(); d.setDate(d.getDate() - 29 + i); return { label: d.getDate(), missed: Math.random() < .1, taken: Math.random() > .05 }; })
+  )[0];
   return (
     <div className="glass-card" style={{ background: C.card, borderRadius: 16, padding: "18px 20px", border: `1px solid ${C.border}` }}>
       <div style={{ fontWeight: 700, color: C.text, marginBottom: 14 }}> 30-Day Adherence Timeline</div>
@@ -644,7 +635,7 @@ function MedTimeline({ dark }) {
   );
 }
 
-function printReport(meds, streak, adherencePct, user) {
+function _printReport(meds, streak, adherencePct, user) {
   const w = window.open("", "_blank", "width=800,height=600");
   if (!w) return;
   w.document.write(`<!DOCTYPE html><html><head><title>MedGuard AI — Report</title><style>body{font-family:system-ui,sans-serif;padding:40px;color:#102a43;max-width:700px;margin:0 auto}h1{color:#1d6f85}table{width:100%;border-collapse:collapse;margin-top:20px}th{background:#1d6f85;color:white;padding:10px 14px;text-align:left}td{padding:10px 14px;border-bottom:1px solid #e2e8f0}.stat{background:#eff6ff;border-radius:12px;padding:16px;text-align:center;display:inline-block;margin:8px;min-width:130px}.stat-val{font-size:28px;font-weight:900;color:#1d6f85}</style></head><body><h1> MedGuard AI — Weekly Report</h1><p>Patient: ${user?.name || "—"} · ${new Date().toLocaleDateString()}</p><div><div class="stat"><div class="stat-val">${adherencePct}%</div><div>Adherence</div></div><div class="stat"><div class="stat-val">${streak}</div><div>Streak </div></div><div class="stat"><div class="stat-val">${meds.length}</div><div>Active Meds</div></div></div><table><tr><th>Medication</th><th>Dosage</th><th>Frequency</th><th>Status</th></tr>${meds.map(m => `<tr><td>${m.name}</td><td>${m.dosage}</td><td>${m.frequency}</td><td>${m.status === "taken" ? "Taken" : "Pending"}</td></tr>`).join("")}</table></body></html>`);
@@ -821,11 +812,11 @@ function AIChatTab({ dark, user }) {
   );
 }
 
-function PatientPortal({ setPage, dark, setDark, lang, setLang, user, onLogout }) {
+function PatientPortal({ dark, setDark, lang, user, onLogout }) {
   const L = T[lang]; 
-  const C = COLORS[dark ? "dark" : "light"];
+  const C = COLORS[dark ? "dark" : "light"];  
   const { toasts, show } = useToast(); 
-  const offline = useOffline();
+  const _offline = useOffline();
   const accent = dark ? "#00f5ff" : "#0ea5e9";
   const [tab, setTab] = useState("dashboard");
   const [showAddModal, setShowAddModal] = useState(false);
@@ -1258,9 +1249,9 @@ function GuardianPortal({ setPage, dark, user, onLogout }) {
 }
 
 // ── NAVBAR ────────────────────────────────────────────
-function Navbar({ setPage, scrollTo, dark, setDark, lang, setLang, user, onLogout }) {
+function Navbar({ setPage, scrollTo, dark, setDark }) {
   const [active, setActive] = useState("home");
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [_mobileOpen, _setMobileOpen] = useState(false);
 
   const links = [
     { id: "home", label: "Home" },
@@ -1307,7 +1298,7 @@ function Navbar({ setPage, scrollTo, dark, setDark, lang, setLang, user, onLogou
 }
 
 // ── HOME PAGE ─────────────────────────────────────────
-function HomePage({ setPage, setLearnMore, dark, user, sectionRefs }) {
+function HomePage({ setPage, dark, user, sectionRefs }) {
   const gotoPortal = (dest) => { if (user) setPage(dest); else setPage("auth"); };
   
   const STEPS = [
@@ -1327,7 +1318,7 @@ function HomePage({ setPage, setLearnMore, dark, user, sectionRefs }) {
   return (
     <div style={{ background: dark ? "#050810" : "var(--ivory)", minHeight: "100vh", position: "relative" }}>
       {/* ── HERO SECTION ── */}
-      <section ref={sectionRefs.home} id="home" style={{ height: "100vh", display: "flex", alignItems: "center", padding: "0 80px", position: "relative", overflow: "hidden" }}>
+      <section ref={sectionRefs.home} id="home" style={{ height: "100vh", display: "flex", alignItems: "center", padding: "0 80px", position: "relative", overflow: "hidden" }} suppressHydrationWarning>
         
         {/* Abstract Illustration */}
         <div style={{ position: "absolute", right: "-5%", bottom: "0", width: "60%", height: "90%", pointerEvents: "none", zIndex: 1, opacity: 0.8 }}>
@@ -1475,18 +1466,24 @@ export default function App() {
   const [user, setUser] = useState(null);
   const offline = useOffline();
 
-  const sectionRefs = {
+  // Initialize refs using useMemo to avoid recreation on every render
+  const sectionRefs = useMemo(() => ({
     home: useRef(null), about: useRef(null),
     services: useRef(null), contact: useRef(null),
-  };
+  }), []);
+
+  const hasLoadedUser = useRef(false);
 
   useEffect(() => {
+    if (hasLoadedUser.current) return;
+    hasLoadedUser.current = true;
+    
     const savedUser = localStorage.getItem("medguard_user");
     if (savedUser) {
       try {
         const parsedUser = JSON.parse(savedUser);
         setUser(parsedUser);
-      } catch (e) {
+      } catch {
         localStorage.removeItem("medguard_user");
       }
     }
@@ -1508,9 +1505,17 @@ export default function App() {
     setPage("home");
   };
 
+  const pageRef = useRef(page);
+  
   useEffect(() => {
-    if ((page === "patient" || page === "guardian") && !user) setPage("auth");
-  }, [page, user]);
+    pageRef.current = page;
+  }, [page]);
+  
+  useEffect(() => {
+    if ((pageRef.current === "patient" || pageRef.current === "guardian") && !user) {
+      setPage("auth");
+    }
+  }, [user]);
 
   // Learn more page
   if (learnMore) {
