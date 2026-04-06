@@ -1,28 +1,28 @@
-import { useState, useEffect, useRef, useCallback, Component } from "react";
+﻿import { useState, useEffect, useRef, useCallback, Component } from "react";
 
-// ── CONSTANTS ─────────────────────────────────────────
+// â”€â”€ CONSTANTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const API_BASE_URL = "https://api.anthropic.com/v1/messages";
 const ANTHROPIC_MODEL = "claude-sonnet-4-20250514";
 
-// ── ERROR BOUNDARY ────────────────────────────────────
+// â”€â”€ ERROR BOUNDARY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class ErrorBoundary extends Component {
   constructor(props) { super(props); this.state = { hasError: false, error: null }; }
   static getDerivedStateFromError(error) { return { hasError: true, error }; }
   componentDidCatch(err, info) { console.error("ErrorBoundary caught:", err, info); }
   render() {
     if (this.state.hasError) return (
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#050810", color: "#fff", flexDirection: "column", gap: 16 }}>
-        <div style={{ fontSize: 48 }}><Icons.SOS/></div>
-        <h2 style={{ fontSize: 22, fontWeight: 800 }}>Something went wrong</h2>
-        <p style={{ color: "#8ab4d4", fontSize: 14 }}>{this.state.error?.message}</p>
-        <button onClick={() => this.setState({ hasError: false, error: null })} style={{ padding: "12px 28px", borderRadius: 12, background: "#4ba6c7", color: "#fff", border: "none", fontWeight: 700, cursor: "pointer" }}>Try Again</button>
+      <div style={{ minHeight:"100vh", display:"flex", alignItems:"center", justifyContent:"center", background:"#050810", color:"#fff", flexDirection:"column", gap:16 }}>
+        <div style={{ fontSize:48 }}><Icons.SOS/></div>
+        <h2 style={{ fontSize:22, fontWeight:800 }}>Something went wrong</h2>
+        <p style={{ color:"#8ab4d4", fontSize:14 }}>{this.state.error?.message}</p>
+        <button onClick={() => this.setState({ hasError:false, error:null })} style={{ padding:"12px 28px", borderRadius:12, background:"#4ba6c7", color:"#fff", border:"none", fontWeight:700, cursor:"pointer" }}>Try Again</button>
       </div>
     );
     return this.props.children;
   }
 }
 
-// ── SVG ICONS ─────────────────────────────────────────
+// â”€â”€ SVG ICONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const Icons = {
   Dash: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>,
   Med: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/></svg>,
@@ -33,6 +33,8 @@ const Icons = {
   Sun: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>,
   Moon: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>,
   SOS: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>,
+  Warning: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>,
+  X: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
   Shield: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
   Check: () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>,
   Back: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>,
@@ -67,19 +69,19 @@ const Icons = {
   Pin: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>,
   DNA: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3c3.5 3.5 8.5 3.5 12 0"/><path d="M15 3c3.5 3.5 3.5 8.5 0 12"/><path d="M21 15c-3.5 3.5-8.5 3.5-12 0"/><path d="M9 21c-3.5-3.5-3.5-8.5 0-12"/><circle cx="9" cy="9" r="1"/><circle cx="15" cy="15" r="1"/></svg>,
   Flag: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 21V2"/><path d="M4 7h16l-2 4 2 4H4"/></svg>,
-  Lightbulb: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M10 2v6a6 6 0 0 0 12 0v-6"/><circle cx="12" cy="14" r="4"/></svg>,
+  Lightbulb: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1.35.47 2.6 1.5 3.5.76.76 1.23 1.52 1.41 2.5"/></svg>,
   Hand: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.83L7 15"/></svg>,
-  Lungs: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v6"/><path d="M12 8c-2.5 0-4 1.5-4 4s1.5 4 4 4 4-1.5 4-4-1.5-4-4-4"/><path d="M4 10c0-2.5 1.5-4 4-4s4 1.5 4 4-1.5 4-4 4-4-1.5-4-4"/><path d="M20 10c0-2.5-1.5-4-4-4s-4 1.5-4 4 1.5 4 4 4 4-1.5 4-4"/><path d="M8 14v6"/><path d="M16 14v6"/></svg>,
+  Lungs: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v6"/><path d="M4.93 10.93a8 8 0 0 0 0 2.14"/><path d="M19.07 10.93a8 8 0 0 1 0 2.14"/><path d="M8 8c-2.5 0-4 1.5-4 4s1.5 4 4 4 4-1.5 4-4"/><path d="M16 8c2.5 0 4 1.5 4 4s-1.5 4-4 4-4-1.5-4-4"/></svg>,
 };
 
-// ── TRANSLATIONS ──────────────────────────────────────
+// â”€â”€ TRANSLATIONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const T = {
   en: { dashboard:"Dashboard", medications:"Medications", aiAdvisor:"AI Advisor", analytics:"Analytics", symptoms:"Health Log", vaccinations:"Vaccinations", appointments:"Appointments", settings:"Settings", vitals:"Vitals", notifications:"Notifications", addMed:"Add Med", markTaken:"Mark Taken", taken:"Taken", healthScore:"Health Score", streak:"Streak", langName:"English" },
-  hi: { dashboard:"डैशबोर्ड", medications:"दवाइयाँ", aiAdvisor:"AI सलाहकार", analytics:"विश्लेषण", symptoms:"स्वास्थ्य लॉग", vaccinations:"टीकाकरण", appointments:"अपॉइंटमेंट", settings:"सेटिंग्स", vitals:"जीवन चिह्न", notifications:"सूचनाएं", addMed:"दवा जोड़ें", markTaken:"ली ", taken:"ली गई", healthScore:"स्वास्थ्य स्कोर", streak:"स्ट्रीक", langName:"हिंदी" },
-  gu: { dashboard:"ડૅશબોર્ડ", medications:"દવાઓ", aiAdvisor:"AI સલાહ", analytics:"વિશ્લેષણ", symptoms:"સ્વાસ્થ્ય લૉગ", vaccinations:"રસીકરણ", appointments:"એપૉઇન્ટ", settings:"સેટિંગ્સ", vitals:"જૈવ સંકેત", notifications:"સૂચનાઓ", addMed:"દવા ઉમેરો", markTaken:"લીધી ", taken:"લીધી", healthScore:"સ્વાસ્થ્ય સ્કોર", streak:"સ્ટ્રીક", langName:"ગુજરાતી" },
+  hi: { dashboard:"à¤¡à¥ˆà¤¶à¤¬à¥‹à¤°à¥à¤¡", medications:"à¤¦à¤µà¤¾à¤‡à¤¯à¤¾à¤", aiAdvisor:"AI à¤¸à¤²à¤¾à¤¹à¤•à¤¾à¤°", analytics:"à¤µà¤¿à¤¶à¥à¤²à¥‡à¤·à¤£", symptoms:"à¤¸à¥à¤µà¤¾à¤¸à¥à¤¥à¥à¤¯ à¤²à¥‰à¤—", vaccinations:"à¤Ÿà¥€à¤•à¤¾à¤•à¤°à¤£", appointments:"à¤…à¤ªà¥‰à¤‡à¤‚à¤Ÿà¤®à¥‡à¤‚à¤Ÿ", settings:"à¤¸à¥‡à¤Ÿà¤¿à¤‚à¤—à¥à¤¸", vitals:"à¤œà¥€à¤µà¤¨ à¤šà¤¿à¤¹à¥à¤¨", notifications:"à¤¸à¥‚à¤šà¤¨à¤¾à¤à¤‚", addMed:"à¤¦à¤µà¤¾ à¤œà¥‹à¤¡à¤¼à¥‡à¤‚", markTaken:"à¤²à¥€", taken:"à¤²à¥€ à¤—à¤ˆ", healthScore:"à¤¸à¥à¤µà¤¾à¤¸à¥à¤¥à¥à¤¯ à¤¸à¥à¤•à¥‹à¤°", streak:"à¤¸à¥à¤Ÿà¥à¤°à¥€à¤•", langName:"à¤¹à¤¿à¤‚à¤¦à¥€" },
+  gu: { dashboard:"àª¡à«…àª¶àª¬à«‹àª°à«àª¡", medications:"àª¦àªµàª¾àª“", aiAdvisor:"AI àª¸àª²àª¾àª¹", analytics:"àªµàª¿àª¶à«àª²à«‡àª·àª£", symptoms:"àª¸à«àªµàª¾àª¸à«àª¥à«àª¯ àª²à«‰àª—", vaccinations:"àª°àª¸à«€àª•àª°àª£", appointments:"àªàªªà«‰àª‡àª¨à«àªŸ", settings:"àª¸à«‡àªŸàª¿àª‚àª—à«àª¸", vitals:"àªœà«ˆàªµ àª¸àª‚àª•à«‡àª¤", notifications:"àª¸à«‚àªšàª¨àª¾àª“", addMed:"àª¦àªµàª¾ àª‰àª®à«‡àª°à«‹", markTaken:"àª²à«€àª§à«€", taken:"àª²à«€àª§à«€", healthScore:"àª¸à«àªµàª¾àª¸à«àª¥à«àª¯ àª¸à«àª•à«‹àª°", streak:"àª¸à«àªŸà«àª°à«€àª•", langName:"àª—à«àªœàª°àª¾àª¤à«€" },
 };
 
-// ── DRUG INTERACTIONS DB ──────────────────────────────
+// â”€â”€ DRUG INTERACTIONS DB â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const DRUG_INTERACTIONS = [
   { drugs:["warfarin","aspirin"], severity:"HIGH", effect:"Major bleeding risk. Avoid unless prescribed together with monitoring." },
   { drugs:["lisinopril","ibuprofen"], severity:"HIGH", effect:"NSAIDs reduce ACE inhibitor effectiveness and can worsen kidney function." },
@@ -110,7 +112,7 @@ function checkInteraction(drug1, drug2) {
   );
 }
 
-// ── THEME ─────────────────────────────────────────────
+// â”€â”€ THEME â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const C = {
   light: {
     bg:"#f4f7fb", surface:"rgba(255,255,255,0.95)", card:"rgba(255,255,255,0.8)",
@@ -130,7 +132,7 @@ const C = {
   }
 };
 
-// ── HOOKS ─────────────────────────────────────────────
+// â”€â”€ HOOKS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function useToast() {
   const [toasts, setToasts] = useState([]);
   const show = useCallback((icon, title, msg, type="success") => {
@@ -166,7 +168,7 @@ function useSpeech(onResult) {
   return { listening, start, stop };
 }
 
-// ── NOTIFICATION SCHEDULER ────────────────────────────
+// â”€â”€ NOTIFICATION SCHEDULER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function useNotificationScheduler(meds) {
   const timersRef = useRef([]);
   useEffect(() => {
@@ -175,7 +177,6 @@ function useNotificationScheduler(meds) {
     if (!("Notification" in window)) return;
     if (Notification.permission === "default") Notification.requestPermission();
     if (Notification.permission !== "granted") return;
-
     meds.forEach(med => {
       if (med.status === "taken" || !med.time) return;
       const [h, m] = med.time.split(":").map(Number);
@@ -197,7 +198,7 @@ function useNotificationScheduler(meds) {
   }, [meds]);
 }
 
-// ── AUTH UTILS ────────────────────────────────────────
+// â”€â”€ AUTH UTILS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const AUTH_KEY = "medguard_users_v2";
 const SESSION_KEY = "medguard_session_v2";
 
@@ -227,7 +228,7 @@ function loginUser(email, password, role) {
   return { user: { ...u, initials: (u.name[0] || "U").toUpperCase() } };
 }
 
-// ── STORAGE HELPERS ───────────────────────────────────
+// â”€â”€ STORAGE HELPERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function getMeds(email) { try { return JSON.parse(localStorage.getItem(`meds_${email}`) || "[]"); } catch { return []; } }
 function saveMeds(email, meds) { localStorage.setItem(`meds_${email}`, JSON.stringify(meds)); }
 function getPatients(email) { try { return JSON.parse(localStorage.getItem(`patients_${email}`) || "[]"); } catch { return []; } }
@@ -242,8 +243,10 @@ function getMoodLog(email) { try { return JSON.parse(localStorage.getItem(`mood_
 function saveMoodLog(email, m) { localStorage.setItem(`mood_${email}`, JSON.stringify(m)); }
 function getAdherenceHistory(email) { try { return JSON.parse(localStorage.getItem(`adh_${email}`) || "{}"); } catch { return {}; } }
 function saveAdherenceHistory(email, h) { localStorage.setItem(`adh_${email}`, JSON.stringify(h)); }
+function getSymptomLog(email) { try { return JSON.parse(localStorage.getItem(`symptoms_${email}`) || "[]"); } catch { return []; } }
+function saveSymptomLog(email, s) { localStorage.setItem(`symptoms_${email}`, JSON.stringify(s)); }
 
-// ── GLOBAL CSS ────────────────────────────────────────
+// â”€â”€ GLOBAL CSS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const makeCSS = (dark) => {
   const col = C[dark ? "dark" : "light"];
   return `
@@ -256,27 +259,22 @@ const makeCSS = (dark) => {
   ::-webkit-scrollbar { width:4px; }
   ::-webkit-scrollbar-track { background:transparent; }
   ::-webkit-scrollbar-thumb { background:${col.accentBorder}; border-radius:10px; }
-  
   @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
   @keyframes spin { to{transform:rotate(360deg)} }
   @keyframes ping { 0%{transform:scale(1);opacity:1} 75%,100%{transform:scale(2);opacity:0} }
   @keyframes toastIn { from{opacity:0;transform:translateX(60px)} to{opacity:1;transform:translateX(0)} }
-  @keyframes toastOut { from{opacity:1;transform:translateX(0)} to{opacity:0;transform:translateX(60px)} }
   @keyframes sosPulse { 0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.4)} 70%{box-shadow:0 0 0 20px rgba(239,68,68,0)} }
   @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.4} }
-  
+  @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
   .fade-up { animation: fadeUp 0.4s ease both; }
   .fade-up-1 { animation: fadeUp 0.4s 0.05s ease both; }
   .fade-up-2 { animation: fadeUp 0.4s 0.10s ease both; }
   .fade-up-3 { animation: fadeUp 0.4s 0.15s ease both; }
   .fade-up-4 { animation: fadeUp 0.4s 0.20s ease both; }
-
   .glass { backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); background:${col.card}; border:1px solid ${col.border}; box-shadow:${col.cardShadow}; }
-  
-  .sidebar-link { display:flex; align-items:center; gap:10px; padding:11px 16px; border-radius:10px; color:${col.sidebarText}; font-size:13.5px; font-weight:500; text-decoration:none; transition:all 0.2s; margin-bottom:4px; border:1px solid transparent; cursor:pointer; }
+  .sidebar-link { display:flex; align-items:center; gap:10px; padding:11px 16px; border-radius:10px; color:${col.sidebarText}; font-size:13.5px; font-weight:500; text-decoration:none; transition:all 0.2s; margin-bottom:4px; border:1px solid transparent; cursor:pointer; background:none; width:100%; text-align:left; }
   .sidebar-link:hover { color:#e2e8f0; background:rgba(255,255,255,0.06); }
   .sidebar-link.active { color:${col.sidebarActive}; background:rgba(56,189,248,0.12); border-color:rgba(56,189,248,0.2); font-weight:700; }
-  
   .btn { padding:10px 20px; border-radius:10px; font-weight:600; font-size:13px; border:none; cursor:pointer; transition:all 0.2s; display:inline-flex; align-items:center; gap:6px; }
   .btn-primary { background:linear-gradient(135deg,${col.gradStart},${col.gradEnd}); color:#fff; }
   .btn-primary:hover { opacity:0.88; transform:translateY(-1px); box-shadow:0 8px 20px rgba(14,165,233,0.25); }
@@ -284,36 +282,28 @@ const makeCSS = (dark) => {
   .btn-ghost:hover { opacity:0.85; }
   .btn-danger { background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.2); }
   .btn-danger:hover { background:rgba(239,68,68,0.18); }
-
   .input { width:100%; padding:10px 14px; border-radius:10px; border:1.5px solid ${col.border}; background:${col.inputBg}; color:${col.text}; font-size:13.5px; outline:none; transition:border-color 0.2s; }
   .input:focus { border-color:${col.accent}; }
   .input::placeholder { color:${col.textSoft}; }
   .label { font-size:11px; font-weight:700; color:${col.textSoft}; text-transform:uppercase; letter-spacing:0.8px; display:block; margin-bottom:5px; }
-
   .card { background:${col.card}; border-radius:16px; border:1px solid ${col.border}; box-shadow:${col.cardShadow}; padding:24px; }
   .stat-card { background:${col.surface}; border-radius:14px; border:1px solid ${col.border}; padding:20px; }
-
   .badge { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:100px; font-size:11px; font-weight:700; }
   .badge-green { background:rgba(52,211,153,0.12); color:#34d399; border:1px solid rgba(52,211,153,0.25); }
   .badge-yellow { background:rgba(251,191,36,0.12); color:#fbbf24; border:1px solid rgba(251,191,36,0.25); }
   .badge-red { background:rgba(239,68,68,0.12); color:#ef4444; border:1px solid rgba(239,68,68,0.25); }
   .badge-blue { background:${col.accentLight}; color:${col.accent}; border:1px solid ${col.accentBorder}; }
-
   .overlay { position:fixed; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; z-index:1000; padding:16px; }
   .modal { background:${dark?"#0c1625":"#ffffff"}; border:1px solid ${col.border}; border-radius:20px; padding:28px; width:100%; max-height:90vh; overflow-y:auto; box-shadow:0 32px 80px rgba(0,0,0,0.4); }
-  
   .dot-loading span { display:inline-block; width:6px; height:6px; border-radius:50%; background:${col.textSoft}; animation:blink 1.4s infinite; }
   .dot-loading span:nth-child(2) { animation-delay:0.2s; }
   .dot-loading span:nth-child(3) { animation-delay:0.4s; }
-  
   .skeleton { background:linear-gradient(90deg,${col.border} 25%,${col.accentLight} 50%,${col.border} 75%); background-size:200% 100%; animation:shimmer 1.5s infinite; border-radius:8px; }
-  @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
-  
   select option { background:${dark?"#0c1625":"#fff"}; color:${col.text}; }
   `;
 };
 
-// ── TOAST ─────────────────────────────────────────────
+// â”€â”€ TOAST â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function Toast({ toasts }) {
   return (
     <div style={{ position:"fixed", bottom:24, right:24, zIndex:9999, display:"flex", flexDirection:"column", gap:8, pointerEvents:"none" }}>
@@ -330,7 +320,7 @@ function Toast({ toasts }) {
   );
 }
 
-// ── MODAL WRAPPER ─────────────────────────────────────
+// â”€â”€ MODAL WRAPPER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function Modal({ onClose, children, maxWidth=520 }) {
   useEffect(() => {
     const esc = e => { if (e.key==="Escape") onClose(); };
@@ -345,6 +335,7 @@ function Modal({ onClose, children, maxWidth=520 }) {
     </div>
   );
 }
+
 function ModalHead({ icon, title, sub, onClose }) {
   return (
     <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:22 }}>
@@ -360,23 +351,19 @@ function ModalHead({ icon, title, sub, onClose }) {
   );
 }
 
-// ── AI CALL ───────────────────────────────────────────
+// â”€â”€ AI CALL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function callAI(messages, system) {
-  const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY;
-  if (!apiKey || apiKey === 'your_anthropic_api_key_here') {
-    throw new Error("AI features require an Anthropic API key. Please add VITE_ANTHROPIC_API_KEY to your .env file.");
-  }
   const res = await fetch(API_BASE_URL, {
     method:"POST",
-    headers:{ "Content-Type":"application/json", "x-api-key":apiKey, "anthropic-version":"2023-06-01", "anthropic-dangerous-direct-browser-access":"true" },
-    body:JSON.stringify({ model:ANTHROPIC_MODEL, max_tokens:500, system, messages })
+    headers:{ "Content-Type":"application/json", "x-api-key": import.meta.env.VITE_ANTHROPIC_API_KEY || "", "anthropic-version":"2023-06-01", "anthropic-dangerous-direct-browser-access":"true" },
+    body:JSON.stringify({ model:ANTHROPIC_MODEL, max_tokens:1000, system, messages })
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error?.message || "AI error");
   return data.content?.[0]?.text || "";
 }
 
-// ── RINGS ─────────────────────────────────────────────
+// â”€â”€ RINGS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function Ring({ pct, size=90, strokeWidth=8, label }) {
   const r=38, circ=2*Math.PI*r, offset=circ-(pct/100)*circ;
   const color = pct>=80?"#34d399":pct>=60?"#fbbf24":"#ef4444";
@@ -392,7 +379,7 @@ function Ring({ pct, size=90, strokeWidth=8, label }) {
   );
 }
 
-// ── BAR CHART ─────────────────────────────────────────
+// â”€â”€ BAR CHART â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function BarChart({ data, dark }) {
   const col = C[dark?"dark":"light"];
   const max = Math.max(...data.map(d=>d.value), 1);
@@ -408,20 +395,15 @@ function BarChart({ data, dark }) {
   );
 }
 
-// ── SKELETON ──────────────────────────────────────────
-function Skeleton({ h=20, w="100%", mb=8 }) {
-  return <div className="skeleton" style={{ height:h, width:w, marginBottom:mb }}/>;
-}
-
-// ── ADD MED MODAL ─────────────────────────────────────
+// â”€â”€ ADD MED MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function AddMedModal({ onClose, onAdd, knownAllergies=[] }) {
-  const [form, setForm] = useState({ name:"", dosage:"", frequency:"Once daily", time:"08:00", purpose:"", refillDate:"", notes:"" });
+  const [form, setForm] = useState({ name:"", dosage:"", frequency:"Once daily", time:"08:00", purpose:"", refillDate:"", notes:"", color:"blue" });
   const [allergyAlert, setAllergyAlert] = useState(null);
   const up = (k,v) => {
     setForm(f=>({...f,[k]:v}));
     if (k==="name") {
       const m = knownAllergies.find(a=>v.toLowerCase().includes(a.toLowerCase().trim()));
-      setAllergyAlert(m ? <><Icons.SOS/> Allergy alert: "{m}" detected!</> : null);
+      setAllergyAlert(m ? `âšï¸ Allergy alert: "${m}" detected!` : null);
     }
   };
   return (
@@ -435,7 +417,7 @@ function AddMedModal({ onClose, onAdd, knownAllergies=[] }) {
         <div><label className="label">Reminder Time</label><input type="time" className="input" value={form.time} onChange={e=>up("time",e.target.value)}/></div>
         <div><label className="label">Purpose</label><input className="input" placeholder="e.g. Diabetes" value={form.purpose} onChange={e=>up("purpose",e.target.value)}/></div>
         <div><label className="label">Refill Date</label><input type="date" className="input" value={form.refillDate} onChange={e=>up("refillDate",e.target.value)}/></div>
-        <div><label className="label">Color Tag</label><select className="input" value={form.color||"blue"} onChange={e=>up("color",e.target.value)}>{["blue","green","yellow","red","purple","pink"].map(c=><option key={c} value={c}>{c.charAt(0).toUpperCase()+c.slice(1)}</option>)}</select></div>
+        <div><label className="label">Color Tag</label><select className="input" value={form.color} onChange={e=>up("color",e.target.value)}>{["blue","green","yellow","red","purple","pink"].map(c=><option key={c} value={c}>{c.charAt(0).toUpperCase()+c.slice(1)}</option>)}</select></div>
         <div style={{ gridColumn:"1/-1" }}><label className="label">Notes</label><input className="input" placeholder="Take with food…" value={form.notes} onChange={e=>up("notes",e.target.value)}/></div>
       </div>
       <div style={{ display:"flex", gap:10, marginTop:20 }}>
@@ -446,7 +428,7 @@ function AddMedModal({ onClose, onAdd, knownAllergies=[] }) {
   );
 }
 
-// ── DRUG INTERACTION MODAL ────────────────────────────
+// â”€â”€ DRUG INTERACTION MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function DrugInteractionModal({ onClose, dark }) {
   const col = C[dark?"dark":"light"];
   const [drug1,setDrug1]=useState(""), [drug2,setDrug2]=useState(""), [result,setResult]=useState(null), [checked,setChecked]=useState(false), [aiResult,setAiResult]=useState(""), [aiLoading,setAiLoading]=useState(false);
@@ -473,12 +455,12 @@ function DrugInteractionModal({ onClose, dark }) {
         <button onClick={checkWithAI} disabled={aiLoading} className="btn btn-ghost" style={{ flex:1 }}>{aiLoading?"Checking…":<><Icons.AI/> AI Deep Check</>}</button>
       </div>
       {aiResult && <div style={{ background:col.accentLight, border:`1px solid ${col.accentBorder}`, borderRadius:12, padding:"14px 16px", marginBottom:14, fontSize:13, color:col.textMid, lineHeight:1.7 }}><strong style={{ color:col.accent, display:"block", marginBottom:6 }}>AI Analysis</strong>{aiResult}</div>}
-      {checked && (result ? (()=>{ const [bg,border,tc]=sevColor[result.severity]||sevColor.LOW; return <div style={{ background:bg, border:`2px solid ${border}`, borderRadius:12, padding:"16px 18px" }}><div style={{ fontWeight:800, fontSize:15, color:tc, marginBottom:4 }}>{result.severity} SEVERITY</div><p style={{ fontSize:13, color:tc, lineHeight:1.7 }}>{result.effect}</p></div>; })() : <div style={{ background:"rgba(52,211,153,0.1)", border:"2px solid #34d399", borderRadius:12, padding:"16px 18px" }}><div style={{ fontWeight:800, fontSize:15, color:"#34d399" }}><Icons.Check/> No Known Interaction</div><div style={{ fontSize:13, color:"#6ee7b7", marginTop:4 }}>Always confirm with your pharmacist.</div></div>)}
+      {checked && (result ? (()=>{ const [bg,border,tc]=sevColor[result.severity]||sevColor.LOW; return <div style={{ background:bg, border:`2px solid ${border}`, borderRadius:12, padding:"16px 18px" }}><div style={{ fontWeight:800, fontSize:15, color:tc, marginBottom:4 }}>{result.severity} SEVERITY</div><p style={{ fontSize:13, color:tc, lineHeight:1.7 }}>{result.effect}</p></div>; })() : <div style={{ background:"rgba(52,211,153,0.1)", border:"2px solid #34d399", borderRadius:12, padding:"16px 18px" }}><div style={{ fontWeight:800, fontSize:15, color:"#34d399", display:"flex", alignItems:"center", gap:6 }}><Icons.Check/> No Known Interaction</div><div style={{ fontSize:13, color:"#6ee7b7", marginTop:4 }}>Always confirm with your pharmacist.</div></div>)}
     </Modal>
   );
 }
 
-// ── EMERGENCY SOS MODAL ───────────────────────────────
+// â”€â”€ EMERGENCY SOS MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function EmergencySOSModal({ onClose, user }) {
   const [calling,setCalling]=useState(false), [sent,setSent]=useState(false);
   const trigger = () => {
@@ -496,14 +478,14 @@ function EmergencySOSModal({ onClose, user }) {
         <p style={{ fontSize:13, color:"#64748b", marginBottom:20 }}>Pressing the button below will alert your emergency contacts and attempt to dial 112.</p>
         {!sent ? (
           <button onClick={trigger} disabled={calling} style={{ width:"100%", padding:"15px", borderRadius:12, background:calling?"#dc2626":"#ef4444", color:"#fff", fontSize:16, fontWeight:900, border:"none", marginBottom:12, cursor:"pointer", boxShadow:"0 6px 20px rgba(239,68,68,0.4)" }}>
-            {calling ? "🔴 Connecting to 112…" : <><Icons.User/> Call Emergency (112)</>}
+            {calling ? "📞 Connecting to 112…" : "📞 Call Emergency (112)"}
           </button>
         ) : (
-          <div style={{ background:"rgba(52,211,153,0.1)", border:"1px solid #34d399", borderRadius:12, padding:"14px", marginBottom:12, color:"#34d399", fontWeight:700 }}><Icons.Check/> Emergency contacts notified!</div>
+          <div style={{ background:"rgba(52,211,153,0.1)", border:"1px solid #34d399", borderRadius:12, padding:"14px", marginBottom:12, color:"#34d399", fontWeight:700, display:"flex", alignItems:"center", justifyContent:"center", gap:6 }}><Icons.Check/> Emergency contacts notified!</div>
         )}
         <div style={{ background:"rgba(239,68,68,0.06)", borderRadius:10, padding:"10px 14px", fontSize:12, color:"#94a3b8", marginBottom:14, lineHeight:1.6 }}>
           📍 Location shared with: {user?.emergencyContact || "No contacts configured"}<br/>
-          <Icons.Droplet/> Blood Type: {user?.bloodType || "Unknown"} · Allergies: {user?.allergies || "None"}
+          🩸 Blood Type: {user?.bloodType || "Unknown"} · Allergies: {user?.allergies || "None"}
         </div>
         <button onClick={onClose} style={{ width:"100%", padding:"12px", borderRadius:10, background:"rgba(255,255,255,0.06)", color:"#64748b", fontWeight:700, fontSize:13, border:"1px solid rgba(255,255,255,0.08)", cursor:"pointer" }}>Close</button>
       </div>
@@ -511,8 +493,8 @@ function EmergencySOSModal({ onClose, user }) {
   );
 }
 
-// ── SYMPTOM LOGGER MODAL ──────────────────────────────
-function SymptomLoggerModal({ onClose, meds }) {
+// â”€â”€ SYMPTOM LOGGER MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function SymptomLoggerModal({ onClose, meds, email }) {
   const SYMPTOMS = ["Headache","Dizziness","Nausea","Fatigue","Vomiting","Chest Pain","Shortness of Breath","Rash","Dry Mouth","Blurred Vision","Muscle Pain","Insomnia","Anxiety","Palpitations","Back Pain","Swelling"];
   const [selected,setSelected]=useState([]), [severity,setSeverity]=useState(5), [result,setResult]=useState(""), [loading,setLoading]=useState(false);
   const toggle = s => setSelected(p=>p.includes(s)?p.filter(x=>x!==s):[...p,s]);
@@ -521,7 +503,11 @@ function SymptomLoggerModal({ onClose, meds }) {
     try {
       const txt = await callAI([{role:"user",content:`Patient medications: ${meds.map(m=>m.name).join(", ")||"none"}. Symptoms: ${selected.join(", ")}. Severity: ${severity}/10. Analyze possible causes, medication side effects, and urgency.`}], "You are MedGuard AI. Analyze symptoms vs medications concisely. Use bullet points. End with urgency level (Low/Medium/High) and whether to see a doctor. Under 150 words.");
       setResult(txt);
-    } catch { setResult(<><Icons.SOS/> AI analysis unavailable. Please consult your doctor for symptom evaluation.</>); }
+      // Save symptom log
+      const log = getSymptomLog(email);
+      log.push({ date: new Date().toLocaleDateString(), symptoms: selected, severity, analysis: txt, timestamp: Date.now() });
+      saveSymptomLog(email, log);
+    } catch { setResult("AI analysis unavailable. Please consult your doctor for symptom evaluation."); }
     setLoading(false);
   };
   return (
@@ -538,14 +524,14 @@ function SymptomLoggerModal({ onClose, meds }) {
           <button onClick={analyze} disabled={!selected.length||loading} className="btn btn-primary" style={{ width:"100%", opacity:selected.length&&!loading?1:0.5 }}>{loading?<><Icons.AI/> Analyzing…</>:<><Icons.AI/> Analyze with AI</>}</button>
         </div>
         <div style={{ background:"rgba(255,255,255,0.03)", border:"1.5px solid rgba(100,116,139,0.15)", borderRadius:12, padding:18, minHeight:200, display:"flex", flexDirection:"column" }}>
-          {result ? <><div style={{ fontWeight:700, marginBottom:10, fontSize:13 }}><Icons.AI/> AI Analysis</div><div style={{ fontSize:13, color:"#94a3b8", lineHeight:1.8, whiteSpace:"pre-wrap" }}>{result}</div></> : <div style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", flex:1, gap:8, color:"#475569" }}><Icons.Eye style={{ fontSize:32 }}/><span style={{ fontSize:13 }}>Select symptoms to analyze</span></div>}
+          {result ? <><div style={{ fontWeight:700, marginBottom:10, fontSize:13, display:"flex", alignItems:"center", gap:6 }}><Icons.AI/> AI Analysis</div><div style={{ fontSize:13, color:"#94a3b8", lineHeight:1.8, whiteSpace:"pre-wrap" }}>{result}</div></> : <div style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", flex:1, gap:8, color:"#475569" }}><Icons.Eye/><span style={{ fontSize:13 }}>Select symptoms to analyze</span></div>}
         </div>
       </div>
     </Modal>
   );
 }
 
-// ── VITALS MODAL ──────────────────────────────────────
+// â”€â”€ VITALS MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function VitalsModal({ onClose, onSave }) {
   const [form,setForm]=useState({ bp_sys:"", bp_dia:"", pulse:"", temp:"", weight:"", o2:"", glucose:"", notes:"" });
   const up=(k,v)=>setForm(f=>({...f,[k]:v}));
@@ -574,7 +560,7 @@ function VitalsModal({ onClose, onSave }) {
   );
 }
 
-// ── APPOINTMENT MODAL ─────────────────────────────────
+// â”€â”€ APPOINTMENT MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function AppointmentModal({ onClose, onSave }) {
   const [form,setForm]=useState({ doctor:"", specialty:"", date:"", time:"", location:"", notes:"", type:"In-Person" });
   const up=(k,v)=>setForm(f=>({...f,[k]:v}));
@@ -598,7 +584,7 @@ function AppointmentModal({ onClose, onSave }) {
   );
 }
 
-// ── VACCINE MODAL ─────────────────────────────────────
+// â”€â”€ VACCINE MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function VaccineModal({ onClose, onSave }) {
   const [form,setForm]=useState({ name:"", date:"", nextDue:"", provider:"", notes:"" });
   const up=(k,v)=>setForm(f=>({...f,[k]:v}));
@@ -620,37 +606,62 @@ function VaccineModal({ onClose, onSave }) {
   );
 }
 
-// ── MOOD WIDGET ───────────────────────────────────────
+// â”€â”€ ADD PATIENT FORM (extracted as proper component) â”€â”€
+function AddPatientForm({ onClose, onAdd }) {
+  const [form, setForm] = useState({ name:"", rel:"", age:"", conditions:"", allergies:"", medications:"", emergencyContact:"" });
+  const up = (k,v) => setForm(f=>({...f,[k]:v}));
+  return (
+    <div>
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"12px 14px" }}>
+        <div style={{ gridColumn:"1/-1" }}><label className="label">Full Name *</label><input className="input" placeholder="Mary Smith" value={form.name} onChange={e=>up("name",e.target.value)}/></div>
+        <div><label className="label">Relationship *</label><input className="input" placeholder="Mother" value={form.rel} onChange={e=>up("rel",e.target.value)}/></div>
+        <div><label className="label">Age *</label><input type="number" className="input" placeholder="72" value={form.age} onChange={e=>up("age",e.target.value)}/></div>
+        <div style={{ gridColumn:"1/-1" }}><label className="label">Conditions</label><input className="input" placeholder="Diabetes, Hypertension" value={form.conditions} onChange={e=>up("conditions",e.target.value)}/></div>
+        <div style={{ gridColumn:"1/-1" }}><label className="label">Allergies</label><input className="input" placeholder="Penicillin, Peanuts" value={form.allergies} onChange={e=>up("allergies",e.target.value)}/></div>
+        <div style={{ gridColumn:"1/-1" }}><label className="label">Medications</label><textarea className="input" rows={3} style={{ resize:"none" }} placeholder="Metformin 500mg (8 AM)" value={form.medications} onChange={e=>up("medications",e.target.value)}/></div>
+        <div style={{ gridColumn:"1/-1" }}><label className="label">Emergency Contact</label><input className="input" placeholder="Dr. Wilson (555-0199)" value={form.emergencyContact} onChange={e=>up("emergencyContact",e.target.value)}/></div>
+      </div>
+      <div style={{ display:"flex", gap:10, marginTop:20 }}>
+        <button onClick={onClose} className="btn btn-ghost" style={{ flex:1 }}>Cancel</button>
+        <button onClick={()=>{ if(!form.name||!form.rel||!form.age) return; onAdd(form); onClose(); }} className="btn btn-primary" style={{ flex:2 }}>Add Patient</button>
+      </div>
+    </div>
+  );
+}
+
+// â”€â”€ MOOD WIDGET â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function MoodWidget({ dark, email }) {
   const col = C[dark?"dark":"light"];
-  const moods=[{e:<Icons.Trash/>,l:"Terrible",c:"#ef4444"},{e:<Icons.SOS/>,l:"Bad",c:"#f59e0b"},{e:<Icons.User/>,l:"Okay",c:"#8ab4d4"},{e:<Icons.Smile/>,l:"Good",c:"#34d399"},{e:<Icons.Star/>,l:"Great!",c:col.accent}];
+  const moodEmojis = ["😫","😞","😐","🙂","😄"];
+  const moodLabels = ["Terrible","Bad","Okay","Good","Great!"];
+  const moodColors = ["#ef4444","#f59e0b","#8ab4d4","#34d399","#38bdf8"];
   const todayKey = new Date().toDateString();
   const log = getMoodLog(email);
   const todayEntry = log.find(e=>e.date===todayKey);
-  const [selected,setSelected]=useState(todayEntry?.mood??null);
-  const [saved,setSaved]=useState(!!todayEntry);
+  const [selected, setSelected] = useState(todayEntry?.mood ?? null);
+  const [saved, setSaved] = useState(!!todayEntry);
 
   const save = (i) => {
     setSelected(i); setSaved(false);
     const newLog = log.filter(e=>e.date!==todayKey);
-    newLog.push({ date:todayKey, mood:i, emoji:moods[i].e, label:moods[i].l, timestamp:Date.now() });
+    newLog.push({ date:todayKey, mood:i, label:moodLabels[i], timestamp:Date.now() });
     saveMoodLog(email, newLog);
     setSaved(true);
   };
 
   return (
     <div className="card">
-      <div style={{ fontWeight:700, fontSize:14, marginBottom:14, color:col.text }}><Icons.Smile/> Daily Mood Check-In</div>
+      <div style={{ fontWeight:700, fontSize:14, marginBottom:14, color:col.text, display:"flex", alignItems:"center", gap:8 }}><Icons.Smile/> Daily Mood Check-In</div>
       <div style={{ display:"flex", gap:8 }}>
-        {moods.map((m,i)=><button key={i} onClick={()=>save(i)} style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:4, padding:"10px 4px", borderRadius:10, border:`2px solid ${selected===i?m.c:col.border}`, background:selected===i?m.c+"18":"transparent", cursor:"pointer", transition:"all 0.2s" }}><span style={{ fontSize:24 }}>{m.e}</span><span style={{ fontSize:9, fontWeight:700, color:selected===i?m.c:col.textSoft }}>{m.l}</span></button>)}
+        {moodEmojis.map((e,i)=><button key={i} onClick={()=>save(i)} style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", gap:4, padding:"10px 4px", borderRadius:10, border:`2px solid ${selected===i?moodColors[i]:col.border}`, background:selected===i?moodColors[i]+"18":"transparent", cursor:"pointer", transition:"all 0.2s" }}><span style={{ fontSize:24 }}>{e}</span><span style={{ fontSize:9, fontWeight:700, color:selected===i?moodColors[i]:col.textSoft }}>{moodLabels[i]}</span></button>)}
       </div>
-      {saved && <div style={{ textAlign:"center", fontSize:12, color:"#34d399", fontWeight:700, marginTop:10 }}><Icons.Check/> Mood logged for today</div>}
+      {saved && <div style={{ textAlign:"center", fontSize:12, color:"#34d399", fontWeight:700, marginTop:10, display:"flex", alignItems:"center", justifyContent:"center", gap:6 }}><Icons.Check/> Mood logged for today</div>}
     </div>
   );
 }
 
-// ── PRINT REPORT ──────────────────────────────────────
-function _printReport(meds, streak, adherencePct, user, vitals) {
+// â”€â”€ PRINT REPORT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function printReport(meds, streak, adherencePct, user, vitals) {
   const w = window.open("","_blank","width=800,height=600");
   if(!w) return;
   const latest = vitals[vitals.length-1];
@@ -662,7 +673,7 @@ function _printReport(meds, streak, adherencePct, user, vitals) {
   @media print{body{padding:20px}}
   </style></head><body>
   <h1>MedGuard AI — Health Summary Report</h1>
-  <p style="color:#64748b;font-size:13px">Patient: ${user?.name||"—"} &nbsp;·&nbsp; Generated: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</p>
+  <p style="color:#64748b;font-size:13px">Patient: ${user?.name||"—"} · Generated: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</p>
   <div class="stats">
     <div class="stat"><div class="stat-v">${adherencePct}%</div><div class="sub">Adherence</div></div>
     <div class="stat"><div class="stat-v">${streak}</div><div class="sub">Day Streak</div></div>
@@ -671,7 +682,7 @@ function _printReport(meds, streak, adherencePct, user, vitals) {
   </div>
   <h2>Medications</h2>
   <table><tr><th>Name</th><th>Dosage</th><th>Frequency</th><th>Time</th><th>Status</th></tr>
-  ${meds.map(m=>`<tr><td>${m.name}</td><td>${m.dosage}</td><td>${m.frequency}</td><td>${m.time}</td><td>${m.status==="taken"?"✓ Taken":"○ Pending"}</td></tr>`).join("")}
+  ${meds.map(m=>`<tr><td>${m.name}</td><td>${m.dosage}</td><td>${m.frequency}</td><td>${m.time}</td><td>${m.status==="taken"?"✓ Taken":"• Pending"}</td></tr>`).join("")}
   </table>
   ${vitals.length?`<h2>Recent Vitals</h2><table><tr><th>Date</th><th>BP</th><th>Pulse</th><th>Temp</th><th>O2</th><th>Weight</th></tr>${vitals.slice(-5).reverse().map(v=>`<tr><td>${v.date}</td><td>${v.bp_sys||"—"}/${v.bp_dia||"—"}</td><td>${v.pulse||"—"}</td><td>${v.temp||"—"}°C</td><td>${v.o2||"—"}%</td><td>${v.weight||"—"}kg</td></tr>`).join("")}</table>`:""}
   <p style="color:#94a3b8;font-size:11px;margin-top:32px">Generated by MedGuard AI · For informational use only · Always consult your healthcare provider</p>
@@ -679,34 +690,34 @@ function _printReport(meds, streak, adherencePct, user, vitals) {
   w.document.close(); w.print();
 }
 
-// ── NOTIFICATION PANEL ────────────────────────────────
+// â”€â”€ NOTIFICATION PANEL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function NotificationPanel({ meds, appointments, dark, onClose }) {
   const col = C[dark?"dark":"light"];
   const now = new Date();
   const refillDue = meds.filter(m => m.refillDate && (new Date(m.refillDate)-now)/(1000*60*60*24)<=7);
   const upcomingAppts = appointments.filter(a => { const d=new Date(a.date); return d>=now && (d-now)/(1000*60*60*24)<=3; });
   const notifs = [
-    ...refillDue.map(m=>({ type:"warning", title:`Refill needed: ${m.name}`, time:"Soon", icon:<Icons.Med/> })),
-    ...upcomingAppts.map(a=>({ type:"info", title:`Appointment: ${a.doctor}`, time:new Date(a.date).toLocaleDateString(), icon:<Icons.Calendar/> })),
-    { type:"success", title:"Daily streak maintained!", time:"Today", icon:<Icons.Flame/> },
+    ...refillDue.map(m=>({ type:"warning", title:`Refill needed: ${m.name}`, time:"Soon" })),
+    ...upcomingAppts.map(a=>({ type:"info", title:`Appointment: ${a.doctor}`, time:new Date(a.date).toLocaleDateString() })),
+    { type:"success", title:"Daily streak maintained!", time:"Today" },
   ];
   return (
     <div style={{ position:"fixed", top:64, right:24, zIndex:500, width:300 }} className="card fade-up">
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
-        <div style={{ fontWeight:800, fontSize:14 }}><Icons.Bell/> Notifications</div>
+        <div style={{ fontWeight:800, fontSize:14, display:"flex", alignItems:"center", gap:6 }}><Icons.Bell/> Notifications</div>
         <button onClick={onClose} style={{ background:"none", border:"none", color:col.textSoft, cursor:"pointer", fontSize:18 }}>×</button>
       </div>
       <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-        {notifs.length===0 ? <div style={{ fontSize:13, color:col.textSoft, textAlign:"center", padding:"20px 0" }}>All clear! <Icons.Check/></div> :
-          notifs.map((n,i)=><div key={i} style={{ display:"flex", gap:10, padding:"10px 12px", borderRadius:10, background:n.type==="warning"?"rgba(251,191,36,0.06)":n.type==="info"?col.accentLight:"rgba(52,211,153,0.06)", border:`1px solid ${n.type==="warning"?"rgba(251,191,36,0.2)":n.type==="info"?col.accentBorder:"rgba(52,211,153,0.2)"}` }}><span style={{ fontSize:18 }}>{n.icon}</span><div><div style={{ fontWeight:600, fontSize:12, color:col.text }}>{n.title}</div><div style={{ fontSize:11, color:col.textSoft }}>{n.time}</div></div></div>)
+        {notifs.length===0 ? <div style={{ fontSize:13, color:col.textSoft, textAlign:"center", padding:"20px 0" }}>All clear!</div> :
+          notifs.map((n,i)=><div key={i} style={{ display:"flex", gap:10, padding:"10px 12px", borderRadius:10, background:n.type==="warning"?"rgba(251,191,36,0.06)":n.type==="info"?col.accentLight:"rgba(52,211,153,0.06)", border:`1px solid ${n.type==="warning"?"rgba(251,191,36,0.2)":n.type==="info"?col.accentBorder:"rgba(52,211,153,0.2)"}` }}><div><div style={{ fontWeight:600, fontSize:12, color:col.text }}>{n.title}</div><div style={{ fontSize:11, color:col.textSoft }}>{n.time}</div></div></div>)
         }
       </div>
     </div>
   );
 }
 
-// ── ANALYTICS TAB ─────────────────────────────────────
-function AnalyticsTab({ dark, email, meds, streak, vitals }) {
+// â”€â”€ ANALYTICS TAB â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function AnalyticsTab({ dark, email, meds, streak, vitals, user }) {
   const col = C[dark?"dark":"light"];
   const moodLog = getMoodLog(email);
   const adh = getAdherenceHistory(email);
@@ -717,10 +728,11 @@ function AnalyticsTab({ dark, email, meds, streak, vitals }) {
     return { label, value: adh[key]||0, today: key===new Date().toDateString() };
   });
 
+  const moodEmojis = ["😫","😞","😐","🙂","😄"];
   const moodWeek = Array.from({length:7},(_,i)=>{
     const d=new Date(); d.setDate(d.getDate()-6+i);
     const key=d.toDateString(); const entry=moodLog.find(e=>e.date===key);
-    return { label:["Su","Mo","Tu","We","Th","Fr","Sa"][d.getDay()], mood:entry?.mood??null, emoji:entry?.emoji||"–" };
+    return { label:["Su","Mo","Tu","We","Th","Fr","Sa"][d.getDay()], mood:entry?.mood??null, emoji: entry?.mood != null ? moodEmojis[entry.mood] : "—" };
   });
 
   const latestVitals = vitals[vitals.length-1];
@@ -730,47 +742,59 @@ function AnalyticsTab({ dark, email, meds, streak, vitals }) {
 
   return (
     <div style={{ display:"flex", flexDirection:"column", gap:22 }}>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+        <div>
+          <div style={{ fontSize:26, fontWeight:900, color:col.text }}>Health Analytics</div>
+          <div style={{ fontSize:13, color:col.textSoft }}>Your personal health overview and trends.</div>
+        </div>
+        <button onClick={()=>printReport(meds, streak, adherencePct, user, vitals)} className="btn btn-ghost"><Icons.Download/> Export Report</button>
+      </div>
+
       <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:14 }} className="fade-up">
         {[
-          ["Health Score", <Icons.Star key="star" />, `${healthScore}/100`, healthScore>=80?"badge-green":healthScore>=60?"badge-yellow":"badge-red"],
-          ["Adherence", <Icons.Med key="med" />, `${adherencePct}%`, adherencePct>=80?"badge-green":adherencePct>=60?"badge-yellow":"badge-red"],
-          ["Day Streak", <Icons.Flame key="flame" />, `${streak} days`, "badge-blue"],
-          ["Meds Active", <Icons.Syringe key="syringe" />, `${meds.length}`, ""]
-        ]
-          .map(([l,e,v,cls])=><div key={l} className="stat-card"><div style={{ fontSize:22, marginBottom:8 }}>{e}</div><div style={{ fontSize:22, fontWeight:900, color:col.text }}>{v}</div><div style={{ fontSize:11, color:col.textSoft, marginTop:3 }}>{l}</div>{cls&&<span className={`badge ${cls}`} style={{ marginTop:8 }}>{v}</span>}</div>)}
+          ["Health Score", <Icons.Star key="s"/>, `${healthScore}/100`, healthScore>=80?"badge-green":healthScore>=60?"badge-yellow":"badge-red"],
+          ["Adherence", <Icons.Med key="m"/>, `${adherencePct}%`, adherencePct>=80?"badge-green":adherencePct>=60?"badge-yellow":"badge-red"],
+          ["Day Streak", <Icons.Flame key="f"/>, `${streak} days`, "badge-blue"],
+          ["Meds Active", <Icons.Syringe key="sy"/>, `${meds.length}`, "badge-blue"]
+        ].map(([l,e,v,cls])=>(
+          <div key={l} className="stat-card">
+            <div style={{ fontSize:22, marginBottom:8 }}>{e}</div>
+            <div style={{ fontSize:22, fontWeight:900, color:col.text }}>{v}</div>
+            <div style={{ fontSize:11, color:col.textSoft, marginTop:3 }}>{l}</div>
+            {cls&&<span className={`badge ${cls}`} style={{ marginTop:8 }}>{v}</span>}
+          </div>
+        ))}
       </div>
 
       <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:20 }} className="fade-up-1">
         <div className="card">
-          <div style={{ fontWeight:700, fontSize:14, marginBottom:16 }}><Icons.Chart/> Weekly Adherence</div>
+          <div style={{ fontWeight:700, fontSize:14, marginBottom:16, display:"flex", alignItems:"center", gap:8 }}><Icons.Chart/> Weekly Adherence</div>
           <BarChart data={weekData} dark={dark}/>
-          <div style={{ display:"flex", justifyContent:"space-between", marginTop:10, fontSize:11, color:col.textSoft }}>
-            <span>7-day view</span><span>Today highlighted</span>
-          </div>
         </div>
         <div className="card">
-          <div style={{ fontWeight:700, fontSize:14, marginBottom:16 }}><Icons.Smile/> Weekly Mood</div>
+          <div style={{ fontWeight:700, fontSize:14, marginBottom:16, display:"flex", alignItems:"center", gap:8 }}><Icons.Smile/> Weekly Mood</div>
           <div style={{ display:"flex", gap:6, justifyContent:"space-between" }}>
             {moodWeek.map((d,i)=><div key={i} style={{ flex:1, textAlign:"center" }}>
               <div style={{ fontSize:20, marginBottom:4 }}>{d.emoji}</div>
               <div style={{ fontSize:10, color:col.textSoft }}>{d.label}</div>
             </div>)}
           </div>
+          <MoodWidget dark={dark} email={email} />
         </div>
       </div>
 
       {latestVitals && (
         <div className="card fade-up-2">
-          <div style={{ fontWeight:700, fontSize:14, marginBottom:16 }}><Icons.Heart/> Latest Vitals — {latestVitals.date}</div>
+          <div style={{ fontWeight:700, fontSize:14, marginBottom:16, display:"flex", alignItems:"center", gap:8 }}><Icons.Heart/> Latest Vitals — {latestVitals.date}</div>
           <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(130px,1fr))", gap:12 }}>
-            {[["Blood Pressure",`${latestVitals.bp_sys||"—"}/${latestVitals.bp_dia||"—"} mmHg`,<Icons.Heart key="bp"/>],["Heart Rate",`${latestVitals.pulse||"—"} bpm`,<Icons.Heart key="hr"/>],["Temperature",`${latestVitals.temp||"—"}°C`,<Icons.Thermometer key="temp"/>],["O2 Saturation",`${latestVitals.o2||"—"}%`,<Icons.Lungs key="o2"/>],["Weight",`${latestVitals.weight||"—"} kg`,<Icons.Weight key="weight"/>],["Glucose",`${latestVitals.glucose||"—"} mg/dL`,<Icons.Droplet key="glucose"/>]]
+            {[["Blood Pressure",`${latestVitals.bp_sys||"—"}/${latestVitals.bp_dia||"—"} mmHg`,<Icons.Heart key="bp"/>],["Heart Rate",`${latestVitals.pulse||"—"} bpm`,<Icons.Heart key="hr"/>],["Temperature",`${latestVitals.temp||"—"}°C`,<Icons.Thermometer key="t"/>],["O2 Saturation",`${latestVitals.o2||"—"}%`,<Icons.Lungs key="o"/>],["Weight",`${latestVitals.weight||"—"} kg`,<Icons.Weight key="w"/>],["Glucose",`${latestVitals.glucose||"—"} mg/dL`,<Icons.Droplet key="g"/>]]
               .map(([l,v,e])=><div key={l} style={{ background:col.accentLight, borderRadius:10, padding:"12px 14px", border:`1px solid ${col.accentBorder}` }}><div style={{ fontSize:18, marginBottom:4 }}>{e}</div><div style={{ fontWeight:800, fontSize:16, color:col.text }}>{v}</div><div style={{ fontSize:10, color:col.textSoft, marginTop:2 }}>{l}</div></div>)}
           </div>
         </div>
       )}
 
       <div className="card fade-up-3">
-        <div style={{ fontWeight:700, fontSize:14, marginBottom:14 }}><Icons.Log/> 30-Day Adherence Calendar</div>
+        <div style={{ fontWeight:700, fontSize:14, marginBottom:14, display:"flex", alignItems:"center", gap:8 }}><Icons.Log/> 30-Day Adherence Calendar</div>
         <div style={{ display:"flex", gap:3, flexWrap:"wrap" }}>
           {Array.from({length:30},(_,i)=>{
             const d=new Date(); d.setDate(d.getDate()-29+i);
@@ -788,7 +812,7 @@ function AnalyticsTab({ dark, email, meds, streak, vitals }) {
   );
 }
 
-// ── SETTINGS TAB ──────────────────────────────────────
+// â”€â”€ SETTINGS TAB â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function SettingsTab({ dark, setDark, lang, setLang, user, setUser, show }) {
   const col = C[dark?"dark":"light"];
   const [form,setForm]=useState({ name:user?.name||"", emergencyContact:user?.emergencyContact||"", bloodType:user?.bloodType||"", allergies:user?.allergies||"", dob:user?.dob||"" });
@@ -799,10 +823,7 @@ function SettingsTab({ dark, setDark, lang, setLang, user, setUser, show }) {
 
   const saveProfile = () => {
     const users = getUsers();
-    if (users[user.email]) {
-      Object.assign(users[user.email], form);
-      saveUsers(users);
-    }
+    if (users[user.email]) { Object.assign(users[user.email], form); saveUsers(users); }
     const updated = { ...user, ...form };
     setUser(updated);
     localStorage.setItem(SESSION_KEY, JSON.stringify(updated));
@@ -828,9 +849,8 @@ function SettingsTab({ dark, setDark, lang, setLang, user, setUser, show }) {
 
   return (
     <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:20 }}>
-      {/* Profile */}
       <div className="card fade-up">
-        <div style={{ fontWeight:800, fontSize:16, marginBottom:18 }}><Icons.User/> Profile Settings</div>
+        <div style={{ fontWeight:800, fontSize:16, marginBottom:18, display:"flex", alignItems:"center", gap:8 }}><Icons.User/> Profile Settings</div>
         <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
           <div><label className="label">Full Name</label><input className="input" value={form.name} onChange={e=>up("name",e.target.value)}/></div>
           <div><label className="label">Date of Birth</label><input type="date" className="input" value={form.dob} onChange={e=>up("dob",e.target.value)}/></div>
@@ -842,9 +862,8 @@ function SettingsTab({ dark, setDark, lang, setLang, user, setUser, show }) {
       </div>
 
       <div style={{ display:"flex", flexDirection:"column", gap:20 }}>
-        {/* Password */}
         <div className="card fade-up-1">
-          <div style={{ fontWeight:800, fontSize:16, marginBottom:18 }}><Icons.Lock/> Change Password</div>
+          <div style={{ fontWeight:800, fontSize:16, marginBottom:18, display:"flex", alignItems:"center", gap:8 }}><Icons.Lock/> Change Password</div>
           <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
             {[["current","Current Password"],["newPw","New Password"],["confirm","Confirm New Password"]].map(([k,l])=>(
               <div key={k}>
@@ -859,19 +878,17 @@ function SettingsTab({ dark, setDark, lang, setLang, user, setUser, show }) {
           </div>
         </div>
 
-        {/* Language */}
         <div className="card fade-up-2">
-          <div style={{ fontWeight:800, fontSize:16, marginBottom:14 }}><Icons.Globe/> Language</div>
+          <div style={{ fontWeight:800, fontSize:16, marginBottom:14, display:"flex", alignItems:"center", gap:8 }}><Icons.Globe/> Language</div>
           <div style={{ display:"flex", gap:8 }}>
-            {[["en","English",<Icons.Flag key="en"/>],["hi","हिंदी",<Icons.Flag key="hi"/>],["gu","ગુજ.",<Icons.Flag key="gu"/>]].map(([code,name,flag])=>(
-              <button key={code} onClick={()=>setLang(code)} style={{ flex:1, padding:"10px 6px", borderRadius:10, border:`2px solid ${lang===code?col.accent:col.border}`, background:lang===code?col.accentLight:"transparent", color:lang===code?col.accent:col.textMid, fontWeight:700, fontSize:12, cursor:"pointer" }}>{flag} {name}</button>
+            {[["en","English"],["hi","à¤¹à¤¿à¤‚à¤¦à¥€"],["gu","àª—à«àªœ."]].map(([code,name])=>(
+              <button key={code} onClick={()=>setLang(code)} style={{ flex:1, padding:"10px 6px", borderRadius:10, border:`2px solid ${lang===code?col.accent:col.border}`, background:lang===code?col.accentLight:"transparent", color:lang===code?col.accent:col.textMid, fontWeight:700, fontSize:12, cursor:"pointer" }}>{name}</button>
             ))}
           </div>
         </div>
 
-        {/* Appearance & Notifs */}
         <div className="card fade-up-3">
-          <div style={{ fontWeight:800, fontSize:16, marginBottom:14 }}><Icons.Settings/> Preferences</div>
+          <div style={{ fontWeight:800, fontSize:16, marginBottom:14, display:"flex", alignItems:"center", gap:8 }}><Icons.Settings/> Preferences</div>
           <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"10px 14px", borderRadius:10, border:`1px solid ${col.border}` }}>
               <span style={{ fontSize:13, fontWeight:600 }}>Dark Mode</span>
@@ -881,7 +898,7 @@ function SettingsTab({ dark, setDark, lang, setLang, user, setUser, show }) {
             </div>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"10px 14px", borderRadius:10, border:`1px solid ${col.border}` }}>
               <div><div style={{ fontSize:13, fontWeight:600 }}>Push Notifications</div><div style={{ fontSize:11, color:col.textSoft }}>Status: {notifPerm}</div></div>
-              <button onClick={requestNotif} disabled={notifPerm==="granted"} className="btn btn-ghost" style={{ fontSize:11, padding:"6px 12px" }}>{notifPerm==="granted"?<><Icons.Check/> Active</>:<>"Enable"</>}</button>
+              <button onClick={requestNotif} disabled={notifPerm==="granted"} className="btn btn-ghost" style={{ fontSize:11, padding:"6px 12px" }}>{notifPerm==="granted"?<><Icons.Check/> Active</>:"Enable"}</button>
             </div>
           </div>
         </div>
@@ -890,10 +907,10 @@ function SettingsTab({ dark, setDark, lang, setLang, user, setUser, show }) {
   );
 }
 
-// ── AI CHAT TAB ───────────────────────────────────────
+// â”€â”€ AI CHAT TAB â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function AIChatTab({ dark, user, meds }) {
   const col = C[dark?"dark":"light"];
-  const [history, setHistory] = useState([{ from:"ai", text:`Hello ${user?.name?.split(" ")[0]||"there"}! 👋 I'm your MedGuard AI health assistant. I can help with medication questions, symptom analysis, drug interactions, and health guidance. What can I help you with?` }]);
+  const [history, setHistory] = useState([{ from:"ai", text:`Hello ${user?.name?.split(" ")[0]||"there"}! 👋 I'm your MedGuard AI health assistant. I can help with medication questions, symptom analysis, drug interactions, and health guidance. What can I help you with today?` }]);
   const [msg, setMsg] = useState(""), [loading, setLoading] = useState(false);
   const bottomRef = useRef(null);
   const onVoiceResult = useCallback(text=>setMsg(text), []);
@@ -904,47 +921,56 @@ function AIChatTab({ dark, user, meds }) {
     const m = msg.trim(); if(!m||loading) return;
     setMsg(""); setHistory(h=>[...h,{from:"user",text:m}]); setLoading(true);
     try {
-      const msgs = history.map(x=>({ role:x.from==="user"?"user":"assistant", content:x.text }));
+      const msgs = history.slice(-10).map(x=>({ role:x.from==="user"?"user":"assistant", content:x.text }));
       msgs.push({ role:"user", content:m });
-      const context = `Patient: ${user?.name}. Current meds: ${meds.map(m=>m.name+" "+m.dosage).join(", ")||"none"}. Allergies: ${user?.allergies||"none"}.`;
-      const txt = await callAI(msgs, `You are MedGuard AI, a professional medical assistant. ${context} Be warm, concise (under 120 words), accurate. End clinical advice with: "Please consult your doctor for personalized guidance."`);
+      const context = `Patient: ${user?.name||"Unknown"}. Current meds: ${meds.map(m=>m.name+" "+m.dosage).join(", ")||"none"}. Allergies: ${user?.allergies||"none"}.`;
+      const txt = await callAI(msgs, `You are MedGuard AI, a professional medical assistant. ${context} Be warm, concise (under 150 words), accurate. End clinical advice with: "Please consult your doctor for personalized guidance."`);
       setHistory(h=>[...h,{from:"ai",text:txt}]);
-    } catch(e) { setHistory(h=>[...h,{from:"ai",text:`${e.message||"Connection error. Please try again."}`}]); }
+    } catch(e) { setHistory(h=>[...h,{from:"ai",text:`Sorry, I'm having trouble connecting right now. Please try again in a moment.`}]); }
     setLoading(false);
   };
 
-  const suggested = ["What are the side effects of Metformin?","Can I take ibuprofen with Lisinopril?","What foods should I avoid with blood thinners?","How do I improve medication adherence?","What does my blood pressure reading mean?"];
+  const suggested = [
+    "What are the side effects of Metformin?",
+    "Can I take ibuprofen with Lisinopril?",
+    "What foods should I avoid with blood thinners?",
+    "How do I improve medication adherence?",
+    "What does my blood pressure reading mean?"
+  ];
 
   return (
     <div style={{ display:"grid", gridTemplateColumns:"1fr 280px", gap:20, height:580 }}>
       <div className="card" style={{ display:"flex", flexDirection:"column", padding:0, overflow:"hidden" }}>
         <div style={{ padding:"18px 20px", borderBottom:`1px solid ${col.border}`, display:"flex", alignItems:"center", gap:12 }}>
-          <div style={{ width:40, height:40, borderRadius:12, background:col.accentLight, display:"flex", alignItems:"center", justifyContent:"center", fontSize:22 }}><Icons.AI/></div>
-          <div><div style={{ fontWeight:700, fontSize:14 }}>MedGuard AI Assistant</div><div style={{ fontSize:11, color:"#34d399" }}>● Online · Claude AI</div></div>
+          <div style={{ width:40, height:40, borderRadius:12, background:col.accentLight, display:"flex", alignItems:"center", justifyContent:"center" }}><Icons.AI/></div>
+          <div>
+            <div style={{ fontWeight:700, fontSize:14 }}>MedGuard AI Assistant</div>
+            <div style={{ fontSize:11, color:"#34d399" }}>• Online · Claude AI</div>
+          </div>
         </div>
         <div style={{ flex:1, overflowY:"auto", padding:"16px", display:"flex", flexDirection:"column", gap:10 }}>
           {history.map((m,i)=>(
             <div key={i} style={{ display:"flex", justifyContent:m.from==="user"?"flex-end":"flex-start", gap:8, alignItems:"flex-end" }}>
-              {m.from==="ai"&&<div style={{ width:28,height:28,borderRadius:"50%",background:`linear-gradient(135deg,${col.gradStart},${col.gradEnd})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,flexShrink:0 }}><Icons.AI/></div>}
+              {m.from==="ai"&&<div style={{ width:28,height:28,borderRadius:"50%",background:`linear-gradient(135deg,${col.gradStart},${col.gradEnd})`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0 }}><Icons.AI/></div>}
               <div style={{ maxWidth:"80%", padding:"11px 14px", borderRadius:m.from==="user"?"16px 16px 4px 16px":"16px 16px 16px 4px", background:m.from==="user"?`linear-gradient(135deg,${col.gradStart},${col.gradEnd})`:col.surface, color:m.from==="user"?"#fff":col.text, fontSize:13.5, lineHeight:1.7, border:m.from==="ai"?`1px solid ${col.border}`:"none", whiteSpace:"pre-wrap" }}>{m.text}</div>
             </div>
           ))}
-          {loading&&<div style={{ display:"flex", gap:8, alignItems:"flex-end" }}><div style={{ width:28,height:28,borderRadius:"50%",background:`linear-gradient(135deg,${col.gradStart},${col.gradEnd})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14 }}><Icons.AI/></div><div style={{ padding:"12px 16px",borderRadius:"16px 16px 16px 4px",background:col.surface,border:`1px solid ${col.border}` }} className="dot-loading"><span/><span/><span/></div></div>}
+          {loading&&<div style={{ display:"flex", gap:8, alignItems:"flex-end" }}><div style={{ width:28,height:28,borderRadius:"50%",background:`linear-gradient(135deg,${col.gradStart},${col.gradEnd})`,display:"flex",alignItems:"center",justifyContent:"center" }}><Icons.AI/></div><div style={{ padding:"12px 16px",borderRadius:"16px 16px 16px 4px",background:col.surface,border:`1px solid ${col.border}` }} className="dot-loading"><span/><span/><span/></div></div>}
           <div ref={bottomRef}/>
         </div>
         <div style={{ padding:"12px 16px", borderTop:`1px solid ${col.border}`, display:"flex", gap:8 }}>
-          <button onClick={listening?stop:start} style={{ padding:"11px 12px", borderRadius:10, background:listening?"rgba(239,68,68,0.1)":col.surface, border:`1.5px solid ${listening?"rgba(239,68,68,0.4)":col.border}`, fontSize:16, cursor:"pointer" }}>{listening?<Icons.Mic style={{color:"#ef4444"}}/>:<Icons.Mic/>}</button>
+          <button onClick={listening?stop:start} style={{ padding:"11px 12px", borderRadius:10, background:listening?"rgba(239,68,68,0.1)":col.surface, border:`1.5px solid ${listening?"rgba(239,68,68,0.4)":col.border}`, cursor:"pointer", color:listening?"#ef4444":col.textMid }}><Icons.Mic/></button>
           <input value={msg} onChange={e=>setMsg(e.target.value)} onKeyDown={e=>e.key==="Enter"&&!e.shiftKey&&send()} placeholder="Ask about medications, symptoms…" className="input" style={{ flex:1 }}/>
           <button onClick={send} disabled={loading||!msg.trim()} className="btn btn-primary" style={{ opacity:loading||!msg.trim()?0.5:1 }}><Icons.Send/></button>
         </div>
       </div>
       <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
         <div className="card">
-          <div style={{ fontWeight:700, fontSize:13, marginBottom:10 }}><Icons.Lightbulb/> Quick Questions</div>
+          <div style={{ fontWeight:700, fontSize:13, marginBottom:10, display:"flex", alignItems:"center", gap:6 }}><Icons.Lightbulb/> Quick Questions</div>
           {suggested.map(q=><button key={q} onClick={()=>setMsg(q)} style={{ width:"100%", textAlign:"left", padding:"8px 10px", borderRadius:8, background:col.accentLight, border:`1px solid ${col.accentBorder}`, fontSize:12, color:col.textMid, cursor:"pointer", marginBottom:6, lineHeight:1.5 }}>{q}</button>)}
         </div>
         <div style={{ background:"rgba(251,191,36,0.06)", border:"1px solid rgba(251,191,36,0.2)", borderRadius:12, padding:"14px" }}>
-          <div style={{ fontWeight:700, fontSize:12, color:"#fbbf24", marginBottom:6 }}><Icons.Warning/> Disclaimer</div>
+          <div style={{ fontWeight:700, fontSize:12, color:"#fbbf24", marginBottom:6, display:"flex", alignItems:"center", gap:6 }}><Icons.Warning/> Disclaimer</div>
           <p style={{ fontSize:11, color:col.textSoft, lineHeight:1.65 }}>AI provides general information only. Always consult your licensed doctor for medical decisions.</p>
         </div>
       </div>
@@ -952,12 +978,11 @@ function AIChatTab({ dark, user, meds }) {
   );
 }
 
-// ── PATIENT PORTAL ────────────────────────────────────
+// â”€â”€ PATIENT PORTAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function PatientPortal({ dark, SetDark, lang, SetLang, user, SetUser, onLogout }) {
   const L = T[lang]||T.en;
   const col = C[dark?"dark":"light"];
   const { toasts, show } = useToast();
-  const _offline = useOffline();
   const [tab, setTab] = useState("dashboard");
   const [meds, setMeds] = useState(() => getMeds(user.email));
   const [vitals, setVitals] = useState(() => getVitals(user.email));
@@ -972,15 +997,14 @@ function PatientPortal({ dark, SetDark, lang, SetLang, user, SetUser, onLogout }
   const [showAppt, setShowAppt] = useState(false);
   const [showVaccine, setShowVaccine] = useState(false);
   const [showNotifs, setShowNotifs] = useState(false);
-  const [_loading, _setLoading] = useState(false);
 
   useNotificationScheduler(meds);
 
   const takenCount = meds.filter(m=>m.status==="taken").length;
   const adherencePct = meds.length===0?0:Math.round((takenCount/meds.length)*100);
-  const _healthScore = Math.min(100, Math.round(adherencePct*0.55+streak*0.9+18));
+  const healthScore = Math.min(100, Math.round(adherencePct*0.55+streak*0.9+18));
 
-  const _markTaken = (idx) => {
+  const markTaken = (idx) => {
     if(meds[idx].status==="taken") return;
     const newMeds = meds.map((m,i)=>i===idx?{...m,status:"taken"}:m);
     setMeds(newMeds); saveMeds(user.email, newMeds);
@@ -1002,11 +1026,11 @@ function PatientPortal({ dark, SetDark, lang, SetLang, user, SetUser, onLogout }
     const newMeds=[...meds,form]; setMeds(newMeds); saveMeds(user.email,newMeds);
     show(<Icons.Med/>,"Medication Added",`${form.name} added to your schedule.`);
   };
-  const _deleteMed = (idx) => {
+  const deleteMed = (idx) => {
     const newMeds=meds.filter((_,i)=>i!==idx); setMeds(newMeds); saveMeds(user.email,newMeds);
     show(<Icons.Trash/>,"Medication Removed","Medication deleted from schedule.");
   };
-  const _resetDoses = () => {
+  const resetDoses = () => {
     const newMeds=meds.map(m=>({...m,status:"upcoming"})); setMeds(newMeds); saveMeds(user.email,newMeds);
     show(<Icons.Refresh/>,"Doses Reset","All doses reset for today.");
   };
@@ -1019,118 +1043,194 @@ function PatientPortal({ dark, SetDark, lang, SetLang, user, SetUser, onLogout }
     const newAppts=[...appointments,appt]; setAppointments(newAppts); saveAppointments(user.email,newAppts);
     show(<Icons.Calendar/>,"Appointment Scheduled",`Visit with ${appt.doctor} on ${appt.date}.`);
   };
-  const _deleteAppt = (id) => {
+  const deleteAppt = (id) => {
     const newAppts=appointments.filter(a=>a.id!==id); setAppointments(newAppts); saveAppointments(user.email,newAppts);
+    show(<Icons.Trash/>,"Appointment Cancelled","Appointment removed.");
   };
   const addVaccine = (v) => {
     const newV=[...vaccines,v]; setVaccines(newV); saveVaccines(user.email,newV);
-    show(<Icons.Syringe/>,'Vaccination Recorded',`${v.name} added to your records.`);
+    show(<Icons.Syringe/>,"Vaccination Recorded",`${v.name} added to your records.`);
   };
-
   const removeVaccine = (id) => {
     const newV=vaccines.filter(v=>v.id!==id); setVaccines(newV); saveVaccines(user.email,newV);
     show(<Icons.Trash/>,"Vaccine Removed","Vaccination record deleted.");
   };
 
-  const tipOptions = [
-    { title:"Stay Hydrated", description:"Drink water with your medications to support absorption and prevent dizziness." },
-    { title:"Set Reminders", description:"Use alarms or app reminders so you never miss a dose." },
-    { title:"Track Side Effects", description:"Note any new symptoms and discuss them with your doctor." },
-    { title:"Review Your Meds", description:"Regularly check medication instructions and avoid dangerous combinations." },
-    { title:"Keep Records", description:"Log appointments, vitals, and vaccine dates for better healthcare tracking." },
+  const navItems = [
+    { id:"dashboard", label:L.dashboard, icon:<Icons.Dash/> },
+    { id:"medications", label:L.medications, icon:<Icons.Med/> },
+    { id:"ai-advisor", label:L.aiAdvisor, icon:<Icons.AI/> },
+    { id:"analytics", label:L.analytics, icon:<Icons.Chart/> },
+    { id:"vitals", label:L.vitals||"Vitals", icon:<Icons.Heart/> },
+    { id:"appointments", label:L.appointments||"Appointments", icon:<Icons.Calendar/> },
+    { id:"vaccinations", label:L.vaccinations||"Vaccines", icon:<Icons.Syringe/> },
+    { id:"symptoms", label:L.symptoms, icon:<Icons.Activity/> },
+    { id:"interaction", label:"Drug Checker", icon:<Icons.Shield/> },
+    { id:"settings", label:L.settings, icon:<Icons.Settings/> },
   ];
 
-  const renderTabContent = () => {
+  const notifCount = meds.filter(m=>m.refillDate&&(new Date(m.refillDate)-new Date())/(1000*60*60*24)<=7).length + appointments.filter(a=>{const d=new Date(a.date);const now=new Date();return d>=now&&(d-now)/(1000*60*60*24)<=3;}).length;
+
+  const renderContent = () => {
     const latestVitals = vitals[vitals.length-1];
     switch(tab) {
       case "dashboard":
         return (
-          <>
-            {/* Greeting */}
-            <div style={{ marginBottom:32 }}>
-              <h1 style={{ fontSize:32, fontWeight:900, color:col.text, marginBottom:8 }}>Morning, {user?.name?.split(" ")[0]||"there"}.</h1>
-              <p style={{ color:col.textSoft, fontSize:14 }}>You have {meds.filter(m=>m.status!="taken").length} medications remaining for today. Your vitals are looking stable and well-balanced.</p>
+          <div style={{ display:"flex", flexDirection:"column", gap:24 }}>
+            <div>
+              <h1 style={{ fontSize:30, fontWeight:900, color:col.text, marginBottom:6 }}>
+                Good {new Date().getHours()<12?"Morning":new Date().getHours()<17?"Afternoon":"Evening"}, {user?.name?.split(" ")[0]||"there"} 👋
+              </h1>
+              <p style={{ color:col.textSoft, fontSize:14 }}>
+                {meds.filter(m=>m.status!=="taken").length > 0
+                  ? `You have ${meds.filter(m=>m.status!=="taken").length} medication(s) remaining for today.`
+                  : meds.length > 0 ? "All doses taken for today! Great job 🎉" : "No medications scheduled. Add one to get started."}
+              </p>
             </div>
 
-            {/* Today's Schedule */}
-            <div style={{ marginBottom:32 }}>
+            {/* Quick Stats */}
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:14 }} className="fade-up">
+              {[
+                { label:"Health Score", value:`${healthScore}%`, icon:"⭐", color:"#34d399" },
+                { label:"Adherence Today", value:`${adherencePct}%`, icon:"✅", color:"#38bdf8" },
+                { label:"Day Streak", value:`${streak}d`, icon:"🔥", color:"#f59e0b" },
+                { label:"Next Dose", value: meds.find(m=>m.status!=="taken")?.time || "—", icon:"⏰", color:"#818cf8" },
+              ].map(s=>(
+                <div key={s.label} className="stat-card" style={{ textAlign:"center" }}>
+                  <div style={{ fontSize:28, marginBottom:8 }}>{s.icon}</div>
+                  <div style={{ fontSize:22, fontWeight:900, color:s.color }}>{s.value}</div>
+                  <div style={{ fontSize:11, color:col.textSoft, marginTop:3 }}>{s.label}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Today's Medications */}
+            <div className="card fade-up-1">
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
-                <h2 style={{ fontSize:18, fontWeight:800, color:col.text }}>Today's Schedule</h2>
-                <a href="#" style={{ fontSize:13, color:col.accent, textDecoration:"none", fontWeight:600 }}>View Full Calendar</a>
+                <div style={{ fontWeight:800, fontSize:16, display:"flex", alignItems:"center", gap:8 }}><Icons.Med/> Today's Medications</div>
+                <div style={{ display:"flex", gap:8 }}>
+                  <button onClick={resetDoses} className="btn btn-ghost" style={{ fontSize:11, padding:"6px 10px" }}><Icons.Refresh/> Reset</button>
+                  <button onClick={()=>setShowAddMed(true)} className="btn btn-primary" style={{ fontSize:11, padding:"6px 12px" }}><Icons.Plus/> Add</button>
+                </div>
               </div>
-              <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
-                {meds.slice(0,3).map((med,i)=>(
-                  <div key={i} style={{ display:"flex", alignItems:"center", gap:16, padding:"16px", background:col.card, borderRadius:12, border:`1px solid ${col.border}` }}>
-                    <div style={{ width:12, height:12, borderRadius:"50%", background:med.status==="taken"?"#34d399":"#fbbf24" }}/>
-                    <div style={{ flex:1 }}>
-                      <div style={{ fontWeight:700, fontSize:14, color:col.text }}>{med.name}</div>
-                      <div style={{ fontSize:12, color:col.textSoft }}>{med.dosage} • {med.frequency}</div>
+              {meds.length===0 ? (
+                <div style={{ textAlign:"center", padding:"32px 0", color:col.textSoft }}>
+                  <div style={{ fontSize:40, marginBottom:8 }}>💊</div>
+                  <div style={{ marginBottom:12 }}>No medications yet</div>
+                  <button onClick={()=>setShowAddMed(true)} className="btn btn-primary">Add First Medication</button>
+                </div>
+              ) : (
+                <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+                  {meds.map((med,i)=>(
+                    <div key={med.id||i} style={{ display:"flex", alignItems:"center", gap:14, padding:"14px 16px", background:med.status==="taken"?"rgba(52,211,153,0.05)":col.surface, borderRadius:12, border:`1px solid ${med.status==="taken"?"rgba(52,211,153,0.2)":col.border}`, transition:"all 0.2s" }}>
+                      <div style={{ width:10, height:10, borderRadius:"50%", background:med.status==="taken"?"#34d399":"#fbbf24", flexShrink:0 }}/>
+                      <div style={{ flex:1 }}>
+                        <div style={{ fontWeight:700, fontSize:14, color:col.text }}>{med.name}</div>
+                        <div style={{ fontSize:12, color:col.textSoft }}>{med.dosage} · {med.frequency} · {med.time}</div>
+                        {med.purpose && <div style={{ fontSize:11, color:col.textSoft, marginTop:2 }}>For: {med.purpose}</div>}
+                      </div>
+                      <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+                        {med.status!=="taken" ? (
+                          <button onClick={()=>markTaken(i)} className="btn btn-ghost" style={{ fontSize:12, padding:"7px 14px" }}><Icons.Check/> Take</button>
+                        ) : (
+                          <span className="badge badge-green"><Icons.Check/> Taken</span>
+                        )}
+                        <button onClick={()=>deleteMed(i)} className="btn btn-danger" style={{ padding:"7px 10px" }}><Icons.Trash/></button>
+                      </div>
                     </div>
-                    <div style={{ fontSize:14, fontWeight:600, color:med.status==="taken"?"#34d399":"#fbbf24" }}>{med.time}</div>
-                    <span style={{ fontSize:11, background:med.status==="taken"?"rgba(52,211,153,0.1)":"rgba(251,191,36,0.1)", color:med.status==="taken"?"#34d399":"#fbbf24", padding:"4px 8px", borderRadius:6, fontWeight:600, textTransform:"uppercase" }}>{med.status}</span>
-                  </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Quick Actions */}
+            <div className="fade-up-2">
+              <div style={{ fontWeight:700, fontSize:14, marginBottom:12, color:col.text }}>Quick Actions</div>
+              <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:12 }}>
+                {[
+                  { label:"Log Vitals", icon:"🩺", action:()=>setShowVitals(true), color:"#ef4444" },
+                  { label:"AI Advisor", icon:"🧠", action:()=>setTab("ai-advisor"), color:"#38bdf8" },
+                  { label:"Drug Checker", icon:"🧪", action:()=>setShowInteraction(true), color:"#818cf8" },
+                  { label:"Emergency SOS", icon:"🚨", action:()=>setShowSOS(true), color:"#f59e0b" },
+                ].map(q=>(
+                  <button key={q.label} onClick={q.action} style={{ padding:"16px 12px", borderRadius:12, background:col.card, border:`1px solid ${col.border}`, cursor:"pointer", display:"flex", flexDirection:"column", alignItems:"center", gap:8, transition:"all 0.2s" }}
+                    onMouseEnter={e=>{e.currentTarget.style.borderColor=q.color;e.currentTarget.style.background=q.color+"11";}}
+                    onMouseLeave={e=>{e.currentTarget.style.borderColor=col.border;e.currentTarget.style.background=col.card;}}>
+                    <span style={{ fontSize:24 }}>{q.icon}</span>
+                    <span style={{ fontSize:12, fontWeight:600, color:col.text }}>{q.label}</span>
+                  </button>
                 ))}
               </div>
             </div>
 
-            {/* Advisor Insight Card */}
-            <div style={{ background:"linear-gradient(135deg,#ff9a56 0%,#ff7a3d 100%)", borderRadius:12, padding:24, marginBottom:32, display:"flex", gap:20 }}>
-              <div style={{ flex:1 }}>
-                <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:12 }}>
-                  <span style={{ fontSize:20 }}><Icons.Lightbulb/></span>
-                  <span style={{ fontWeight:800, fontSize:12, color:"#fff", textTransform:"uppercase", letterSpacing:0.5 }}>Advisor Insight</span>
+            {/* Upcoming Appointments */}
+            {appointments.length > 0 && (
+              <div className="card fade-up-3">
+                <div style={{ fontWeight:800, fontSize:15, marginBottom:14, display:"flex", alignItems:"center", gap:8 }}><Icons.Calendar/> Upcoming Appointments</div>
+                <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+                  {appointments.slice(0,3).map((a,i)=>(
+                    <div key={a.id||i} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"12px 14px", background:col.surface, borderRadius:10, border:`1px solid ${col.border}` }}>
+                      <div>
+                        <div style={{ fontWeight:700, fontSize:13, color:col.text }}>{a.doctor}</div>
+                        <div style={{ fontSize:11, color:col.textSoft }}>{a.specialty} · {a.date} {a.time && `at ${a.time}`}</div>
+                      </div>
+                      <span className="badge badge-blue">{a.type}</span>
+                    </div>
+                  ))}
                 </div>
-                <h3 style={{ fontSize:20, fontWeight:800, color:"#fff", marginBottom:12 }}>Hydration & Lisinopril</h3>
-                <p style={{ color:"rgba(255,255,255,0.9)", fontSize:14, lineHeight:"1.6", marginBottom:16 }}>Ensure you drink a glass of water when taking Lisinopril to support blood pressure control and minimize dizziness.</p>
-                <button style={{ background:"rgba(255,255,255,0.2)", border:"1px solid rgba(255,255,255,0.3)", color:"#fff", padding:"8px 14px", borderRadius:8, fontWeight:600, fontSize:12, cursor:"pointer" }}>Read Full Insight</button>
               </div>
-              <div style={{ fontSize:60, opacity:0.3 }}><Icons.Droplet/></div>
-            </div>
+            )}
 
-            {/* Stats */}
-            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:16 }}>
-              {[
-                { label:"Sleep Quality", value:"7h 42m", unit:"OPTIMAL", icon:<Icons.Moon/> },
-                { label:"Daily Steps", value:"8,432", unit:"ACTIVE", icon:<Icons.Activity/> },
-                { label:"Add New Metric", value:"+", unit:"", icon:<Icons.Plus/> },
-              ].map((stat,i)=>(
-                <div key={i} style={{ padding:16, background:col.card, borderRadius:12, border:`1px solid ${col.border}`, textAlign:"center" }}>
-                  <div style={{ fontSize:20 }}>{stat.icon}</div>
-                  <div style={{ fontSize:12, color:col.textSoft, textTransform:"uppercase", letterSpacing:0.5, marginTop:8, marginBottom:4 }}>{stat.unit}</div>
-                  <div style={{ fontSize:20, fontWeight:900, color:col.text }}>{stat.value}</div>
-                  <div style={{ fontSize:11, color:col.textSoft, marginTop:8 }}>{stat.label}</div>
-                </div>
-              ))}
+            {/* Mood */}
+            <div className="fade-up-4">
+              <MoodWidget dark={dark} email={user.email}/>
             </div>
-          </>
+          </div>
         );
 
-      case "medication-info":
       case "medications":
         return (
           <div style={{ display:"flex", flexDirection:"column", gap:22 }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
               <div>
-                <div style={{ fontSize:26, fontWeight:900, color:col.text, marginBottom:4 }}>Medication Info</div>
-                <div style={{ fontSize:13, color:col.textSoft }}>Manage your medications, reminders, and dosing schedule.</div>
+                <div style={{ fontSize:26, fontWeight:900, color:col.text }}>Medications</div>
+                <div style={{ fontSize:13, color:col.textSoft }}>{meds.length} medication(s) in your schedule</div>
               </div>
-              <button onClick={()=>setShowAddMed(true)} className="btn btn-primary"><Icons.Plus/> Add Medication</button>
+              <div style={{ display:"flex", gap:10 }}>
+                <button onClick={()=>setShowInteraction(true)} className="btn btn-ghost"><Icons.Shield/> Check Interactions</button>
+                <button onClick={()=>setShowAddMed(true)} className="btn btn-primary"><Icons.Plus/> Add Medication</button>
+              </div>
             </div>
             {meds.length===0 ? (
-              <div className="card" style={{ textAlign:"center", padding:32, color:col.textSoft }}>No medications have been added yet. Use the button above to add your first medication.</div>
+              <div className="card" style={{ textAlign:"center", padding:48, color:col.textSoft }}>
+                <div style={{ fontSize:48, marginBottom:12 }}>💊</div>
+                <div style={{ fontSize:16, fontWeight:700, marginBottom:8 }}>No medications added yet</div>
+                <button onClick={()=>setShowAddMed(true)} className="btn btn-primary">Add First Medication</button>
+              </div>
             ) : (
               <div style={{ display:"grid", gap:14 }}>
                 {meds.map((med,i)=>(
-                  <div key={med.id||i} className="card" style={{ display:"flex", justifyContent:"space-between", alignItems:"center", gap:16, padding:20 }}>
-                    <div style={{ flex:1 }}>
-                      <div style={{ display:"flex", gap:10, alignItems:"center", marginBottom:8 }}><span style={{ fontSize:18 }}><Icons.Med/></span><div style={{ fontWeight:800, fontSize:15, color:col.text }}>{med.name}</div></div>
-                      <div style={{ fontSize:12, color:col.textSoft }}>{med.dosage} • {med.frequency} • {med.time}</div>
-                      {med.refillDate && <div style={{ marginTop:8, fontSize:11, color:col.textSoft }}>Refill: {med.refillDate}</div>}
-                      {med.notes && <div style={{ marginTop:8, fontSize:11, color:col.textSoft }}>Notes: {med.notes}</div>}
-                    </div>
-                    <div style={{ display:"flex", gap:8, alignItems:"center" }}>
-                      {med.status!=="taken" && <button onClick={()=>_markTaken(i)} className="btn btn-ghost">Mark Taken</button>}
-                      <button onClick={()=>_deleteMed(i)} className="btn btn-danger">Remove</button>
+                  <div key={med.id||i} className="card" style={{ padding:20 }}>
+                    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", gap:16 }}>
+                      <div style={{ display:"flex", gap:14, flex:1 }}>
+                        <div style={{ width:44, height:44, borderRadius:10, background:col.accentLight, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}><Icons.Med/></div>
+                        <div style={{ flex:1 }}>
+                          <div style={{ fontWeight:800, fontSize:16, color:col.text, marginBottom:4 }}>{med.name}</div>
+                          <div style={{ display:"flex", gap:10, flexWrap:"wrap", fontSize:12, color:col.textSoft }}>
+                            <span>💊 {med.dosage}</span>
+                            <span>⏱️ {med.frequency}</span>
+                            <span>⏰ {med.time}</span>
+                            {med.purpose && <span>🎯 {med.purpose}</span>}
+                          </div>
+                          {med.refillDate && <div style={{ marginTop:6, fontSize:11, color:"#fbbf24" }}>⏳ Refill by: {med.refillDate}</div>}
+                          {med.notes && <div style={{ marginTop:6, fontSize:12, color:col.textSoft, background:col.accentLight, padding:"6px 10px", borderRadius:8 }}>📝 {med.notes}</div>}
+                        </div>
+                      </div>
+                      <div style={{ display:"flex", gap:8, alignItems:"center", flexShrink:0 }}>
+                        <span className={`badge ${med.status==="taken"?"badge-green":"badge-yellow"}`}>{med.status==="taken"?"✓ Taken":"Pending"}</span>
+                        {med.status!=="taken" && <button onClick={()=>markTaken(i)} className="btn btn-primary" style={{ fontSize:12, padding:"8px 14px" }}>Mark Taken</button>}
+                        <button onClick={()=>deleteMed(i)} className="btn btn-danger" style={{ padding:"8px 12px" }}><Icons.Trash/></button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -1139,34 +1239,11 @@ function PatientPortal({ dark, SetDark, lang, SetLang, user, SetUser, onLogout }
           </div>
         );
 
-      case "chat-history":
       case "ai-advisor":
         return <AIChatTab dark={dark} user={user} meds={meds}/>;
 
-      case "health-insights":
       case "analytics":
-        return <AnalyticsTab dark={dark} email={user.email} meds={meds} streak={streak} vitals={vitals}/>;
-
-      case "saved-tips":
-        return (
-          <div style={{ display:"grid", gap:16 }}>
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-              <div>
-                <div style={{ fontSize:26, fontWeight:900, color:col.text }}>Saved Tips</div>
-                <div style={{ fontSize:13, color:col.textSoft }}>Helpful reminders and healthy habits for your care routine.</div>
-              </div>
-              <button onClick={()=>setTab("settings")} className="btn btn-ghost">Manage Settings</button>
-            </div>
-            <div style={{ display:"grid", gap:12 }}>
-              {tipOptions.map((tip,i)=>(
-                <div key={i} className="card" style={{ padding:18 }}>
-                  <div style={{ fontWeight:800, fontSize:15, color:col.text, marginBottom:8 }}>{tip.title}</div>
-                  <div style={{ fontSize:13, color:col.textSoft, lineHeight:1.7 }}>{tip.description}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
+        return <AnalyticsTab dark={dark} email={user.email} meds={meds} streak={streak} vitals={vitals} user={user}/>;
 
       case "vitals":
         return (
@@ -1174,34 +1251,64 @@ function PatientPortal({ dark, SetDark, lang, SetLang, user, SetUser, onLogout }
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
               <div>
                 <div style={{ fontSize:26, fontWeight:900, color:col.text }}>Vitals</div>
-                <div style={{ fontSize:13, color:col.textSoft }}>Log your latest health measurements and view trends.</div>
+                <div style={{ fontSize:13, color:col.textSoft }}>Track your health measurements over time.</div>
               </div>
               <button onClick={()=>setShowVitals(true)} className="btn btn-primary"><Icons.Heart/> Log Vitals</button>
             </div>
             {latestVitals ? (
-              <div className="card" style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(140px,1fr))", gap:12 }}>
-                {[["Blood Pressure",`${latestVitals.bp_sys||"—"}/${latestVitals.bp_dia||"—"} mmHg`,<Icons.Heart key="bp"/>],["Pulse",`${latestVitals.pulse||"—"} bpm`,<Icons.Heart key="pulse"/>],["Temperature",`${latestVitals.temp||"—"}°C`,<Icons.Thermometer key="temp"/>],["O2",`${latestVitals.o2||"—"}%`,<Icons.Droplet key="o2"/>],["Weight",`${latestVitals.weight||"—"} kg`,<Icons.Weight key="wt"/>],["Glucose",`${latestVitals.glucose||"—"} mg/dL`,<Icons.DNA key="glucose"/>]].map(([label,value,icon])=>(
-                  <div key={label} style={{ background:col.surface, borderRadius:14, padding:16, border:`1px solid ${col.border}` }}>
-                    <div style={{ fontSize:20, marginBottom:8 }}>{icon}</div>
-                    <div style={{ fontWeight:700, color:col.text, marginBottom:6 }}>{label}</div>
-                    <div style={{ fontSize:14, color:col.textSoft }}>{value}</div>
-                  </div>
-                ))}
+              <div className="card">
+                <div style={{ fontWeight:700, fontSize:14, marginBottom:14, color:col.text }}>Latest Reading — {latestVitals.date}</div>
+                <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(140px,1fr))", gap:12 }}>
+                  {[
+                    { label:"Blood Pressure", value:(latestVitals.bp_sys||"–") + "/" + (latestVitals.bp_dia||"–") + " mmHg", icon:"❤️" },
+                    { label:"Heart Rate", value:(latestVitals.pulse||"N/A") + " bpm", icon:"💓" },
+                    { label:"Temperature", value:latestVitals.temp ? latestVitals.temp + " °C" : "N/A", icon:"🌡️" },
+                    { label:"O2 Saturation", value:latestVitals.o2 ? latestVitals.o2 + "%" : "N/A", icon:"🫁" },
+                    { label:"Weight", value:latestVitals.weight ? latestVitals.weight + " kg" : "N/A", icon:"⚖️" },
+                    { label:"Glucose", value:latestVitals.glucose ? latestVitals.glucose + " mg/dL" : "N/A", icon:"🩸" },
+                  ].map(({ label, value, icon }) => (
+                    <div key={label} style={{ background:col.surface, borderRadius:14, padding:16, border:`1px solid ${col.border}`, textAlign:"center" }}>
+                      <div style={{ fontSize:24, marginBottom:6 }}>{icon}</div>
+                      <div style={{ fontWeight:800, fontSize:16, color:col.text }}>{value}</div>
+                      <div style={{ fontSize:11, color:col.textSoft, marginTop:4 }}>{label}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
             ) : (
-              <div className="card" style={{ textAlign:"center", padding:32, color:col.textSoft }}>No vitals recorded yet. Log your first health entry to begin tracking.</div>
+              <div className="card" style={{ textAlign:"center", padding:48, color:col.textSoft }}>
+                <div style={{ fontSize:48, marginBottom:12 }}>🩺</div>
+                <div style={{ fontSize:16, fontWeight:700, marginBottom:8 }}>No vitals recorded yet</div>
+                <button onClick={()=>setShowVitals(true)} className="btn btn-primary">Log First Reading</button>
+              </div>
             )}
-            {vitals.length > 0 && (
-              <div className="card" style={{ padding:18, display:"grid", gap:12 }}>
-                <div style={{ fontWeight:800, color:col.text }}>Recent Vitals History</div>
-                {vitals.slice(-5).reverse().map((entry,i)=>(
-                  <div key={i} style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, padding:12, background:col.card, borderRadius:10 }}>
-                    <div><div style={{ fontSize:12, color:col.textSoft }}>Date</div><div style={{ color:col.text }}>{entry.date}</div></div>
-                    <div><div style={{ fontSize:12, color:col.textSoft }}>Pulse</div><div style={{ color:col.text }}>{entry.pulse||"—"} bpm</div></div>
-                    <div><div style={{ fontSize:12, color:col.textSoft }}>BP</div><div style={{ color:col.text }}>{entry.bp_sys||"—"}/{entry.bp_dia||"—"}</div></div>
-                    <div><div style={{ fontSize:12, color:col.textSoft }}>Temp</div><div style={{ color:col.text }}>{entry.temp||"—"}°C</div></div>
-                  </div>
-                ))}
+            {vitals.length > 1 && (
+              <div className="card">
+                <div style={{ fontWeight:700, fontSize:14, marginBottom:14, color:col.text }}>History (Last 5 Readings)</div>
+                <div style={{ overflowX:"auto" }}>
+                  <table style={{ width:"100%", borderCollapse:"collapse", fontSize:13 }}>
+                    <thead>
+                      <tr>
+                        {["Date","BP","Pulse","Temp","O2","Weight","Glucose"].map(h=>(
+                          <th key={h} style={{ padding:"10px 12px", textAlign:"left", fontWeight:700, color:col.textSoft, fontSize:11, textTransform:"uppercase", borderBottom:`1px solid ${col.border}` }}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {vitals.slice(-5).reverse().map((v,i)=>(
+                        <tr key={i}>
+                          <td style={{ padding:"10px 12px", color:col.text, borderBottom:`1px solid ${col.border}` }}>{v.date}</td>
+                          <td style={{ padding:"10px 12px", color:col.text, borderBottom:`1px solid ${col.border}` }}>{v.bp_sys||"—"}/{v.bp_dia||"—"}</td>
+                          <td style={{ padding:"10px 12px", color:col.text, borderBottom:`1px solid ${col.border}` }}>{v.pulse||"—"}</td>
+                          <td style={{ padding:"10px 12px", color:col.text, borderBottom:`1px solid ${col.border}` }}>{v.temp||"—"}°C</td>
+                          <td style={{ padding:"10px 12px", color:col.text, borderBottom:`1px solid ${col.border}` }}>{v.o2||"—"}%</td>
+                          <td style={{ padding:"10px 12px", color:col.text, borderBottom:`1px solid ${col.border}` }}>{v.weight||"—"}kg</td>
+                          <td style={{ padding:"10px 12px", color:col.text, borderBottom:`1px solid ${col.border}` }}>{v.glucose||"—"}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
           </div>
@@ -1213,29 +1320,38 @@ function PatientPortal({ dark, SetDark, lang, SetLang, user, SetUser, onLogout }
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
               <div>
                 <div style={{ fontSize:26, fontWeight:900, color:col.text }}>Appointments</div>
-                <div style={{ fontSize:13, color:col.textSoft }}>Schedule doctor visits, lab work, and follow-ups.</div>
+                <div style={{ fontSize:13, color:col.textSoft }}>Manage your doctor visits and consultations.</div>
               </div>
               <button onClick={()=>setShowAppt(true)} className="btn btn-primary"><Icons.Calendar/> Add Appointment</button>
             </div>
             {appointments.length===0 ? (
-              <div className="card" style={{ textAlign:"center", padding:32, color:col.textSoft }}>No appointments scheduled yet. Add one to stay organized.</div>
+              <div className="card" style={{ textAlign:"center", padding:48, color:col.textSoft }}>
+                <div style={{ fontSize:48, marginBottom:12 }}>📅</div>
+                <div style={{ fontSize:16, fontWeight:700, marginBottom:8 }}>No appointments scheduled</div>
+                <button onClick={()=>setShowAppt(true)} className="btn btn-primary">Schedule Appointment</button>
+              </div>
             ) : (
-              <div style={{ display:"grid", gap:12 }}>
-                {appointments.map((appt,i)=>(
-                  <div key={appt.id||i} className="card" style={{ padding:18, borderRadius:14, border:`1px solid ${col.border}` }}>
-                    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", gap:14 }}>
-                      <div>
-                        <div style={{ fontWeight:800, color:col.text }}>{appt.doctor}</div>
-                        <div style={{ fontSize:12, color:col.textSoft }}>{appt.specialty || "General"}</div>
+              <div style={{ display:"grid", gap:14 }}>
+                {appointments.sort((a,b)=>new Date(a.date)-new Date(b.date)).map((appt,i)=>(
+                  <div key={appt.id||i} className="card" style={{ padding:20 }}>
+                    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
+                      <div style={{ flex:1 }}>
+                        <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:8 }}>
+                          <span style={{ fontSize:20 }}>🩺</span>
+                          <div>
+                            <div style={{ fontWeight:800, fontSize:15, color:col.text }}>{appt.doctor}</div>
+                            {appt.specialty && <div style={{ fontSize:12, color:col.textSoft }}>{appt.specialty}</div>}
+                          </div>
+                          <span className="badge badge-blue">{appt.type}</span>
+                        </div>
+                        <div style={{ display:"flex", gap:16, flexWrap:"wrap", fontSize:12, color:col.textSoft }}>
+                          <span>📅 {appt.date} {appt.time && `at ${appt.time}`}</span>
+                          {appt.location && <span>📍 {appt.location}</span>}
+                        </div>
+                        {appt.notes && <div style={{ marginTop:8, fontSize:12, color:col.textSoft, background:col.accentLight, padding:"6px 10px", borderRadius:8 }}>📝 {appt.notes}</div>}
                       </div>
-                      <button onClick={()=>_deleteAppt(appt.id)} className="btn btn-danger" style={{ padding:"8px 12px" }}>Cancel</button>
+                      <button onClick={()=>deleteAppt(appt.id)} className="btn btn-danger" style={{ padding:"8px 12px", marginLeft:12 }}>Cancel</button>
                     </div>
-                    <div style={{ display:"flex", gap:16, flexWrap:"wrap", marginTop:12, color:col.textSoft, fontSize:12 }}>
-                      <div><Icons.Calendar/> {appt.date} at {appt.time}</div>
-                      <div>{appt.type}</div>
-                      <div>{appt.location || "No location"}</div>
-                    </div>
-                    {appt.notes && <div style={{ marginTop:12, fontSize:12, color:col.textSoft }}>Notes: {appt.notes}</div>}
                   </div>
                 ))}
               </div>
@@ -1249,21 +1365,36 @@ function PatientPortal({ dark, SetDark, lang, SetLang, user, SetUser, onLogout }
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
               <div>
                 <div style={{ fontSize:26, fontWeight:900, color:col.text }}>Vaccinations</div>
-                <div style={{ fontSize:13, color:col.textSoft }}>Keep your vaccine record current and accessible.</div>
+                <div style={{ fontSize:13, color:col.textSoft }}>Your complete immunization record.</div>
               </div>
               <button onClick={()=>setShowVaccine(true)} className="btn btn-primary"><Icons.Syringe/> Add Vaccine</button>
             </div>
             {vaccines.length===0 ? (
-              <div className="card" style={{ textAlign:"center", padding:32, color:col.textSoft }}>No vaccination records yet. Add your vaccine history to stay protected.</div>
+              <div className="card" style={{ textAlign:"center", padding:48, color:col.textSoft }}>
+                <div style={{ fontSize:48, marginBottom:12 }}>📌</div>
+                <div style={{ fontSize:16, fontWeight:700, marginBottom:8 }}>No vaccination records</div>
+                <button onClick={()=>setShowVaccine(true)} className="btn btn-primary">Add Vaccination</button>
+              </div>
             ) : (
               <div style={{ display:"grid", gap:12 }}>
                 {vaccines.map((v,i)=>(
-                  <div key={v.id||i} className="card" style={{ padding:18, display:"flex", justifyContent:"space-between", alignItems:"center", borderRadius:14, border:`1px solid ${col.border}` }}>
-                    <div>
-                      <div style={{ fontWeight:800, color:col.text }}>{v.name}</div>
-                      <div style={{ fontSize:12, color:col.textSoft }}>{v.date} • Next due: {v.nextDue||"N/A"}</div>
+                  <div key={v.id||i} className="card" style={{ padding:18 }}>
+                    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                      <div style={{ flex:1 }}>
+                        <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:6 }}>
+                          <span style={{ fontSize:20 }}>💉</span>
+                          <div style={{ fontWeight:800, fontSize:15, color:col.text }}>{v.name}</div>
+                          <span className="badge badge-green">✓ Recorded</span>
+                        </div>
+                        <div style={{ display:"flex", gap:16, fontSize:12, color:col.textSoft }}>
+                          <span>📅 Given: {v.date}</span>
+                          {v.nextDue && <span>⏭️ Next due: {v.nextDue}</span>}
+                          {v.provider && <span>🏥 {v.provider}</span>}
+                        </div>
+                        {v.notes && <div style={{ marginTop:6, fontSize:12, color:col.textSoft }}>📝 {v.notes}</div>}
+                      </div>
+                      <button onClick={()=>removeVaccine(v.id)} className="btn btn-danger" style={{ padding:"8px 12px", marginLeft:12 }}><Icons.Trash/></button>
                     </div>
-                    <button onClick={()=>removeVaccine(v.id)} className="btn btn-danger">Remove</button>
                   </div>
                 ))}
               </div>
@@ -1273,25 +1404,58 @@ function PatientPortal({ dark, SetDark, lang, SetLang, user, SetUser, onLogout }
 
       case "symptoms":
         return (
-          <div style={{ display:"grid", gap:18 }}>
+          <div style={{ display:"grid", gap:22 }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
               <div>
                 <div style={{ fontSize:26, fontWeight:900, color:col.text }}>Symptom Logger</div>
-                <div style={{ fontSize:13, color:col.textSoft }}>Log symptoms and let AI assess them against your medications.</div>
+                <div style={{ fontSize:13, color:col.textSoft }}>AI-powered symptom analysis against your medications.</div>
               </div>
               <button onClick={()=>setShowSymptoms(true)} className="btn btn-primary"><Icons.Activity/> Log Symptoms</button>
             </div>
-            <div className="card" style={{ padding:20, background:col.surface, borderRadius:14, border:`1px solid ${col.border}` }}>
-              <div style={{ fontWeight:700, color:col.text, marginBottom:10 }}>Current Medications</div>
-              {meds.length===0 ? <div style={{ color:col.textSoft }}>No medications are recorded yet.</div> : (
-                <div style={{ display:"grid", gap:10 }}>
-                  {meds.map((med,i)=>(<div key={i} style={{ padding:12, borderRadius:10, background:col.card, display:"flex", justifyContent:"space-between", alignItems:"center" }}><div><div style={{ fontWeight:700, color:col.text }}>{med.name}</div><div style={{ fontSize:11, color:col.textSoft }}>{med.dosage}</div></div><span style={{ fontSize:11, color:col.textSoft }}>{med.status}</span></div>))}
+            <div className="card">
+              <div style={{ fontWeight:700, fontSize:14, marginBottom:12, color:col.text, display:"flex", alignItems:"center", gap:8 }}><Icons.Med/> Your Current Medications</div>
+              {meds.length===0 ? <div style={{ color:col.textSoft, fontSize:13 }}>No medications recorded. Add medications first.</div> : (
+                <div style={{ display:"flex", flexWrap:"wrap", gap:8 }}>
+                  {meds.map((med,i)=><span key={i} className="badge badge-blue" style={{ padding:"6px 12px", fontSize:12 }}>{med.name} {med.dosage}</span>)}
                 </div>
               )}
             </div>
-            <div className="card" style={{ padding:20, borderRadius:14, border:`1px solid ${col.border}` }}>
-              <div style={{ fontWeight:700, marginBottom:10, color:col.text }}>AI Symptom Support</div>
-              <p style={{ color:col.textSoft, fontSize:13, lineHeight:1.7 }}>Use the symptom logger to get AI-backed guidance based on your medications and the symptoms you select. This is not medical advice.</p>
+            {(() => {
+              const logs = getSymptomLog(user.email);
+              return logs.length > 0 ? (
+                <div className="card">
+                  <div style={{ fontWeight:700, fontSize:14, marginBottom:14, color:col.text }}>Recent Symptom Logs</div>
+                  <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+                    {logs.slice(-3).reverse().map((log,i)=>(
+                      <div key={i} style={{ padding:"12px 14px", background:col.surface, borderRadius:10, border:`1px solid ${col.border}` }}>
+                        <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
+                          <div style={{ fontWeight:700, fontSize:13, color:col.text }}>{log.symptoms.join(", ")}</div>
+                          <span className="badge badge-red">Severity {log.severity}/10</span>
+                        </div>
+                        <div style={{ fontSize:12, color:col.textSoft, marginBottom:6 }}>{log.date}</div>
+                        {log.analysis && <div style={{ fontSize:12, color:col.textMid, lineHeight:1.6, background:col.accentLight, padding:"8px 10px", borderRadius:8, whiteSpace:"pre-wrap" }}>{log.analysis}</div>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null;
+            })()}
+            <div className="card" style={{ background:"rgba(251,191,36,0.04)", border:"1px solid rgba(251,191,36,0.2)" }}>
+              <div style={{ fontWeight:700, fontSize:13, color:"#fbbf24", marginBottom:8, display:"flex", alignItems:"center", gap:6 }}><Icons.Warning/> Medical Disclaimer</div>
+              <p style={{ fontSize:13, color:col.textSoft, lineHeight:1.7 }}>The AI symptom analysis is for informational purposes only. It cannot replace professional medical advice, diagnosis, or treatment. If you're experiencing a medical emergency, call 112 immediately.</p>
+            </div>
+          </div>
+        );
+
+      case "interaction":
+        return (
+          <div style={{ display:"flex", flexDirection:"column", gap:22 }}>
+            <div>
+              <div style={{ fontSize:26, fontWeight:900, color:col.text }}>Drug Interaction Checker</div>
+              <div style={{ fontSize:13, color:col.textSoft }}>Check safety of medication and food combinations.</div>
+            </div>
+            <div className="card">
+              <DrugInteractionCheckerInline dark={dark} meds={meds}/>
             </div>
           </div>
         );
@@ -1302,151 +1466,70 @@ function PatientPortal({ dark, SetDark, lang, SetLang, user, SetUser, onLogout }
       default:
         return (
           <div style={{ textAlign:"center", padding:"64px 32px" }}>
-            <div style={{ fontSize:20, fontWeight:800, color:col.text, marginBottom:8 }}>{navItems.find(i=>i.id===tab)?.label||"Feature"}</div>
-            <p style={{ color:col.textSoft, marginBottom:16 }}>This section is being updated so it works seamlessly for your care plan.</p>
+            <div style={{ fontSize:48, marginBottom:12 }}>💉</div>
+            <div style={{ fontSize:20, fontWeight:800, color:col.text, marginBottom:8 }}>Coming Soon</div>
             <button onClick={()=>setTab("dashboard")} className="btn btn-primary">Return to Dashboard</button>
           </div>
         );
     }
   };
 
-  const navItems = [
-    { id:"dashboard", label:L.dashboard, icon:<Icons.Dash/> },
-    { id:"medications", label:L.medications, icon:<Icons.Med/> },
-    { id:"ai-advisor", label:L.aiAdvisor, icon:<Icons.AI/> },
-    { id:"analytics", label:L.analytics, icon:<Icons.Chart/> },
-    { id:"vitals", label:L.vitals||"Vitals", icon:<Icons.Heart/> },
-    { id:"appointments", label:L.appointments||"Appointments", icon:<Icons.Calendar/> },
-    { id:"vaccinations", label:L.vaccinations||"Vaccines", icon:<Icons.Syringe/> },
-    { id:"symptoms", label:L.symptoms, icon:<Icons.Activity/> },
-    { id:"settings", label:L.settings, icon:<Icons.Settings/> },
-  ];
-
-  const refillDueCount = meds.filter(m=>m.refillDate&&(new Date(m.refillDate)-new Date())/(1000*60*60*24)<=7).length;
-  const _notifCount = refillDueCount + appointments.filter(a=>{const d=new Date(a.date);const now=new Date();return d>=now&&(d-now)/(1000*60*60*24)<=3;}).length;
-
   return (
     <div style={{ display:"flex", minHeight:"100vh", background:col.bg }}>
       <Toast toasts={toasts}/>
       {showNotifs && <NotificationPanel meds={meds} appointments={appointments} dark={dark} onClose={()=>setShowNotifs(false)}/>}
 
-      {/* LEFT SIDEBAR - HEALTH ADVISOR */}
-      <aside style={{ width:240, background:col.sidebar, borderRight:`1px solid rgba(255,255,255,0.06)`, padding:"24px 20px", position:"fixed", height:"100vh", display:"flex", flexDirection:"column", zIndex:100, overflowY:"auto" }}>
-        <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:32, padding:"0 8px" }}>
-          <span style={{ fontSize:24 }}><Icons.Shield/></span>
-          <span style={{ fontSize:17, fontWeight:900, color:"#f1f5f9", letterSpacing:"-0.5px" }}>MedGuard</span>
+      {/* SIDEBAR */}
+      <aside style={{ width:230, background:col.sidebar, borderRight:"1px solid rgba(255,255,255,0.06)", padding:"24px 16px", position:"fixed", height:"100vh", display:"flex", flexDirection:"column", zIndex:100, overflowY:"auto" }}>
+        <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:28, padding:"0 8px" }}>
+          <span style={{ fontSize:22 }}><Icons.Shield/></span>
+          <span style={{ fontSize:16, fontWeight:900, color:"#f1f5f9", fontFamily:"'Syne', sans-serif" }}>MedGuard AI</span>
         </div>
 
-        {/* Health Advisor Card */}
-        <div style={{ background:col.accentLight, borderRadius:12, padding:16, marginBottom:24, border:`1px solid ${col.accentBorder}` }}>
-          <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:12 }}>
-            <div style={{ fontSize:24 }}><Icons.AI/></div>
-            <div>
-              <div style={{ fontSize:13, fontWeight:800, color:col.text }}>Health Advisor</div>
-              <div style={{ fontSize:11, color:col.textSoft }}>Always Here to Help</div>
-            </div>
-          </div>
-          <button onClick={()=>setTab("ai-advisor")} style={{ width:"100%", padding:"10px 12px", borderRadius:8, background:col.accent, border:"none", color:"#fff", fontWeight:700, fontSize:12, cursor:"pointer", transition:"all 0.2s" }}><Icons.Plus style={{ marginRight:8 }}/> Start New Chat</button>
-        </div>
-
-        {/* Menu Items */}
         <nav style={{ flex:1 }}>
-          {[
-            { id:"chat-history", label:"Chat History", icon:<Icons.Message/> },
-            { id:"health-insights", label:"Health Insights", icon:<Icons.Shield/> },
-            { id:"saved-tips", label:"Saved Tips", icon:<Icons.Star/> },
-            { id:"medication-info", label:"Medication Info", icon:<Icons.Med/> },
-          ].map(item=>(
-            <div key={item.id} onClick={()=>setTab(item.id)} className="sidebar-item" style={{ display:"flex", alignItems:"center", gap:12, padding:"12px 16px", borderRadius:10, color:col.textMid, cursor:"pointer", transition:"all 0.2s", marginBottom:8 }}>
-              <span style={{ fontSize:16 }}>{item.icon}</span><span style={{ fontSize:13, fontWeight:600 }}>{item.label}</span>
-            </div>
+          {navItems.map(item=>(
+            <button key={item.id} onClick={()=>setTab(item.id)} className={`sidebar-link ${tab===item.id?"active":""}`}>
+              <span>{item.icon}</span><span>{item.label}</span>
+            </button>
           ))}
         </nav>
 
-        {/* User Profile */}
-        <div style={{ padding:"12px", borderTop:`1px solid ${col.border}`, marginTop:'auto' }}>
+        {/* SOS Button */}
+        <button onClick={()=>setShowSOS(true)} style={{ width:"100%", padding:"12px", borderRadius:10, background:"rgba(239,68,68,0.1)", border:"1px solid rgba(239,68,68,0.3)", color:"#ef4444", fontWeight:700, fontSize:13, cursor:"pointer", marginBottom:12, display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
+          <Icons.SOS/> Emergency SOS
+        </button>
+
+        {/* Dark mode toggle */}
+        <button onClick={()=>SetDark(!dark)} style={{ width:"100%", padding:"10px", borderRadius:10, background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.08)", color:"#64748b", fontWeight:600, fontSize:12, cursor:"pointer", marginBottom:12, display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
+          {dark?<><Icons.Sun/> Light Mode</>:<><Icons.Moon/> Dark Mode</>}
+        </button>
+
+        {/* User */}
+        <div style={{ padding:"12px 10px", borderTop:"1px solid rgba(255,255,255,0.06)" }}>
           <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-            <div style={{ width:36, height:36, borderRadius:"50%", background:`linear-gradient(135deg,${col.gradStart},${col.gradEnd})`, display:"flex", alignItems:"center", justifyContent:"center", fontWeight:800, color:"#fff", fontSize:14 }}>{user?.initials}</div>
-            <div style={{ flex:1 }}>
-              <div style={{ fontSize:12, fontWeight:700, color:col.text }}>{user?.name}</div>
-              <div onClick={onLogout} style={{ fontSize:11, color:col.textSoft, cursor:"pointer" }}>Sign Out →</div>
+            <div style={{ width:36, height:36, borderRadius:"50%", background:`linear-gradient(135deg,${col.gradStart},${col.gradEnd})`, display:"flex", alignItems:"center", justifyContent:"center", fontWeight:800, color:"#fff", fontSize:14, flexShrink:0 }}>{user?.initials}</div>
+            <div style={{ flex:1, overflow:"hidden" }}>
+              <div style={{ fontSize:12, fontWeight:700, color:"#e2e8f0", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{user?.name}</div>
+              <div onClick={onLogout} style={{ fontSize:11, color:"#475569", cursor:"pointer" }}>Sign Out →</div>
             </div>
+            <button onClick={()=>setShowNotifs(!showNotifs)} style={{ background:"none", border:"none", color: notifCount > 0?"#fbbf24":"#475569", cursor:"pointer", position:"relative" }}>
+              <Icons.Bell/>
+              {notifCount>0 && <span style={{ position:"absolute", top:-4, right:-4, width:14, height:14, borderRadius:"50%", background:"#ef4444", color:"#fff", fontSize:9, fontWeight:700, display:"flex", alignItems:"center", justifyContent:"center" }}>{notifCount}</span>}
+            </button>
           </div>
         </div>
       </aside>
 
       {/* MAIN CONTENT */}
-      <main style={{ flex:1, marginLeft:240, display:"flex", minHeight:"100vh" }}>
-        <div style={{ flex:"2.5", padding:"32px 36px", borderRight:`1px solid ${col.border}`, overflowY:"auto" }}>
-          {renderTabContent()}
-        </div>
-
-        {/* RIGHT SIDEBAR - Wellness Summary */}
-        <div style={{ flex:"1.5", padding:"32px 32px", borderLeft:`1px solid ${col.border}`, overflowY:"auto", background:col.surface }}>
-          {tab==="dashboard" && (
-            <>
-              <h2 style={{ fontSize:24, fontWeight:900, color:col.text, marginBottom:4 }}>Your Wellness,</h2>
-              <p style={{ fontSize:24, fontWeight:900, color:col.accent, marginBottom:32 }}>Precisely Scheduled.</p>
-
-              <p style={{ fontSize:13, color:col.textSoft, lineHeight:"1.6", marginBottom:32 }}>Consistency is the foundation of recovery. Here is your personalized roadmap for today's medication and care routine.</p>
-
-              {/* Calendar */}
-              <div style={{ background:col.card, borderRadius:12, padding:20, marginBottom:24, border:`1px solid ${col.border}` }}>
-                <div style={{ fontSize:16, fontWeight:800, color:col.text, marginBottom:16, textAlign:"center" }}>October 2024</div>
-                <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", gap:8, textAlign:"center" }}>
-                  {["MON","TUE","WED","THU","FRI","SAT","SUN"].map(day=><div key={day} style={{ fontSize:11, fontWeight:700, color:col.textSoft }}>{day}</div>)}
-                  {[21,22,23,24,25,26,27].map(day=>(
-                    <div key={day} style={{ padding:"12px", borderRadius:8, background:day===24?col.accent:"transparent", color:day===24?"#fff":col.text, fontWeight:700, fontSize:13, cursor:"pointer" }}>{day}</div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Medication Cards */}
-              <div style={{ display:"flex", flexDirection:"column", gap:12, marginBottom:24 }}>
-                {[
-                  { name:"Lisinopril", dosage:"10mg Tablet • Daily", status:"TAKEN", nextDose:"08:00 AM", refill:"15 Days left" },
-                  { name:"Atorvastatin", dosage:"20mg Capsule • Nightly", status:"UPCOMING", nextDose:"09:30 PM", refill:"3 Days left" },
-                  { name:"Metformin", dosage:"500mg Tablet • Twice Daily", status:"MISSED DOSE", nextDose:"12:00 PM", refill:"REFILL NOW" },
-                ].map((med,i)=>(
-                  <div key={i} style={{ background:col.card, borderRadius:12, padding:14, border:`1px solid ${col.border}` }}>
-                    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"start", marginBottom:8 }}>
-                      <div>
-                        <div style={{ fontWeight:700, fontSize:13, color:col.text }}>{med.name}</div>
-                        <div style={{ fontSize:11, color:col.textSoft }}>{med.dosage}</div>
-                      </div>
-                      <span style={{ fontSize:10, background:med.status==="TAKEN"?"rgba(52,211,153,0.1)":med.status==="MISSED DOSE"?"rgba(239,68,68,0.1)":"rgba(251,191,36,0.1)", color:med.status==="TAKEN"?"#34d399":med.status==="MISSED DOSE"?"#ef4444":"#fbbf24", padding:"3px 8px", borderRadius:4, fontWeight:700, textTransform:"uppercase" }}>{med.status}</span>
-                    </div>
-                    <div style={{ display:"flex", justifyContent:"space-between", fontSize:11, color:col.textSoft }}>
-                      <span>NEXT DOSE: {med.nextDose}</span>
-                      <span style={{ color:med.refill.includes("REFILL")?col.accent:col.textSoft }}>{med.refill}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Weekly Progress */}
-              <div style={{ background:col.card, borderRadius:12, padding:20, border:`1px solid ${col.border}` }}>
-                <div style={{ fontSize:16, fontWeight:800, color:col.text, marginBottom:16 }}>Weekly Progress</div>
-                <div style={{ textAlign:"center", marginBottom:16 }}>
-                  <div style={{ fontSize:48, fontWeight:900, color:"#34d399", marginBottom:4 }}>85%</div>
-                  <div style={{ fontSize:12, color:col.textSoft, fontWeight:600 }}>ADHERENCE</div>
-                </div>
-                <div style={{ display:"flex", justifyContent:"space-between", fontSize:11, color:col.textSoft, paddingTop:12, borderTop:`1px solid ${col.border}` }}>
-                  <span>Scheduled Doses: <span style={{ color:col.text, fontWeight:700 }}>28</span></span>
-                  <span>Taken on Time: <span style={{ color:col.text, fontWeight:700 }}>24</span></span>
-                  <span>Missed: <span style={{ color:"#ef4444", fontWeight:700 }}>1</span></span>
-                </div>
-              </div>
-            </>
-          )}
-        </div>
+      <main style={{ flex:1, marginLeft:230, padding:"32px 40px", overflowY:"auto", minHeight:"100vh" }}>
+        {renderContent()}
       </main>
 
       {/* MODALS */}
-      {showAddMed && <AddMedModal onClose={()=>setShowAddMed(false)} onAdd={addMed} knownAllergies={user?.allergies?.split(",").map(a=>a.trim()).filter(Boolean)}/>}
+      {showAddMed && <AddMedModal onClose={()=>setShowAddMed(false)} onAdd={addMed} knownAllergies={user?.allergies?.split(",").map(a=>a.trim()).filter(Boolean)||[]}/>}
       {showInteraction && <DrugInteractionModal onClose={()=>setShowInteraction(false)} dark={dark}/>}
       {showSOS && <EmergencySOSModal onClose={()=>setShowSOS(false)} user={user}/>}
-      {showSymptoms && <SymptomLoggerModal onClose={()=>setShowSymptoms(false)} meds={meds}/>}
+      {showSymptoms && <SymptomLoggerModal onClose={()=>setShowSymptoms(false)} meds={meds} email={user.email}/>}
       {showVitals && <VitalsModal onClose={()=>setShowVitals(false)} onSave={addVitals}/>}
       {showAppt && <AppointmentModal onClose={()=>setShowAppt(false)} onSave={addAppt}/>}
       {showVaccine && <VaccineModal onClose={()=>setShowVaccine(false)} onSave={addVaccine}/>}
@@ -1454,7 +1537,48 @@ function PatientPortal({ dark, SetDark, lang, SetLang, user, SetUser, onLogout }
   );
 }
 
-// ── GUARDIAN PORTAL ───────────────────────────────────
+// â”€â”€ DRUG CHECKER INLINE (for tab view) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function DrugInteractionCheckerInline({ dark, meds }) {
+  const col = C[dark?"dark":"light"];
+  const [drug1,setDrug1]=useState(""), [drug2,setDrug2]=useState(""), [result,setResult]=useState(null), [checked,setChecked]=useState(false), [aiResult,setAiResult]=useState(""), [aiLoading,setAiLoading]=useState(false);
+  const check = () => { if(!drug1.trim()||!drug2.trim()) return; setResult(checkInteraction(drug1,drug2)||null); setChecked(true); setAiResult(""); };
+  const checkWithAI = async () => {
+    if(!drug1.trim()||!drug2.trim()) return;
+    setAiLoading(true); setAiResult("");
+    try {
+      const txt = await callAI([{role:"user",content:`Check interaction between: ${drug1} and ${drug2}. Give severity (HIGH/MEDIUM/LOW), effect, and clinical recommendation. Under 100 words.`}], "You are a clinical pharmacist. Concise and accurate.");
+      setAiResult(txt);
+    } catch { setAiResult("AI check unavailable. Please use the local database check."); }
+    setAiLoading(false);
+  };
+  const sevColor = { HIGH:["rgba(239,68,68,0.1)","#ef4444","#fca5a5"], MEDIUM:["rgba(251,191,36,0.1)","#fbbf24","#fde68a"], LOW:["rgba(52,211,153,0.1)","#34d399","#a7f3d0"] };
+
+  return (
+    <div>
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14, marginBottom:14 }}>
+        <div>
+          <label className="label">Drug / Food 1</label>
+          <input className="input" placeholder="e.g. Warfarin" value={drug1} onChange={e=>{setDrug1(e.target.value);setChecked(false);}} onKeyDown={e=>e.key==="Enter"&&check()}/>
+          {meds.length>0 && <div style={{ marginTop:6, display:"flex", gap:6, flexWrap:"wrap" }}>
+            {meds.slice(0,4).map((m,i)=><button key={i} onClick={()=>setDrug1(m.name)} style={{ fontSize:11, padding:"3px 8px", borderRadius:6, border:`1px solid ${col.border}`, background:col.accentLight, color:col.textMid, cursor:"pointer" }}>{m.name}</button>)}
+          </div>}
+        </div>
+        <div>
+          <label className="label">Drug / Food 2</label>
+          <input className="input" placeholder="e.g. Aspirin, Grapefruit, Alcohol" value={drug2} onChange={e=>{setDrug2(e.target.value);setChecked(false);}} onKeyDown={e=>e.key==="Enter"&&check()}/>
+        </div>
+      </div>
+      <div style={{ display:"flex", gap:10, marginBottom:18 }}>
+        <button onClick={check} className="btn btn-primary"><Icons.Zap/> Quick Check</button>
+        <button onClick={checkWithAI} disabled={aiLoading} className="btn btn-ghost">{aiLoading?"Checking…":<><Icons.AI/> AI Deep Check</>}</button>
+      </div>
+      {aiResult && <div style={{ background:col.accentLight, border:`1px solid ${col.accentBorder}`, borderRadius:12, padding:"14px 16px", marginBottom:14, fontSize:13, color:col.textMid, lineHeight:1.7 }}><strong style={{ color:col.accent, display:"block", marginBottom:6 }}>AI Analysis</strong>{aiResult}</div>}
+      {checked && (result ? (()=>{ const [bg,border,tc]=sevColor[result.severity]||sevColor.LOW; return <div style={{ background:bg, border:`2px solid ${border}`, borderRadius:12, padding:"16px 18px" }}><div style={{ fontWeight:800, fontSize:15, color:tc, marginBottom:4 }}>{result.severity} SEVERITY</div><p style={{ fontSize:13, color:tc, lineHeight:1.7 }}>{result.effect}</p></div>; })() : <div style={{ background:"rgba(52,211,153,0.1)", border:"2px solid #34d399", borderRadius:12, padding:"16px 18px" }}><div style={{ fontWeight:800, fontSize:15, color:"#34d399", display:"flex", alignItems:"center", gap:6 }}><Icons.Check/> No Known Interaction Found</div><div style={{ fontSize:13, color:"#6ee7b7", marginTop:4 }}>Always confirm with your pharmacist for complete safety.</div></div>)}
+    </div>
+  );
+}
+
+// â”€â”€ GUARDIAN PORTAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function GuardianPortal({ dark, setDark, lang, setLang, user, setUser, onLogout }) {
   const col = C[dark?"dark":"light"];
   const { toasts, show } = useToast();
@@ -1464,40 +1588,48 @@ function GuardianPortal({ dark, setDark, lang, setLang, user, setUser, onLogout 
   const [tab, setTab] = useState("overview");
 
   const addPatient = (form) => {
-    const pt = { ...form, id:Date.now().toString(), initials:(form.name||"?").split(" ").map(n=>n[0]).join("").toUpperCase(), adherence:0 };
+    const pt = { ...form, id:Date.now().toString(), initials:(form.name||"?").split(" ").map(n=>n[0]).join("").toUpperCase().slice(0,2), adherence:0 };
     const newPts=[...patients,pt]; setPatients(newPts); savePatients(user.email,newPts);
     setSelected(newPts.length-1);
     show(<Icons.User/>,"Patient Added",`${form.name} added to your care network.`);
   };
+
   const deletePt = (id) => {
     if(!window.confirm("Remove this patient record?")) return;
     const newPts=patients.filter(p=>p.id!==id); setPatients(newPts); savePatients(user.email,newPts);
     setSelected(Math.max(0,selected-1));
+    show(<Icons.Trash/>,"Patient Removed","Patient record deleted.");
   };
 
   const p = patients[selected];
-  const navItems=[{id:"overview",label:"Overview",icon:<Icons.Dash/>},{id:"patients",label:"Patients",icon:<Icons.Users/>},{id:"settings",label:"Settings",icon:<Icons.Settings/>}];
+  const navItems=[
+    {id:"overview",label:"Overview",icon:<Icons.Dash/>},
+    {id:"patients",label:"Patients",icon:<Icons.Users/>},
+    {id:"settings",label:"Settings",icon:<Icons.Settings/>}
+  ];
 
   return (
     <div style={{ display:"flex", minHeight:"100vh", background:col.bg }}>
       <Toast toasts={toasts}/>
 
-      {/* SIDEBAR */}
-      <aside style={{ width:240, background:col.sidebar, borderRight:"1px solid rgba(255,255,255,0.06)", padding:"28px 16px", position:"fixed", height:"100vh", display:"flex", flexDirection:"column", zIndex:100 }}>
-        <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:36, padding:"0 8px" }}>
-          <span style={{ fontSize:24 }}><Icons.Shield/></span>
+      <aside style={{ width:230, background:col.sidebar, borderRight:"1px solid rgba(255,255,255,0.06)", padding:"28px 16px", position:"fixed", height:"100vh", display:"flex", flexDirection:"column", zIndex:100 }}>
+        <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:32, padding:"0 8px" }}>
+          <span style={{ fontSize:22 }}><Icons.Shield/></span>
           <div>
             <div style={{ fontSize:15, fontWeight:900, color:"#f1f5f9", fontFamily:"'Syne', sans-serif" }}>MedGuard</div>
-            <div style={{ fontSize:10, color:"#475569", fontWeight:600, textTransform:"uppercase", letterSpacing:1 }}>Guardian</div>
+            <div style={{ fontSize:10, color:"#475569", fontWeight:700, textTransform:"uppercase", letterSpacing:1 }}>Guardian</div>
           </div>
         </div>
         <nav style={{ flex:1 }}>
           {navItems.map(item=>(
-            <div key={item.id} onClick={()=>setTab(item.id)} className={`sidebar-link ${tab===item.id?"active":""}`}>
+            <button key={item.id} onClick={()=>setTab(item.id)} className={`sidebar-link ${tab===item.id?"active":""}`}>
               <span>{item.icon}</span><span>{item.label}</span>
-            </div>
+            </button>
           ))}
         </nav>
+        <button onClick={()=>setDark(!dark)} style={{ width:"100%", padding:"10px", borderRadius:10, background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.08)", color:"#64748b", fontWeight:600, fontSize:12, cursor:"pointer", marginBottom:12, display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
+          {dark?<><Icons.Sun/> Light Mode</>:<><Icons.Moon/> Dark Mode</>}
+        </button>
         <div style={{ padding:"10px 8px", borderTop:"1px solid rgba(255,255,255,0.06)" }}>
           <div style={{ display:"flex", alignItems:"center", gap:10 }}>
             <div style={{ width:36, height:36, borderRadius:"50%", background:`linear-gradient(135deg,${col.gradStart},${col.gradEnd})`, display:"flex", alignItems:"center", justifyContent:"center", fontWeight:800, color:"#fff", fontSize:14 }}>{user?.initials}</div>
@@ -1509,26 +1641,22 @@ function GuardianPortal({ dark, setDark, lang, setLang, user, setUser, onLogout 
         </div>
       </aside>
 
-      <main style={{ flex:1, marginLeft:240, padding:"32px 40px" }}>
+      <main style={{ flex:1, marginLeft:230, padding:"32px 40px" }}>
         <header style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:32 }}>
           <div>
             <h1 style={{ fontSize:28, fontWeight:900, color:col.text, fontFamily:"'Syne', sans-serif" }}>{navItems.find(i=>i.id===tab)?.label}</h1>
             <p style={{ fontSize:13, color:col.textSoft, marginTop:3 }}>Managing {patients.length} patient{patients.length!==1?"s":""}</p>
           </div>
-          <div style={{ display:"flex", gap:10 }}>
-            <button onClick={()=>setDark(!dark)} style={{ width:40, height:40, borderRadius:10, background:col.surface, border:`1px solid ${col.border}`, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", color:dark?"#fbbf24":col.textMid }}>{dark?<Icons.Moon/>:<Icons.Sun/>}</button>
-          </div>
         </header>
 
         {tab==="overview" && (
           <div>
-            {/* Patient selector */}
             <div style={{ marginBottom:20 }}>
               <div style={{ fontSize:13, fontWeight:700, color:col.textMid, marginBottom:10 }}>Select Patient</div>
               <div style={{ display:"flex", gap:10, flexWrap:"wrap" }}>
                 {patients.map((pt,i)=>(
                   <div key={pt.id} onClick={()=>setSelected(i)} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 14px", borderRadius:12, border:`2px solid ${selected===i?col.accent:col.border}`, background:selected===i?col.accentLight:col.card, cursor:"pointer", transition:"all 0.2s", position:"relative", minWidth:160 }}>
-                    <button onClick={e=>{e.stopPropagation();deletePt(pt.id);}} style={{ position:"absolute", top:4, right:6, background:"none", border:"none", color:"#ef4444", cursor:"pointer", fontSize:16, lineHeight:1 }}>×</button>
+                    <button onClick={e=>{e.stopPropagation();deletePt(pt.id);}} style={{ position:"absolute", top:4, right:6, background:"none", border:"none", color:"#ef4444", cursor:"pointer", fontSize:16, lineHeight:1, padding:0 }}>×</button>
                     <div style={{ width:36, height:36, borderRadius:"50%", background:`${col.accent}22`, color:col.accent, display:"flex", alignItems:"center", justifyContent:"center", fontWeight:800, fontSize:13 }}>{pt.initials}</div>
                     <div>
                       <div style={{ fontWeight:700, fontSize:13, color:col.text }}>{pt.name}</div>
@@ -1536,15 +1664,21 @@ function GuardianPortal({ dark, setDark, lang, setLang, user, setUser, onLogout 
                     </div>
                   </div>
                 ))}
-                <div onClick={()=>setShowAddPt(true)} style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8, padding:"10px 20px", borderRadius:12, border:`2px dashed ${col.border}`, cursor:"pointer", color:col.textSoft, fontWeight:600, fontSize:13 }}><Icons.Plus/> Add Patient</div>
+                <div onClick={()=>setShowAddPt(true)} style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8, padding:"10px 20px", borderRadius:12, border:`2px dashed ${col.border}`, cursor:"pointer", color:col.textSoft, fontWeight:600, fontSize:13, minWidth:140 }}>
+                  <Icons.Plus/> Add Patient
+                </div>
               </div>
             </div>
 
             {p ? (
               <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
-                {/* Patient stats */}
                 <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:14 }} className="fade-up">
-                  {[[<Icons.Med/>,"Adherence",`${p.adherence||0}%`,p.adherence>=80?"badge-green":p.adherence>=60?"badge-yellow":"badge-red"],[<Icons.Flame/>,"Streak","—","badge-blue"],[<Icons.Warning/>,"Alerts","0","badge-yellow"],[<Icons.Calendar/>,"Next Appt","—",""]].map(([e,l,v,cls])=>(
+                  {[
+                    [<Icons.Med key="m"/>,"Adherence",`${p.adherence||0}%`,p.adherence>=80?"badge-green":p.adherence>=60?"badge-yellow":"badge-red"],
+                    [<Icons.Flame key="f"/>,"Streak","—","badge-blue"],
+                    [<Icons.Warning key="w"/>,"Alerts","0","badge-yellow"],
+                    [<Icons.Calendar key="c"/>,"Next Appt","—",""]
+                  ].map(([e,l,v,cls])=>(
                     <div key={l} className="stat-card">
                       <span style={{ fontSize:22 }}>{e}</span>
                       <div style={{ fontSize:22, fontWeight:900, color:col.text, marginTop:4 }}>{v}</div>
@@ -1554,9 +1688,8 @@ function GuardianPortal({ dark, setDark, lang, setLang, user, setUser, onLogout 
                   ))}
                 </div>
 
-                {/* Patient health profile */}
                 <div className="card fade-up-1">
-                  <div style={{ fontWeight:800, fontSize:16, marginBottom:16 }}><Icons.Building/> Health Profile: {p.name}</div>
+                  <div style={{ fontWeight:800, fontSize:16, marginBottom:16, display:"flex", alignItems:"center", gap:8 }}><Icons.User/> Health Profile: {p.name}</div>
                   <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:16 }}>
                     {[["Conditions",p.conditions||"None listed",col.accent],["Allergies",p.allergies||"None declared","#ef4444"],["Emergency Contact",p.emergencyContact||"Not set","#fbbf24"]].map(([l,v,c])=>(
                       <div key={l}>
@@ -1573,10 +1706,9 @@ function GuardianPortal({ dark, setDark, lang, setLang, user, setUser, onLogout 
                   )}
                 </div>
 
-                {/* Recent activity */}
                 <div className="card fade-up-2">
-                  <div style={{ fontWeight:800, fontSize:15, marginBottom:14 }}>🔔 Recent Activity</div>
-                  {[["✅","Medication taken","2 min ago","badge-green"],["📋","Vitals logged","1 hr ago","badge-blue"],["💊","Refill reminder sent","2 hrs ago","badge-yellow"]].map(([e,m,t,cls])=>(
+                  <div style={{ fontWeight:800, fontSize:15, marginBottom:14 }}>📝 Recent Activity</div>
+                  {[["✓","Medication logged","2 min ago","badge-green"],["🩺","Vitals recorded","1 hr ago","badge-blue"],["🔔","Refill reminder sent","2 hrs ago","badge-yellow"]].map(([e,m,t,cls])=>(
                     <div key={m} style={{ display:"flex", gap:12, alignItems:"center", padding:"10px 0", borderBottom:`1px solid ${col.border}` }}>
                       <span style={{ fontSize:18 }}>{e}</span>
                       <div style={{ flex:1 }}><div style={{ fontSize:13, fontWeight:600, color:col.text }}>{m}</div><div style={{ fontSize:11, color:col.textSoft }}>{t}</div></div>
@@ -1589,7 +1721,8 @@ function GuardianPortal({ dark, setDark, lang, setLang, user, setUser, onLogout 
               <div style={{ textAlign:"center", padding:"80px 0", color:col.textSoft }}>
                 <div style={{ fontSize:48, marginBottom:12 }}>👥</div>
                 <div style={{ fontWeight:800, fontSize:18, marginBottom:8 }}>No patients added yet</div>
-                <button onClick={()=>setShowAddPt(true)} className="btn btn-primary" style={{ marginTop:8 }}>Add First Patient</button>
+                <p style={{ marginBottom:16, fontSize:13 }}>Add family members or patients you're caring for</p>
+                <button onClick={()=>setShowAddPt(true)} className="btn btn-primary">Add First Patient</button>
               </div>
             )}
           </div>
@@ -1602,7 +1735,11 @@ function GuardianPortal({ dark, setDark, lang, setLang, user, setUser, onLogout 
               <button onClick={()=>setShowAddPt(true)} className="btn btn-primary"><Icons.Plus/> Add Patient</button>
             </div>
             {patients.length===0 ? (
-              <div style={{ textAlign:"center", padding:"60px 0", color:col.textSoft }}><div style={{ fontSize:40, marginBottom:10 }}>👥</div><div>No patients yet</div><button onClick={()=>setShowAddPt(true)} className="btn btn-primary" style={{ marginTop:14 }}>Add First Patient</button></div>
+              <div style={{ textAlign:"center", padding:"60px 0", color:col.textSoft }}>
+                <div style={{ fontSize:40, marginBottom:10 }}>👥</div>
+                <div style={{ marginBottom:14, fontWeight:700 }}>No patients yet</div>
+                <button onClick={()=>setShowAddPt(true)} className="btn btn-primary">Add First Patient</button>
+              </div>
             ) : (
               <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))", gap:16 }}>
                 {patients.map((pt,i)=>(
@@ -1611,12 +1748,10 @@ function GuardianPortal({ dark, setDark, lang, setLang, user, setUser, onLogout 
                       <div style={{ width:52, height:52, borderRadius:"50%", background:`${col.accent}22`, color:col.accent, display:"flex", alignItems:"center", justifyContent:"center", fontWeight:900, fontSize:18 }}>{pt.initials}</div>
                       <button onClick={()=>deletePt(pt.id)} className="btn btn-danger" style={{ padding:"6px 10px", fontSize:11 }}><Icons.Trash/></button>
                     </div>
-                    <div style={{ fontWeight:800, fontSize:17 }}>{pt.name}</div>
+                    <div style={{ fontWeight:800, fontSize:17, color:col.text }}>{pt.name}</div>
                     <div style={{ fontSize:13, color:col.textMid, marginTop:3 }}>{pt.rel} · Age {pt.age}</div>
-                    <div style={{ marginTop:12, display:"flex", gap:8, flexWrap:"wrap" }}>
-                      {pt.conditions && <span className="badge badge-blue">{pt.conditions.split(",")[0]}</span>}
-                      <span className={`badge ${pt.adherence>=80?"badge-green":pt.adherence>=60?"badge-yellow":"badge-red"}`}>{pt.adherence||0}% adherence</span>
-                    </div>
+                    {pt.conditions && <div style={{ marginTop:8 }}><span className="badge badge-blue">{pt.conditions.split(",")[0].trim()}</span></div>}
+                    <div style={{ marginTop:8 }}><span className={`badge ${pt.adherence>=80?"badge-green":pt.adherence>=60?"badge-yellow":"badge-red"}`}>{pt.adherence||0}% adherence</span></div>
                     <button onClick={()=>{setSelected(i);setTab("overview");}} className="btn btn-ghost" style={{ width:"100%", marginTop:14, fontSize:12 }}>View Dashboard →</button>
                   </div>
                 ))}
@@ -1631,34 +1766,14 @@ function GuardianPortal({ dark, setDark, lang, setLang, user, setUser, onLogout 
       {showAddPt && (
         <Modal onClose={()=>setShowAddPt(false)}>
           <ModalHead icon="👥" title="Add Patient" sub="Add a loved one to your care network" onClose={()=>setShowAddPt(false)}/>
-          {(() => {
-            const [form,setForm]=useState({name:"",rel:"",age:"",conditions:"",allergies:"",medications:"",emergencyContact:""});
-            const up=(k,v)=>setForm(f=>({...f,[k]:v}));
-            return (
-              <div>
-                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"12px 14px" }}>
-                  <div style={{ gridColumn:"1/-1" }}><label className="label">Full Name *</label><input className="input" placeholder="Mary Smith" value={form.name} onChange={e=>up("name",e.target.value)}/></div>
-                  <div><label className="label">Relationship *</label><input className="input" placeholder="Mother" value={form.rel} onChange={e=>up("rel",e.target.value)}/></div>
-                  <div><label className="label">Age *</label><input type="number" className="input" placeholder="72" value={form.age} onChange={e=>up("age",e.target.value)}/></div>
-                  <div style={{ gridColumn:"1/-1" }}><label className="label">Conditions</label><input className="input" placeholder="Diabetes, Hypertension" value={form.conditions} onChange={e=>up("conditions",e.target.value)}/></div>
-                  <div style={{ gridColumn:"1/-1" }}><label className="label">Allergies</label><input className="input" placeholder="Penicillin, Peanuts" value={form.allergies} onChange={e=>up("allergies",e.target.value)}/></div>
-                  <div style={{ gridColumn:"1/-1" }}><label className="label">Medications</label><textarea className="input" rows={3} style={{ resize:"none" }} placeholder="Metformin 500mg (8 AM)" value={form.medications} onChange={e=>up("medications",e.target.value)}/></div>
-                  <div style={{ gridColumn:"1/-1" }}><label className="label">Emergency Contact</label><input className="input" placeholder="Dr. Wilson (555-0199)" value={form.emergencyContact} onChange={e=>up("emergencyContact",e.target.value)}/></div>
-                </div>
-                <div style={{ display:"flex", gap:10, marginTop:20 }}>
-                  <button onClick={()=>setShowAddPt(false)} className="btn btn-ghost" style={{ flex:1 }}>Cancel</button>
-                  <button onClick={()=>{ if(!form.name||!form.rel||!form.age) return; addPatient(form); setShowAddPt(false); }} className="btn btn-primary" style={{ flex:2 }}>Add Patient</button>
-                </div>
-              </div>
-            );
-          })()}
+          <AddPatientForm onClose={()=>setShowAddPt(false)} onAdd={addPatient}/>
         </Modal>
       )}
     </div>
   );
 }
 
-// ── AUTH PAGE ─────────────────────────────────────────
+// â”€â”€ AUTH PAGE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function AuthPage({ onLogin, dark, setDark, onBack }) {
   const col = C[dark?"dark":"light"];
   const [mode, setMode] = useState("login");
@@ -1704,21 +1819,23 @@ function AuthPage({ onLogin, dark, setDark, onBack }) {
           <p style={{ fontSize:13, color:col.textSoft, marginTop:4 }}>Your personal health guardian</p>
         </div>
 
-        {/* Role tabs */}
         <div style={{ display:"flex", gap:0, marginBottom:24, borderRadius:12, overflow:"hidden", border:`1px solid ${col.border}` }}>
           {["patient","guardian"].map(r=>(
-            <button key={r} onClick={()=>setRole(r)} style={{ flex:1, padding:"11px", background:role===r?col.accent:"transparent", color:role===r?"#fff":col.textMid, border:"none", fontSize:13, fontWeight:700, cursor:"pointer", textTransform:"capitalize", transition:"all 0.2s" }}>{r==="patient"?<><Icons.User/> Patient</>:<><Icons.Users/> Guardian</>}</button>
+            <button key={r} onClick={()=>setRole(r)} style={{ flex:1, padding:"11px", background:role===r?col.accent:"transparent", color:role===r?"#fff":col.textMid, border:"none", fontSize:13, fontWeight:700, cursor:"pointer", textTransform:"capitalize", transition:"all 0.2s" }}>
+              {r==="patient"?"🙋 Patient":"👥 Guardian"}
+            </button>
           ))}
         </div>
 
-        {/* Login/Register tabs */}
         <div style={{ display:"flex", gap:0, marginBottom:24, borderBottom:`1px solid ${col.border}` }}>
           {["login","register"].map(m=>(
-            <button key={m} onClick={()=>{setMode(m);setError("");}} style={{ flex:1, padding:"10px", background:"none", border:"none", color:mode===m?col.accent:col.textSoft, fontWeight:mode===m?800:600, fontSize:13, cursor:"pointer", borderBottom:`2px solid ${mode===m?col.accent:"transparent"}`, transition:"all 0.2s", textTransform:"capitalize" }}>{m==="login"?"Sign In":"Create Account"}</button>
+            <button key={m} onClick={()=>{setMode(m);setError("");}} style={{ flex:1, padding:"10px", background:"none", border:"none", color:mode===m?col.accent:col.textSoft, fontWeight:mode===m?800:600, fontSize:13, cursor:"pointer", borderBottom:`2px solid ${mode===m?col.accent:"transparent"}`, transition:"all 0.2s", textTransform:"capitalize" }}>
+              {m==="login"?"Sign In":"Create Account"}
+            </button>
           ))}
         </div>
 
-        {error && <div style={{ background:"rgba(239,68,68,0.08)", border:"1px solid rgba(239,68,68,0.3)", borderRadius:10, padding:"10px 14px", marginBottom:16, fontSize:13, color:"#fca5a5", fontWeight:600 }}><Icons.Warning/> {error}</div>}
+        {error && <div style={{ background:"rgba(239,68,68,0.08)", border:"1px solid rgba(239,68,68,0.3)", borderRadius:10, padding:"10px 14px", marginBottom:16, fontSize:13, color:"#fca5a5", fontWeight:600, display:"flex", alignItems:"center", gap:8 }}><Icons.Warning/> {error}</div>}
 
         <form onSubmit={handleSubmit} style={{ display:"flex", flexDirection:"column", gap:14 }}>
           {mode==="register" && <div><label style={lS}>Full Name *</label><input style={iS} placeholder="Your full name" value={name} onChange={e=>setName(e.target.value)} required/></div>}
@@ -1730,14 +1847,13 @@ function AuthPage({ onLogin, dark, setDark, onBack }) {
             </div>
           </div>
           {mode==="register" && <div><label style={lS}>Known Allergies (optional)</label><input style={iS} placeholder="e.g. Penicillin, Peanuts" value={allergies} onChange={e=>setAllergies(e.target.value)}/></div>}
-
-          <button type="submit" disabled={loading} style={{ width:"100%", padding:"15px", borderRadius:12, background:`linear-gradient(135deg,${col.gradStart},${col.gradEnd})`, color:"#fff", fontSize:15, fontWeight:800, border:"none", cursor:"pointer", marginTop:8, opacity:loading?0.75:1, transition:"all 0.2s" }}>
+          <button type="submit" disabled={loading} style={{ width:"100%", padding:"15px", borderRadius:12, background:`linear-gradient(135deg,${col.gradStart},${col.gradEnd})`, color:"#fff", fontSize:15, fontWeight:800, border:"none", cursor:"pointer", marginTop:8, opacity:loading?0.75:1 }}>
             {loading?"Connecting…":mode==="login"?"Sign In →":"Create Account →"}
           </button>
         </form>
 
         <div style={{ textAlign:"center", marginTop:20, fontSize:13, color:col.textSoft }}>
-          {mode==="login"?"Don't have an account?":"Already have an account?"}{" "}
+          {mode==="login"?"Don't have an account? ":"Already have an account? "}
           <button onClick={()=>{setMode(mode==="login"?"register":"login");setError("");}} style={{ background:"none", border:"none", color:col.accent, fontWeight:700, cursor:"pointer" }}>{mode==="login"?"Sign Up":"Sign In"}</button>
         </div>
       </div>
@@ -1745,31 +1861,28 @@ function AuthPage({ onLogin, dark, setDark, onBack }) {
   );
 }
 
-// ── HOME PAGE ─────────────────────────────────────────
+// â”€â”€ HOME PAGE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function HomePage({ setPage, dark, setDark }) {
   const col = C[dark?"dark":"light"];
 
   return (
     <div style={{ minHeight:"100vh", background:col.bg }}>
-      {/* Navbar */}
       <nav style={{ position:"fixed", top:0, left:0, right:0, height:68, background:dark?"rgba(6,11,20,0.95)":"rgba(244,247,251,0.95)", backdropFilter:"blur(20px)", borderBottom:`1px solid ${col.border}`, display:"flex", alignItems:"center", justifyContent:"space-between", padding:"0 60px", zIndex:1000 }}>
         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
           <span style={{ fontSize:28 }}><Icons.Shield/></span>
           <span style={{ fontSize:20, fontWeight:900, color:col.text, fontFamily:"'Syne', sans-serif" }}>MedGuard AI</span>
         </div>
         <div style={{ display:"flex", gap:12, alignItems:"center" }}>
-          <button onClick={()=>setDark(!dark)} style={{ background:"none", border:"none", cursor:"pointer", color:dark?"#fbbf24":col.textMid, display:"flex", alignItems:"center" }}>{dark?<Icons.Moon/>:<Icons.Sun/>}</button>
+          <button onClick={()=>setDark(!dark)} style={{ background:"none", border:"none", cursor:"pointer", color:dark?"#fbbf24":col.textMid }}>{dark?<Icons.Moon/>:<Icons.Sun/>}</button>
           <button onClick={()=>setPage("auth")} style={{ padding:"10px 22px", borderRadius:10, background:"transparent", border:`1.5px solid ${col.accent}`, color:col.accent, fontWeight:700, fontSize:13, cursor:"pointer" }}>Sign In</button>
           <button onClick={()=>setPage("auth")} style={{ padding:"10px 22px", borderRadius:10, background:col.accent, color:"#fff", fontWeight:700, fontSize:13, border:"none", cursor:"pointer" }}>Get Started Free</button>
         </div>
       </nav>
 
-      {/* Hero */}
       <section style={{ minHeight:"100vh", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", textAlign:"center", padding:"100px 60px 60px", position:"relative" }}>
         <div style={{ position:"absolute", top:"20%", left:"10%", width:400, height:400, borderRadius:"50%", background:`radial-gradient(circle, ${col.accentLight} 0%, transparent 70%)`, pointerEvents:"none" }}/>
-        <div style={{ position:"absolute", bottom:"10%", right:"8%", width:300, height:300, borderRadius:"50%", background:"radial-gradient(circle, rgba(129,140,248,0.08) 0%, transparent 70%)", pointerEvents:"none" }}/>
-        <span className="badge badge-blue fade-up" style={{ marginBottom:20, fontSize:12, padding:"6px 16px" }}><Icons.DNA/> AI-Powered Health Platform</span>
-        <h1 className="fade-up-1" style={{ fontSize:"clamp(40px,6vw,76px)", fontWeight:900, lineHeight:1.05, color:col.text, marginBottom:24, letterSpacing:"-2px", fontFamily:"'Syne', sans-serif", maxWidth:900 }}>
+        <span className="badge badge-blue fade-up" style={{ marginBottom:20, fontSize:12, padding:"6px 16px" }}>🤖 AI-Powered Health Platform</span>
+        <h1 className="fade-up-1" style={{ fontSize:"clamp(36px,5vw,70px)", fontWeight:900, lineHeight:1.05, color:col.text, marginBottom:24, letterSpacing:"-2px", fontFamily:"'Syne', sans-serif", maxWidth:900 }}>
           Your Health, Intelligently<br/><span style={{ color:col.accent }}>Managed.</span>
         </h1>
         <p className="fade-up-2" style={{ fontSize:18, color:col.textMid, lineHeight:1.7, marginBottom:40, maxWidth:600 }}>
@@ -1779,9 +1892,8 @@ function HomePage({ setPage, dark, setDark }) {
           <button onClick={()=>setPage("auth")} style={{ padding:"16px 36px", borderRadius:14, background:`linear-gradient(135deg,${col.gradStart},${col.gradEnd})`, color:"#fff", fontWeight:800, fontSize:16, border:"none", cursor:"pointer", boxShadow:"0 16px 40px rgba(14,165,233,0.3)" }}>Enter as Patient →</button>
           <button onClick={()=>setPage("auth")} style={{ padding:"16px 36px", borderRadius:14, background:col.surface, color:col.text, fontWeight:800, fontSize:16, border:`1.5px solid ${col.border}`, cursor:"pointer" }}>Enter as Guardian</button>
         </div>
-        {/* Trust signals */}
         <div className="fade-up-4" style={{ display:"flex", gap:20, marginTop:60, flexWrap:"wrap", justifyContent:"center" }}>
-          {[[<Icons.Building/>,"HIPAA Compliant"],[<Icons.Lock/>,"256-bit Encryption"],[<Icons.AI/>,"Claude AI Powered"],[<Icons.Med/>,"50K+ Drug Database"]].map(([e,l])=>(
+          {[["🛡️","HIPAA Compliant"],["🔒","256-bit Encryption"],["🤖","Claude AI Powered"],["💊","50K+ Drug Database"]].map(([e,l])=>(
             <div key={l} style={{ display:"flex", alignItems:"center", gap:8, padding:"10px 18px", borderRadius:12, background:col.surface, border:`1px solid ${col.border}`, fontSize:13, fontWeight:600, color:col.textMid }}>
               <span>{e}</span><span>{l}</span>
             </div>
@@ -1789,22 +1901,23 @@ function HomePage({ setPage, dark, setDark }) {
         </div>
       </section>
 
-      {/* Features */}
       <section style={{ padding:"80px 60px", background:dark?"#0a0f1a":col.surface }}>
         <h2 style={{ textAlign:"center", fontSize:36, fontWeight:900, color:col.text, marginBottom:12, fontFamily:"'Syne', sans-serif" }}>Everything You Need</h2>
         <p style={{ textAlign:"center", color:col.textMid, marginBottom:48, fontSize:15 }}>Complete medication management, health tracking, and AI guidance in one app.</p>
         <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))", gap:20, maxWidth:1200, margin:"0 auto" }}>
           {[
-            {e:<Icons.Med/>,title:"Smart Medication Tracking",desc:"Schedule, track, and get reminded about every dose. Never miss a medication again."},
-            {e:<Icons.AI/>,title:"24/7 AI Health Advisor",desc:"Ask health questions in plain English. Get evidence-based answers powered by Claude AI."},
-            {e:<Icons.Shield/>,title:"Drug Interaction Checker",desc:"Instantly check 50,000+ known drug interactions before combining medications."},
-            {e:<Icons.Heart/>,title:"Vitals Monitoring",desc:"Log blood pressure, heart rate, glucose, and more. See trends over time."},
-            {e:<Icons.Calendar/>,title:"Appointment Manager",desc:"Schedule and manage all your doctor visits, lab tests, and telehealth calls."},
-            {e:<Icons.Users/>,title:"Guardian Portal",desc:"Caregivers get real-time visibility into medication adherence and health events."},
-            {e:<Icons.Syringe/>,title:"Vaccination Tracker",desc:"Keep complete vaccination records and get reminders for boosters and next doses."},
-            {e:<Icons.SOS/>,title:"Emergency SOS",desc:"One-tap emergency alerts with GPS location and medical info sent to contacts."},
+            {e:"💊",title:"Smart Medication Tracking",desc:"Schedule, track, and get reminded about every dose. Never miss a medication again."},
+            {e:"🧠",title:"24/7 AI Health Advisor",desc:"Ask health questions in plain English. Get evidence-based answers powered by Claude AI."},
+            {e:"🧪",title:"Drug Interaction Checker",desc:"Instantly check 50,000+ known drug interactions before combining medications."},
+            {e:"🩺",title:"Vitals Monitoring",desc:"Log blood pressure, heart rate, glucose, and more. See trends over time."},
+            {e:"📅",title:"Appointment Manager",desc:"Schedule and manage all your doctor visits, lab tests, and telehealth calls."},
+            {e:"👥",title:"Guardian Portal",desc:"Caregivers get real-time visibility into medication adherence and health events."},
+            {e:"💉",title:"Vaccination Tracker",desc:"Keep complete vaccination records and get reminders for boosters and next doses."},
+            {e:"🚨",title:"Emergency SOS",desc:"One-tap emergency alerts with medical info shared with your emergency contacts."},
           ].map(f=>(
-            <div key={f.title} style={{ padding:"24px", borderRadius:16, background:col.card, border:`1px solid ${col.border}`, transition:"transform 0.2s, box-shadow 0.2s" }} onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-4px)";e.currentTarget.style.boxShadow="0 16px 40px rgba(0,0,0,0.1)";}} onMouseLeave={e=>{e.currentTarget.style.transform="";e.currentTarget.style.boxShadow="";}}>
+            <div key={f.title} style={{ padding:"24px", borderRadius:16, background:col.card, border:`1px solid ${col.border}`, transition:"transform 0.2s, box-shadow 0.2s" }}
+              onMouseEnter={e=>{e.currentTarget.style.transform="translateY(-4px)";e.currentTarget.style.boxShadow="0 16px 40px rgba(0,0,0,0.1)";}}
+              onMouseLeave={e=>{e.currentTarget.style.transform="";e.currentTarget.style.boxShadow="";}}>
               <div style={{ fontSize:32, marginBottom:12 }}>{f.e}</div>
               <div style={{ fontWeight:800, fontSize:16, color:col.text, marginBottom:8, fontFamily:"'Syne', sans-serif" }}>{f.title}</div>
               <div style={{ fontSize:13.5, color:col.textMid, lineHeight:1.7 }}>{f.desc}</div>
@@ -1813,7 +1926,6 @@ function HomePage({ setPage, dark, setDark }) {
         </div>
       </section>
 
-      {/* CTA */}
       <section style={{ padding:"80px 60px", textAlign:"center" }}>
         <div style={{ maxWidth:600, margin:"0 auto", padding:"52px 40px", borderRadius:24, background:`linear-gradient(135deg,${col.accentLight},transparent)`, border:`1px solid ${col.accentBorder}` }}>
           <h2 style={{ fontSize:32, fontWeight:900, color:col.text, marginBottom:12, fontFamily:"'Syne', sans-serif" }}>Start Your Health Journey Today</h2>
@@ -1822,13 +1934,12 @@ function HomePage({ setPage, dark, setDark }) {
         </div>
       </section>
 
-      {/* Footer */}
       <footer style={{ padding:"40px 60px", borderTop:`1px solid ${col.border}`, display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:12 }}>
         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
           <span style={{ fontSize:22 }}><Icons.Shield/></span>
           <span style={{ fontWeight:800, color:col.text, fontFamily:"'Syne', sans-serif" }}>MedGuard AI</span>
         </div>
-        <div style={{ fontSize:12, color:col.textSoft }}>© 2026 MedGuard AI. For informational use only. Not a substitute for medical advice.</div>
+        <div style={{ fontSize:12, color:col.textSoft }}>Â© 2026 MedGuard AI. For informational use only. Not a substitute for medical advice.</div>
         <div style={{ display:"flex", gap:20, fontSize:12, color:col.textSoft }}>
           <span style={{ cursor:"pointer" }}>Privacy Policy</span>
           <span style={{ cursor:"pointer" }}>Terms of Service</span>
@@ -1838,15 +1949,11 @@ function HomePage({ setPage, dark, setDark }) {
   );
 }
 
-// ── ROOT APP ──────────────────────────────────────────
+// â”€â”€ ROOT APP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export default function App() {
   const [page, setPage] = useState("home");
-  const [dark, setDark] = useState(() => {
-    try { return localStorage.getItem("medguard_dark")==="true"; } catch { return false; }
-  });
-  const [lang, setLang] = useState(() => {
-    try { return localStorage.getItem("medguard_lang")||"en"; } catch { return "en"; }
-  });
+  const [dark, setDark] = useState(() => { try { return localStorage.getItem("medguard_dark")==="true"; } catch { return false; } });
+  const [lang, setLang] = useState(() => { try { return localStorage.getItem("medguard_lang")||"en"; } catch { return "en"; } });
   const [user, setUser] = useState(null);
   const [loadingSession, setLoadingSession] = useState(true);
 
@@ -1858,13 +1965,8 @@ export default function App() {
     setLoadingSession(false);
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem("medguard_dark", dark);
-  }, [dark]);
-
-  useEffect(() => {
-    localStorage.setItem("medguard_lang", lang);
-  }, [lang]);
+  useEffect(() => { localStorage.setItem("medguard_dark", dark); }, [dark]);
+  useEffect(() => { localStorage.setItem("medguard_lang", lang); }, [lang]);
 
   const handleLogin = (userData) => {
     setUser(userData);
@@ -1887,6 +1989,7 @@ export default function App() {
     <div style={{ minHeight:"100vh", background:"#060b14", display:"flex", alignItems:"center", justifyContent:"center", flexDirection:"column", gap:16 }}>
       <div style={{ width:48, height:48, borderRadius:"50%", border:"3px solid rgba(56,189,248,0.2)", borderTopColor:"#38bdf8", animation:"spin 0.9s linear infinite" }}/>
       <div style={{ color:"#64748b", fontSize:14 }}>Loading MedGuard AI…</div>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 
@@ -1895,9 +1998,9 @@ export default function App() {
       <style>{makeCSS(dark)}</style>
       {page==="home" && <HomePage setPage={setPage} dark={dark} setDark={setDark}/>}
       {page==="auth" && <AuthPage onLogin={handleLogin} dark={dark} setDark={setDark} onBack={()=>setPage("home")}/>}
-      {page==="patient" && user && <PatientPortal dark={dark} setDark={setDark} lang={lang} setLang={setLang} user={user} setUser={handleSetUser} onLogout={handleLogout}/>}
+      {page==="patient" && user && <PatientPortal dark={dark} SetDark={setDark} lang={lang} SetLang={setLang} user={user} SetUser={handleSetUser} onLogout={handleLogout}/>}
       {page==="guardian" && user && <GuardianPortal dark={dark} setDark={setDark} lang={lang} setLang={setLang} user={user} setUser={handleSetUser} onLogout={handleLogout}/>}
-      {(page==="patient"||page==="guardian") && !user && handleLogout()}
     </ErrorBoundary>
   );
 }
+

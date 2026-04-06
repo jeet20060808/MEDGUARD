@@ -9,5 +9,11 @@ export default defineConfig({
         strictMode: false,
       },
     },
+    jsxRuntime: 'automatic',
   })],
+  esbuild: {
+    target: 'es2020',
+    jsxFactory: 'React.createElement',
+    jsxFragment: 'React.Fragment',
+  },
 })
