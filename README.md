@@ -8,7 +8,7 @@ MedGuard AI is a React + Vite healthcare companion app that helps patients manag
 - AI Advisor chat for personalized medication and wellness guidance
 - Health insights and analytics overview
 - Local data persistence for users, medications, and health records
-- Responsive UI built with React and Vite
+- Responsive UI built with React and Vite.
 
 ## Tech Stack
 
